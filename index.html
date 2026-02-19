@@ -424,14 +424,43 @@ function updateUserCount() {
 function handleApply(e) {
   e.preventDefault();
 
-  const name = document.getElementById('name').value.trim();
-  const x = document.getElementById('x-username').value.trim();
-  const skills = document.getElementById('skills').value.trim();
+  const name       = document.getElementById('name').value.trim();
+  const x          = document.getElementById('x-username').value.trim();
+  const skills     = document.getElementById('skills').value.trim();
   const motivation = document.getElementById('motivation').value.trim();
 
   if (!name || !x || !skills || !motivation) {
     alert('Please fill in all fields');
     return;
+  }
+
+  const subject = encodeURIComponent("Pass It Forward Application - " + name);
+  const body = encodeURIComponent(
+`New application:
+
+Name:       ${name}
+X:          ${x}
+Skills:     ${skills}
+
+Motivation:
+${motivation}
+
+Please review and respond if interested.`
+  );
+
+  window.location.href = `mailto:abdrade_b2021@hotmail.com?subject=${subject}&body=${body}`;
+
+  document.getElementById('apply-form').style.display = 'none';
+  document.getElementById('apply-success').style.display = 'block';
+
+  updateUserCount();
+
+  setTimeout(() => {
+    document.getElementById('apply-form').reset();
+  }, 10000);
+}
+
+document.getElementById('user-count').textContent = userCount;
   }
 
   document.getElementById('submitted-name').textContent = name;
