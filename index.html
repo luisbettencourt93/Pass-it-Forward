@@ -372,13 +372,16 @@
     </p>
 
     <form id="apply-form" action="https://formspree.io/f/YOUR_ID" method="POST" onsubmit="handleApply(event)">
-      <input type="text" id="name" placeholder="Full Name" required/>
-      <input type="text" id="x-username" placeholder="X Username (@handle)" required/>
-      <textarea id="skills" placeholder="What do you do? What are your strongest skills or experience?" required></textarea>
-      <textarea id="motivation" placeholder="Why do you want to join Pass It Forward? What do you hope to contribute and gain?" required></textarea>
+  <input type="hidden" name="_subject" value="Pass It Forward Application" />
+  <input type="hidden" name="_replyto" value="abdrade_b2021@hotmail.com" />
+  <input type="hidden" name="_next" value="https://luisbettenCOURT93.github.io/Pass-it-Forward/" />
 
-      <button type="submit" class="btn">Submit Application</button>
-    </form>
+  <input type="text" id="name" placeholder="Full Name" required />
+  <input type="text" id="x-username" placeholder="X Handle (@MrGentleman93)" required />
+  <textarea id="skills" placeholder="Your skills/experience" required></textarea>
+  <textarea id="motivation" placeholder="Why do you want to join?" required></textarea>
+  <button type="submit">Apply</button>
+</form>
 
     <div id="apply-success">
       <h3 style="margin-bottom:1rem; color:#065f46;">Application received — thank you.</h3>
