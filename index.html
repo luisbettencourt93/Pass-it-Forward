@@ -371,17 +371,30 @@
       If accepted, you become part of the founding community.
     </p>
 
-  <form id="apply-form" action="https://formspree.io/f/xvzbboey" method="POST" onsubmit="handleApply(event)">
-  <input type="hidden" name="_subject" value="Pass It Forward Application" />
-  <input type="hidden" name="_replyto" value="abdrade_b2021@hotmail.com" />
-  <input type="hidden" name="_next" value="https://luisbettenCOURT93.github.io/Pass-it-Forward/" />
+<form id="apply-form" action="https://formspree.io/f/xvzbboey" method="POST">
 
-  <input type="text" id="name" placeholder="Full Name" required
-  <input type="text" id="name" placeholder="Full Name" required />
-  <input type="text" id="x-username" placeholder="X Handle (@MrGentleman93)" required />
-  <textarea id="skills" placeholder="Your skills/experience" required></textarea>
-  <textarea id="motivation" placeholder="Why do you want to join?" required></textarea>
-  <button type="submit">Apply</button>
+  <input type="hidden" name="_subject" value="Pass It Forward Application" />
+
+  <input type="text"
+         name="name"
+         placeholder="Full Name"
+         required />
+
+  <input type="text"
+         name="x_username"
+         placeholder="X Handle (@MrGentleman93)"
+         required />
+
+  <textarea name="skills"
+            placeholder="Your skills/experience"
+            required></textarea>
+
+  <textarea name="motivation"
+            placeholder="Why do you want to join?"
+            required></textarea>
+
+  <button type="submit" class="btn">Apply</button>
+
 </form>
 
     <div id="apply-success">
@@ -425,18 +438,7 @@ function updateUserCount() {
   document.getElementById('user-count').textContent = userCount;
 }
 
-function handleApply(e) {
-  e.preventDefault();
 
-  const name       = document.getElementById('name').value.trim();
-  const x          = document.getElementById('x-username').value.trim();
-  const skills     = document.getElementById('skills').value.trim();
-  const motivation = document.getElementById('motivation').value.trim();
-
-  if (!name || !x || !skills || !motivation) {
-    alert('Please fill in all fields');
-    return;
-  }
 
   const subject = encodeURIComponent("Pass It Forward Application - " + name);
   const body = encodeURIComponent(
