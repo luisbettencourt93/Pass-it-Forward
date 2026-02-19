@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pass It Forward — Opportunity Infrastructure</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --primary: #10b981;
+      --primary-dark: #059669;
+      --dark: #0f172a;
+      --gray: #64748b;
+      --light: #f8fafc;
+      --border: #e2e8f0;
+      --card: #ffffff;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--light);
+      color: var(--dark);
+      line-height: 1.7;
+    }
+
+    header {
+      background: var(--dark);
+      color: white;
+      padding: 1.25rem 5%;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    }
+
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.55rem;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+    }
+
+    main {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      padding: 10rem 5% 8rem;
+      text-align: center;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: white;
+    }
+
+    .hero h1 {
+      font-size: 3.8rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      letter-spacing: -1px;
+      line-height: 1.05;
+    }
+
+    .hero .lead {
+      font-size: 1.38rem;
+      max-width: 760px;
+      margin: 0 auto 2.5rem;
+      color: #cbd5e1;
+      font-weight: 300;
+    }
+
+    .brand-keywords {
+      font-size: 1.18rem;
+      font-weight: 500;
+      margin: 2.5rem 0 4rem;
+      color: #94a3b8;
+    }
+
+    .brand-keywords strong {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .section {
+      padding: 8rem 5% 6rem;
+    }
+
+    .section h2 {
+      font-size: 2.9rem;
+      font-weight: 800;
+      margin-bottom: 1.8rem;
+      text-align: center;
+    }
+
+    .section .lead {
+      font-size: 1.35rem;
+      color: var(--gray);
+      max-width: 780px;
+      margin: 0 auto 3rem;
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    .audience-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      margin: 4rem 0;
+    }
+
+    .audience-card {
+      background: white;
+      border-radius: 16px;
+      padding: 2.2rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.07);
+      text-align: center;
+    }
+
+    .audience-card h3 {
+      font-size: 1.45rem;
+      margin-bottom: 1rem;
+      color: var(--primary-dark);
+    }
+
+    .vision-card {
+      background: white;
+      border-radius: 20px;
+      padding: 3.5rem 2.8rem;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.09);
+      max-width: 900px;
+      margin: 3rem auto;
+      text-align: center;
+    }
+
+    .core-vision-card {
+      background: #ecfdf5;
+      border-radius: 20px;
+      padding: 3.5rem 2.8rem;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.08);
+      max-width: 900px;
+      margin: 4rem auto;
+      text-align: center;
+    }
+
+    .core-vision-card h3 {
+      font-size: 2.2rem;
+      color: #065f46;
+      margin-bottom: 2rem;
+    }
+
+    .core-vision-card ul {
+      list-style: none;
+      padding: 0;
+      font-size: 1.25rem;
+      color: #065f46;
+      line-height: 2.2;
+      font-weight: 500;
+    }
+
+    .apply-card {
+      background: white;
+      border-radius: 20px;
+      padding: 3.5rem 2.8rem;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.09);
+      max-width: 780px;
+      margin: 5rem auto;
+      text-align: center;
+    }
+
+    .apply-card h2 {
+      font-size: 2.4rem;
+      margin-bottom: 2rem;
+      color: var(--primary-dark);
+    }
+
+    .apply-form {
+      display: grid;
+      gap: 1.4rem;
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 1rem 1.3rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 1.05rem;
+    }
+
+    textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+
+    .btn {
+      padding: 1.1rem 2.4rem;
+      font-size: 1.08rem;
+      font-weight: 600;
+      border-radius: 999px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+
+    .btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    #apply-success {
+      display: none;
+      margin-top: 2.5rem;
+      padding: 1.8rem;
+      background: #ecfdf5;
+      border-radius: 12px;
+      color: #065f46;
+      font-weight: 500;
+      text-align: left;
+      white-space: pre-wrap;
+    }
+
+    #user-count {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin: 1rem 0;
+    }
+
+    footer {
+      background: var(--dark);
+      color: #cbd5e1;
+      padding: 5rem 5% 3rem;
+      text-align: center;
+      font-size: 0.95rem;
+    }
+
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2.9rem; }
+      .section h2 { font-size: 2.4rem; }
+      .audience-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">Pass It Forward</div>
+  </div>
+</header>
+
+<section class="hero">
+  <h1>Pass It Forward</h1>
+
+  <p class="lead">
+    A community-driven platform built for <strong>long-term vision</strong>.<br>
+    Where serious people create <strong>real opportunities</strong> through <strong>self-made growth</strong> — and <strong>pass it forward</strong>.
+  </p>
+
+  <div class="brand-keywords">
+    <strong>Self-made growth</strong> • <strong>Real opportunities</strong> • <strong>Community-driven</strong> • <strong>Long-term vision</strong> • <strong>Pass it forward</strong>
+  </div>
+
+  <div style="margin:3rem 0; font-size:1.3rem; color:#94a3b8;">
+    Current community size: <span id="user-count">0</span> members
+  </div>
+
+  <div class="cta-group">
+    <button class="btn" onclick="document.getElementById('apply-card').scrollIntoView({behavior:'smooth'})">
+      Apply for Access
+    </button>
+  </div>
+</section>
+
+<section class="section">
+  <h2>What Pass It Forward Is</h2>
+  <p class="lead">
+    Pass It Forward is the early-stage foundation of a <strong>global opportunity hub</strong>.<br>
+    A place where builders, makers, learners and entrepreneurs connect, trade value, acquire skills, and grow real businesses — together.
+  </p>
+
+  <div class="audience-grid">
+    <div class="audience-card">
+      <h3>Who it’s for</h3>
+      <p>
+        People who want <strong>self-made growth</strong>.<br>
+        People looking for <strong>real opportunities</strong>.<br>
+        People who believe in being <strong>community-driven</strong>.<br>
+        People committed to a <strong>long-term vision</strong>.<br>
+        People who want to <strong>pass it forward</strong>.
+      </p>
+    </div>
+
+    <div class="audience-card">
+      <h3>Why you should care</h3>
+      <p>
+        Because the next decade will belong to communities that combine trust, commerce, knowledge, and mutual growth.<br><br>
+        Pass It Forward is being built to become one of those rare places — a real ecosystem where ordinary people can create <strong>extraordinary long-term value</strong>.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="vision">
+  <h2>Final Goal</h2>
+  <p class="lead">
+    Create a scalable platform that looks like the start of a global opportunity hub, combining:
+  </p>
+
+  <div style="background:#ecfdf5; border-radius:20px; padding:3.5rem 2.5rem; text-align:center; max-width:900px; margin:3rem auto;">
+    <ul style="list-style:none; padding:0; margin:2rem 0; font-size:1.28rem; color:#065f46; font-weight:500; line-height:2.2;">
+      <li>• Community</li>
+      <li>• Marketplace</li>
+      <li>• Learning</li>
+      <li>• Business growth</li>
+    </ul>
+
+    <p style="font-size:1.22rem; color:#475569; line-height:1.8;">
+      We are not building another social app.<br>
+      We are building serious infrastructure for people who want to create <strong>long-term, sustainable value</strong> — and <strong>pass it forward</strong>.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <h2>OUR CORE VISION — PASS IT FORWARD</h2>
+  <p class="lead">
+    You are building a real long-term business ecosystem, not just an X account.
+  </p>
+
+  <div style="background:#ecfdf5; border-radius:20px; padding:3rem; max-width:900px; margin:3rem auto; text-align:center;">
+    <h3 style="font-size:1.9rem; margin-bottom:2rem; color:#065f46;">Main mission:</h3>
+    <ul style="list-style:none; padding:0; font-size:1.28rem; color:#065f46; font-weight:500; line-height:2.2;">
+      <li>• Help people find opportunities</li>
+      <li>• Help people create income</li>
+      <li>• Help people grow independently</li>
+      <li>• Build a strong community that supports each other</li>
+    </ul>
+
+    <p style="margin-top:2.5rem; font-size:1.4rem; font-weight:600; color:#065f46;">
+      Core principle: <strong>➡️ Pass it forward</strong>
+    </p>
+  </div>
+</section>
+
+<section class="section" id="apply-card">
+  <div class="apply-card">
+    <h2>Apply for Access</h2>
+    <p style="margin-bottom:2.5rem; color:#475569; font-size:1.15rem;">
+      We are intentionally small and selective in 2026.<br>
+      If accepted, you become part of the founding community.
+    </p>
+
+    <form id="apply-form" class="apply-form" onsubmit="handleApply(event)">
+      <input type="text" id="name" placeholder="Full Name" required/>
+      <input type="text" id="x-username" placeholder="X Username (@handle)" required/>
+      <textarea id="skills" placeholder="What do you do? What are your strongest skills or experience?" required></textarea>
+      <textarea id="motivation" placeholder="Why do you want to join Pass It Forward? What do you hope to contribute and gain?" required></textarea>
+
+      <button type="submit" class="btn">Submit Application</button>
+    </form>
+
+    <div id="apply-success">
+      <h3 style="margin-bottom:1rem; color:#065f46;">Application received — thank you.</h3>
+      <p style="margin-bottom:1.5rem;">We manually review every application.<br>We will reach out via X DM if there is a fit.</p>
+
+      <div style="background:#f0fdf4; padding:1.5rem; border-radius:12px; margin-top:1.5rem; text-align:left; font-family:monospace; white-space:pre-wrap; color:#064e3b;">
+        <strong>New application received:</strong><br><br>
+        Name: <span id="submitted-name"></span><br>
+        X: <span id="submitted-x"></span><br>
+        Skills: <span id="submitted-skills"></span><br>
+        Motivation:<br><span id="submitted-motivation"></span>
+      </div>
+
+      <p style="margin-top:2rem; font-size:0.95rem; color:#475569;">
+        Copy the block above and email it to yourself (or forward it) — we don’t store or send emails automatically.
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Pass It Forward — Building serious opportunity infrastructure</p>
+  <p style="margin-top:1.8rem; font-size:0.95rem;">
+    Self-made growth • Real opportunities • Community-driven • Long-term vision • Pass it forward
+  </p>
+  <p style="margin-top:2.5rem; font-size:0.9rem; color:#94a3b8;">
+    Built by <a href="https://x.com/yourhandle" target="_blank">@yourhandle</a> • 
+    <a href="https://yourwebsite.com" target="_blank">yourwebsite.com</a>
+  </p>
+</footer>
+
+<script>
+let userCount = parseInt(localStorage.getItem('pf_user_count') || '0');
+
+function updateUserCount() {
+  userCount++;
+  localStorage.setItem('pf_user_count', userCount);
+  document.getElementById('user-count').textContent = userCount;
+}
+
+function handleApply(e) {
+  e.preventDefault();
+
+  const name = document.getElementById('name').value.trim();
+  const x = document.getElementById('x-username').value.trim();
+  const skills = document.getElementById('skills').value.trim();
+  const motivation = document.getElementById('motivation').value.trim();
+
+  if (!name || !x || !skills || !motivation) {
+    alert('Please fill in all fields');
+    return;
+  }
+
+  document.getElementById('submitted-name').textContent = name;
+  document.getElementById('submitted-x').textContent = x;
+  document.getElementById('submitted-skills').textContent = skills;
+  document.getElementById('submitted-motivation').textContent = motivation;
+
+  document.getElementById('apply-form').style.display = 'none';
+  document.getElementById('apply-success').style.display = 'block';
+
+  updateUserCount();
+
+  setTimeout(() => {
+    document.getElementById('apply-form').reset();
+  }, 10000);
+}
+
+document.getElementById('user-count').textContent = userCount;
+</script>
+
+</body>
+</html>
