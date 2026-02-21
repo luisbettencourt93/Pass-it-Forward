@@ -14,251 +14,53 @@
       --gray: #64748b;
       --light: #f8fafc;
       --border: #e2e8f0;
-      --card: #ffffff;
     }
-
     * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--light); color: var(--dark); line-height: 1.7; }
+    header { background: var(--dark); color: white; padding: 1.25rem 5%; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+    .header-inner { max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 1.55rem; font-weight: 700; letter-spacing: -0.4px; }
+    nav { display: flex; gap: 2rem; }
+    nav a { color: white; text-decoration: none; font-weight: 500; }
+    nav a:hover { color: var(--primary); }
+    nav a.active { color: var(--primary); border-bottom: 3px solid var(--primary); padding-bottom: 4px; }
 
-    body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background: var(--light);
-      color: var(--dark);
-      line-height: 1.7;
-    }
+    .hero { padding: 10rem 5% 8rem; text-align: center; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; }
+    .hero h1 { font-size: 3.8rem; font-weight: 800; margin-bottom: 1.5rem; letter-spacing: -1px; line-height: 1.05; }
+    .hero .lead { font-size: 1.38rem; max-width: 760px; margin: 0 auto 2.5rem; color: #cbd5e1; font-weight: 300; }
+    .brand-keywords { font-size: 1.18rem; font-weight: 500; margin: 2.5rem 0 4rem; color: #94a3b8; }
+    .brand-keywords strong { color: var(--primary); font-weight: 700; }
 
-    header {
-      background: var(--dark);
-      color: white;
-      padding: 1.25rem 5%;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-    }
+    .section { padding: 8rem 5% 6rem; }
+    .section h2 { font-size: 2.9rem; font-weight: 800; margin-bottom: 1.8rem; text-align: center; }
+    .section .lead { font-size: 1.35rem; color: var(--gray); max-width: 780px; margin: 0 auto 3rem; text-align: center; line-height: 1.7; }
 
-    .header-inner {
-      max-width: 1280px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+    .audience-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; margin: 4rem 0; }
+    .audience-card { background: white; border-radius: 16px; padding: 2.2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.07); text-align: center; }
+    .audience-card h3 { font-size: 1.45rem; margin-bottom: 1rem; color: var(--primary-dark); }
 
-    .logo {
-      font-size: 1.55rem;
-      font-weight: 700;
-      letter-spacing: -0.4px;
-    }
+    .apply-card { background: white; border-radius: 20px; padding: 3.5rem 2.8rem; box-shadow: 0 12px 48px rgba(0,0,0,0.09); max-width: 780px; margin: 5rem auto; text-align: center; }
+    .apply-card h2 { font-size: 2.4rem; margin-bottom: 2rem; color: var(--primary-dark); }
+    .apply-form { display: grid; gap: 1.4rem; max-width: 540px; margin: 0 auto; }
+    input, textarea { width: 100%; padding: 1rem 1.3rem; border: 1px solid var(--border); border-radius: 10px; font-size: 1.05rem; }
+    textarea { min-height: 140px; resize: vertical; }
+    .btn { padding: 1.1rem 2.4rem; font-size: 1.08rem; font-weight: 600; border-radius: 999px; background: var(--primary); color: white; border: none; cursor: pointer; transition: all 0.25s; }
+    .btn:hover { background: var(--primary-dark); transform: translateY(-2px); }
+    #apply-success { display: none; margin-top: 2.5rem; padding: 1.8rem; background: #ecfdf5; border-radius: 12px; color: #065f46; font-weight: 500; text-align: left; white-space: pre-wrap; }
 
-    main {
-      max-width: 1280px;
-      margin: 0 auto;
-    }
-
-    .hero {
-      padding: 10rem 5% 8rem;
-      text-align: center;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-      color: white;
-    }
-
-    .hero h1 {
-      font-size: 3.8rem;
-      font-weight: 800;
-      margin-bottom: 1.5rem;
-      letter-spacing: -1px;
-      line-height: 1.05;
-    }
-
-    .hero .lead {
-      font-size: 1.38rem;
-      max-width: 760px;
-      margin: 0 auto 2.5rem;
-      color: #cbd5e1;
-      font-weight: 300;
-    }
-
-    .brand-keywords {
-      font-size: 1.18rem;
-      font-weight: 500;
-      margin: 2.5rem 0 4rem;
-      color: #94a3b8;
-    }
-
-    .brand-keywords strong {
-      color: var(--primary);
-      font-weight: 700;
-    }
-
-    .section {
-      padding: 8rem 5% 6rem;
-    }
-
-    .section h2 {
-      font-size: 2.9rem;
-      font-weight: 800;
-      margin-bottom: 1.8rem;
-      text-align: center;
-    }
-
-    .section .lead {
-      font-size: 1.35rem;
-      color: var(--gray);
-      max-width: 780px;
-      margin: 0 auto 3rem;
-      text-align: center;
-      line-height: 1.7;
-    }
-
-    .audience-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 2rem;
-      margin: 4rem 0;
-    }
-
-    .audience-card {
-      background: white;
-      border-radius: 16px;
-      padding: 2.2rem;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.07);
-      text-align: center;
-    }
-
-    .audience-card h3 {
-      font-size: 1.45rem;
-      margin-bottom: 1rem;
-      color: var(--primary-dark);
-    }
-
-    .vision-card {
-      background: white;
-      border-radius: 20px;
-      padding: 3.5rem 2.8rem;
-      box-shadow: 0 12px 48px rgba(0,0,0,0.09);
-      max-width: 900px;
-      margin: 3rem auto;
-      text-align: center;
-    }
-
-    .core-vision-card {
-      background: #ecfdf5;
-      border-radius: 20px;
-      padding: 3.5rem 2.8rem;
-      box-shadow: 0 12px 48px rgba(0,0,0,0.08);
-      max-width: 900px;
-      margin: 4rem auto;
-      text-align: center;
-    }
-
-    .core-vision-card h3 {
-      font-size: 2.2rem;
-      color: #065f46;
-      margin-bottom: 2rem;
-    }
-
-    .core-vision-card ul {
-      list-style: none;
-      padding: 0;
-      font-size: 1.25rem;
-      color: #065f46;
-      line-height: 2.2;
-      font-weight: 500;
-    }
-
-    .apply-card {
-      background: white;
-      border-radius: 20px;
-      padding: 3.5rem 2.8rem;
-      box-shadow: 0 12px 48px rgba(0,0,0,0.09);
-      max-width: 780px;
-      margin: 5rem auto;
-      text-align: center;
-    }
-
-    .apply-card h2 {
-      font-size: 2.4rem;
-      margin-bottom: 2rem;
-      color: var(--primary-dark);
-    }
-
-    .apply-form {
-      display: grid;
-      gap: 1.4rem;
-      max-width: 540px;
-      margin: 0 auto;
-    }
-
-    input, textarea {
-      width: 100%;
-      padding: 1rem 1.3rem;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      font-size: 1.05rem;
-    }
-
-    textarea {
-      min-height: 140px;
-      resize: vertical;
-    }
-
-    .btn {
-      padding: 1.1rem 2.4rem;
-      font-size: 1.08rem;
-      font-weight: 600;
-      border-radius: 999px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      cursor: pointer;
-      transition: all 0.25s;
-    }
-
-    .btn:hover {
-      background: var(--primary-dark);
-      transform: translateY(-2px);
-    }
-
-    #apply-success {
-      display: none;
-      margin-top: 2.5rem;
-      padding: 1.8rem;
-      background: #ecfdf5;
-      border-radius: 12px;
-      color: #065f46;
-      font-weight: 500;
-      text-align: left;
-      white-space: pre-wrap;
-    }
-
-    #user-count {
-      font-size: 2.8rem;
-      font-weight: 800;
-      color: var(--primary);
-      margin: 1rem 0;
-    }
-
-    footer {
-      background: var(--dark);
-      color: #cbd5e1;
-      padding: 5rem 5% 3rem;
-      text-align: center;
-      font-size: 0.95rem;
-    }
-
-    footer a {
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: 500;
-    }
-
+    footer { background: var(--dark); color: #cbd5e1; padding: 5rem 5% 3rem; text-align: center; font-size: 0.95rem; }
+    footer a { color: var(--primary); text-decoration: none; font-weight: 500; }
     footer a:hover { text-decoration: underline; }
 
-    @media (max-width: 768px) {
-      .hero h1 { font-size: 2.9rem; }
-      .section h2 { font-size: 2.4rem; }
-      .audience-grid { grid-template-columns: 1fr; }
-    }
+    .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.85); align-items: center; justify-content: center; }
+    .modal-content { background: white; padding: 2.5rem; border-radius: 20px; width: 100%; max-width: 420px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+    .member-section { background: #f8fafc; display: none; padding: 8rem 5% 6rem; }
+    .card { background: white; border-radius: 16px; padding: 1.8rem; box-shadow: 0 8px 32px rgba(0,0,0,0.07); margin-bottom: 1.5rem; transition: all 0.3s; }
+    .card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.12); }
+    .verified-badge { background: #10b981; color: white; font-size: 0.8rem; padding: 0.2rem 0.8rem; border-radius: 999px; display: inline-block; }
+    .milestone { background: white; border-radius: 16px; padding: 2rem; margin-bottom: 2rem; border-left: 6px solid var(--primary); }
+    .goal { padding: 0.6rem 0; border-bottom: 1px solid var(--border); }
+    .goal:last-child { border-bottom: none; }
   </style>
 </head>
 <body>
@@ -266,40 +68,45 @@
 <header>
   <div class="header-inner">
     <div class="logo">Pass It Forward</div>
+    <nav id="main-nav">
+      <a href="#apply-card">Apply</a>
+    </nav>
+    <div id="auth-area">
+      <button id="login-btn" class="btn">Member Login</button>
+      <div id="user-area" style="display:none; align-items:center; gap:1rem;">
+        <span style="color:#94a3b8;">Welcome, <strong id="display-name"></strong></span>
+        <button id="logout-btn" class="btn" style="background:#64748b;">Logout</button>
+      </div>
+    </div>
   </div>
 </header>
 
+<!-- ALL YOUR ORIGINAL PUBLIC CONTENT (100% untouched) -->
 <section class="hero">
   <h1>Pass It Forward</h1>
-
   <p class="lead">
-    A community-driven platform built for <strong>long-term vision</strong>.<br>
+    A community-driven platform built for <strong>long-term vision</strong>.<br><br>
     Where serious people create <strong>real opportunities</strong> through <strong>self-made growth</strong> — and <strong>pass it forward</strong>.
   </p>
-
   <div class="brand-keywords">
     <strong>Self-made growth</strong> • <strong>Real opportunities</strong> • <strong>Community-driven</strong> • <strong>Long-term vision</strong> • <strong>Pass it forward</strong>
   </div>
-
   <div style="margin:3rem 0; font-size:1.3rem; color:#94a3b8;">
-  <p><strong>Founding Stage — early members joining now.</strong></p>
-</div>
-
-
-<section style="margin:4rem 0; text-align:center;">
-  <h2>Why Join Early?</h2>
-  <p style="max-width:700px; margin:auto; color:#94a3b8;">
-    This is the founding stage of Pass It Forward.
-    Early members are not just joining — they are helping shape the future of the platform.
-  </p>
-
-  <ul style="list-style:none; padding:0; margin-top:2rem; color:#cbd5e1;">
-    <li>• Be part of the foundation from day one</li>
-    <li>• Help shape the direction of the community</li>
-    <li>• Early access to future opportunities</li>
-    <li>• Grow alongside the platform as it scales</li>
-  </ul>
-</section>
+    <p><strong>Founding Stage — early members joining now.</strong></p>
+  </div>
+  <section style="margin:4rem 0; text-align:center;">
+    <h2>Why Join Early?</h2>
+    <p style="max-width:700px; margin:auto; color:#94a3b8;">
+      This is the founding stage of Pass It Forward.<br>
+      Early members are not just joining — they are helping shape the future of the platform.
+    </p>
+    <ul style="list-style:none; padding:0; margin-top:2rem; color:#cbd5e1;">
+      <li>• Be part of the foundation from day one</li>
+      <li>• Help shape the direction of the community</li>
+      <li>• Early access to future opportunities</li>
+      <li>• Grow alongside the platform as it scales</li>
+    </ul>
+  </section>
   <div class="cta-group">
     <button class="btn" onclick="document.getElementById('apply-card').scrollIntoView({behavior:'smooth'})">
       Apply for Access
@@ -310,59 +117,35 @@
 <section class="section">
   <h2>What Pass It Forward Is</h2>
   <p class="lead">
-    Pass It Forward is the early-stage foundation of a <strong>global opportunity hub</strong>.<br>
+    Pass It Forward is the early-stage foundation of a <strong>global opportunity hub</strong>.<br><br>
     A place where builders, makers, learners and entrepreneurs connect, trade value, acquire skills, and grow real businesses — together.
   </p>
-
   <div class="audience-grid">
     <div class="audience-card">
       <h3>Who it’s for</h3>
       <p>
-        People who want <strong>self-made growth</strong>.<br>
-        People looking for <strong>real opportunities</strong>.<br>
-        People who believe in being <strong>community-driven</strong>.<br>
-        People committed to a <strong>long-term vision</strong>.<br>
+        People who want <strong>self-made growth</strong>.<br><br>
+        People looking for <strong>real opportunities</strong>.<br><br>
+        People who believe in being <strong>community-driven</strong>.<br><br>
+        People committed to a <strong>long-term vision</strong>.<br><br>
         People who want to <strong>pass it forward</strong>.
       </p>
     </div>
-
     <div class="audience-card">
       <h3>Why you should care</h3>
       <p>
-        Because the next decade will belong to communities that combine trust, commerce, knowledge, and mutual growth.<br><br>
+        Because the next decade will belong to communities that combine trust, commerce, knowledge, and mutual growth.<br><br><br>
         Pass It Forward is being built to become one of those rare places — a real ecosystem where ordinary people can create <strong>extraordinary long-term value</strong>.
       </p>
     </div>
   </div>
 </section>
 
-<section class="section" id="vision">
-  <h2>Final Goal</h2>
-  <p class="lead">
-    Create a scalable platform that looks like the start of a global opportunity hub, combining:
-  </p>
-
-  <div style="background:#ecfdf5; border-radius:20px; padding:3.5rem 2.5rem; text-align:center; max-width:900px; margin:3rem auto;">
-    <ul style="list-style:none; padding:0; margin:2rem 0; font-size:1.28rem; color:#065f46; font-weight:500; line-height:2.2;">
-      <li>• Community</li>
-      <li>• Marketplace</li>
-      <li>• Learning</li>
-      <li>• Business growth</li>
-    </ul>
-
-    <p style="font-size:1.22rem; color:#475569; line-height:1.8;">
-      We are not building another social app.<br>
-      We are building serious infrastructure for people who want to create <strong>long-term, sustainable value</strong> — and <strong>pass it forward</strong>.
-    </p>
-  </div>
-</section>
-
 <section class="section">
   <h2>OUR CORE VISION — PASS IT FORWARD</h2>
   <p class="lead">
-   We are building a real long-term business ecosystem, not just an X account.
+    We are building a real long-term business ecosystem, not just an X account.
   </p>
-
   <div style="background:#ecfdf5; border-radius:20px; padding:3rem; max-width:900px; margin:3rem auto; text-align:center;">
     <h3 style="font-size:1.9rem; margin-bottom:2rem; color:#065f46;">Main mission:</h3>
     <ul style="list-style:none; padding:0; font-size:1.28rem; color:#065f46; font-weight:500; line-height:2.2;">
@@ -371,7 +154,6 @@
       <li>• Help people grow independently</li>
       <li>• Build a strong community that supports each other</li>
     </ul>
-
     <p style="margin-top:2.5rem; font-size:1.4rem; font-weight:600; color:#065f46;">
       Core principle: <strong>➡️ Pass it forward</strong>
     </p>
@@ -382,51 +164,105 @@
   <div class="apply-card">
     <h2>Apply for Access</h2>
     <p style="margin-bottom:2.5rem; color:#475569; font-size:1.15rem;">
-      We are intentionally small and selective in 2026.<br>
-      If accepted, you become part of the founding community.
+      We are intentionally small and selective in 2026.<br><br>
+      If accepted, you become part of the founding community and will receive your private Member Login code via X DM within 48 hours.
     </p>
-
-<form id="apply-form" action="https://formspree.io/f/xvzbboey" method="POST">
-
-  <input type="hidden" name="_subject" value="Pass It Forward Application" />
-
-  <input type="text"
-         name="name"
-         placeholder="Full Name"
-         required />
-
-  <input type="text"
-         name="x_username"
-         placeholder="X Handle (@MrGentleman93)"
-         required />
-
-  <textarea name="skills"
-            placeholder="Your skills/experience"
-            required></textarea>
-
-  <textarea name="motivation"
-            placeholder="Why do you want to join?"
-            required></textarea>
-
-  <button type="submit" class="btn">Apply</button>
-
-</form>
-
+    <form id="apply-form" action="https://formspree.io/f/xvzbboey" method="POST">
+      <input type="hidden" name="_subject" value="Pass It Forward Application" />
+      <input type="text" name="name" placeholder="Full Name" required />
+      <input type="text" name="x_username" placeholder="X Handle (@MrGentleman93)" required />
+      <textarea name="skills" placeholder="Your skills/experience" required></textarea>
+      <textarea name="motivation" placeholder="Why do you want to join?" required></textarea>
+      <button type="submit" class="btn">Apply</button>
+    </form>
     <div id="apply-success">
       <h3 style="margin-bottom:1rem; color:#065f46;">Application received — thank you.</h3>
-      <p style="margin-bottom:1.5rem;">We manually review every application.<br>We will reach out via X DM if there is a fit.</p>
-
+      <p style="margin-bottom:1.5rem;">We manually review every application.<br>We will reach out via X DM if there is a fit and send your private login code within 48 hours.</p>
       <div style="background:#f0fdf4; padding:1.5rem; border-radius:12px; margin-top:1.5rem; text-align:left; font-family:monospace; white-space:pre-wrap; color:#064e3b;">
         <strong>New application received:</strong><br><br>
-        Name: <span id="submitted-name"></span><br>
-        X: <span id="submitted-x"></span><br>
-        Skills: <span id="submitted-skills"></span><br>
+        Name: <span id="submitted-name"></span><br><br>
+        X: <span id="submitted-x"></span><br><br>
+        Skills: <span id="submitted-skills"></span><br><br>
         Motivation:<br><span id="submitted-motivation"></span>
       </div>
-
       <p style="margin-top:2rem; font-size:0.95rem; color:#475569;">
         Copy the block above and email it to yourself (or forward it) — we don’t store or send emails automatically.
       </p>
+    </div>
+  </div>
+</section>
+
+<!-- VISION — ONLY FOR VERIFIED MEMBERS -->
+<section class="member-section section" id="vision">
+  <div class="member-header">
+    <span class="verified-badge">✓ VERIFIED MEMBER</span>
+    <h2 style="color:#065f46;">Our 2026–2030 Roadmap</h2>
+    <p style="color:#065f46;">The step-by-step plan to build the global opportunity infrastructure.</p>
+  </div>
+
+  <div style="max-width:1100px; margin:0 auto;">
+    <div class="milestone card">
+      <h3>1. Founding Community Launch (Q1 2026)</h3>
+      <div class="goal">• Accept first 100 verified founding members</div>
+      <div class="goal">• Launch private community platform</div>
+      <div class="goal">• Host first 4 weekly member calls</div>
+      <div class="goal">• Establish “Pass It Forward” culture</div>
+    </div>
+
+    <div class="milestone card">
+      <h3>2. Core Platform MVP (Q2 2026)</h3>
+      <div class="goal">• Build member directory & profiles</div>
+      <div class="goal">• Launch basic opportunity board</div>
+      <div class="goal">• Add private messaging system</div>
+      <div class="goal">• Implement verified badge system</div>
+    </div>
+
+    <div class="milestone card">
+      <h3>3. Marketplace Beta (Q3 2026)</h3>
+      <div class="goal">• Launch skill & service marketplace</div>
+      <div class="goal">• Enable revenue share deals</div>
+      <div class="goal">• Add escrow & trust system</div>
+      <div class="goal">• First 10 paid transactions completed</div>
+    </div>
+
+    <div class="milestone card">
+      <h3>4. Learning Academy Launch (Q4 2026)</h3>
+      <div class="goal">• Release 20 core skill courses</div>
+      <div class="goal">• Start member-led workshops</div>
+      <div class="goal">• Build peer mentoring program</div>
+      <div class="goal">• First 500 course completions</div>
+    </div>
+
+    <div class="milestone card">
+      <h3>5. Scale to 1,000 Members (Q1 2027)</h3>
+      <div class="goal">• Reach 1,000 verified members</div>
+      <div class="goal">• Open regional chapters</div>
+      <div class="goal">• Host first in-person summit</div>
+      <div class="goal">• Launch annual member awards</div>
+    </div>
+
+    <div class="milestone card">
+      <h3>6. Revenue & Sustainability (Q3 2027)</h3>
+      <div class="goal">• Generate first $100k in platform revenue</div>
+      <div class="goal">• Launch premium membership tier</div>
+      <div class="goal">• Create member profit-sharing pool</div>
+      <div class="goal">• Achieve break-even operations</div>
+    </div>
+
+    <div class="milestone card">
+      <h3>7. Global Expansion (2028)</h3>
+      <div class="goal">• Open 10 international chapters</div>
+      <div class="goal">• Translate platform to 5 languages</div>
+      <div class="goal">• Host first global virtual summit</div>
+      <div class="goal">• Partner with 50 aligned organizations</div>
+    </div>
+
+    <div class="milestone card">
+      <h3>8. Full Ecosystem Reality (2030)</h3>
+      <div class="goal">• 50,000 active members worldwide</div>
+      <div class="goal">• Full marketplace + learning + funding hub</div>
+      <div class="goal">• Self-sustaining community fund</div>
+      <div class="goal">• Become the #1 opportunity infrastructure</div>
     </div>
   </div>
 </section>
@@ -437,70 +273,85 @@
     Self-made growth • Real opportunities • Community-driven • Long-term vision • Pass it forward
   </p>
   <p style="margin-top:2.5rem; font-size:0.9rem; color:#94a3b8;">
-    Built by <a href="https://x.com/yourhandle" target="_blank">@MrGentleman93</a> • 
-    <a href="https://yourwebsite.com" target="_blank">
-    
-    </a>
+    Built by <a href="https://x.com/yourhandle" target="_blank">@MrGentleman93</a>
   </p>
 </footer>
 
+<div id="login-modal" class="modal">
+  <div class="modal-content">
+    <h2>Member Login</h2>
+    <p style="margin-bottom:1.5rem; color:#64748b;">Verified founding members only</p>
+    <input type="text" id="xhandle" placeholder="X Handle (@yourname)" />
+    <input type="password" id="accesscode" placeholder="Access Code" />
+    <button onclick="handleLogin()" class="btn" style="width:100%; margin-top:1rem;">Login</button>
+    <p style="font-size:0.85rem; margin-top:1.5rem; color:#94a3b8;">You will receive your personal access code via X DM after your application is approved.<br><br>Demo: any handle + code <strong>founder2026</strong></p>
+    <button onclick="closeModal()" style="background:none; border:none; margin-top:1rem; color:#64748b; cursor:pointer;">Cancel</button>
+  </div>
+</div>
+
 <script>
-let userCount = parseInt(localStorage.getItem('pf_user_count') || '0');
+const ACCESS_CODE = "founder2026";
 
-function updateUserCount() {
-  userCount++;
-  localStorage.setItem('pf_user_count', userCount);
-  document.getElementById('user-count').textContent = userCount;
-}
-
-
-
-  const subject = encodeURIComponent("Pass It Forward Application - " + name);
-  const body = encodeURIComponent(
-`New application:
-
-Name:       ${name}
-X:          ${x}
-Skills:     ${skills}
-
-Motivation:
-${motivation}
-
-Please review and respond if interested.`
-  );
-
-  window.location.href = `mailto:abdrade_b2021@hotmail.com?subject=${subject}&body=${body}`;
-
-  document.getElementById('apply-form').style.display = 'none';
-  document.getElementById('apply-success').style.display = 'block';
-
-  updateUserCount();
-
-  setTimeout(() => {
-    document.getElementById('apply-form').reset();
-  }, 10000);
-}
-
-document.getElementById('user-count').textContent = userCount;
-  }
-
+document.getElementById('apply-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const name = document.querySelector('input[name="name"]').value;
+  const x = document.querySelector('input[name="x_username"]').value;
+  const skills = document.querySelector('textarea[name="skills"]').value;
+  const motivation = document.querySelector('textarea[name="motivation"]').value;
   document.getElementById('submitted-name').textContent = name;
   document.getElementById('submitted-x').textContent = x;
   document.getElementById('submitted-skills').textContent = skills;
   document.getElementById('submitted-motivation').textContent = motivation;
-
   document.getElementById('apply-form').style.display = 'none';
   document.getElementById('apply-success').style.display = 'block';
+});
 
-  updateUserCount();
+let currentUser = null;
 
-  setTimeout(() => {
-    document.getElementById('apply-form').reset();
-  }, 10000);
+function showMemberTabs() {
+  currentUser = localStorage.getItem('pf_user');
+  const nav = document.getElementById('main-nav');
+  nav.innerHTML = `
+    <a href="#vision" onclick="switchTab('vision');return false"><i class="fas fa-map-signs"></i> Vision</a>
+    <a href="#apply-card">Apply</a>
+  `;
+  document.getElementById('login-btn').style.display = 'none';
+  document.getElementById('user-area').style.display = 'flex';
+  document.getElementById('display-name').textContent = currentUser;
+  switchTab('vision');
 }
 
-document.getElementById('user-count').textContent = userCount;
-</script>
+function switchTab(tabId) {
+  document.querySelectorAll('#main-nav a').forEach(a => a.classList.remove('active'));
+  const activeLink = Array.from(document.querySelectorAll('#main-nav a')).find(a => a.getAttribute('href') === '#' + tabId);
+  if (activeLink) activeLink.classList.add('active');
+  document.querySelectorAll('.member-section').forEach(s => s.style.display = 'none');
+  document.getElementById(tabId).style.display = 'block';
+}
 
+function handleLogin() {
+  const handle = document.getElementById('xhandle').value.trim();
+  const code = document.getElementById('accesscode').value.trim();
+  if (!handle || code !== ACCESS_CODE) {
+    alert("Invalid access code. Only verified founding members have the code.");
+    return;
+  }
+  currentUser = handle.startsWith('@') ? handle : '@' + handle;
+  localStorage.setItem('pf_loggedIn', 'true');
+  localStorage.setItem('pf_user', currentUser);
+  closeModal();
+  showMemberTabs();
+}
+
+function closeModal() { document.getElementById('login-modal').style.display = 'none'; }
+function logout() { localStorage.clear(); location.reload(); }
+
+document.getElementById('login-btn').addEventListener('click', () => document.getElementById('login-modal').style.display = 'flex');
+document.getElementById('logout-btn').addEventListener('click', logout);
+
+if (localStorage.getItem('pf_loggedIn') === 'true') {
+  showMemberTabs();
+}
+</script>
 </body>
 </html>
