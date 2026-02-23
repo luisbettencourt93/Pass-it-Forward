@@ -274,6 +274,20 @@
 <script>
 const ACCESS_CODE = "founder2026";
 
+document.getElementById('apply-form').addEventListener('submit', function(e) {
+  // NO preventDefault — mailto needs to open the email app
+  const name = document.querySelector('input[name="name"]').value;
+  const x = document.querySelector('input[name="x_username"]').value;
+  const skills = document.querySelector('textarea[name="skills"]').value;
+  const motivation = document.querySelector('textarea[name="motivation"]').value;
+  document.getElementById('submitted-name').textContent = name;
+  document.getElementById('submitted-x').textContent = x;
+  document.getElementById('submitted-skills').textContent = skills;
+  document.getElementById('submitted-motivation').textContent = motivation;
+  document.getElementById('apply-form').style.display = 'none';
+  document.getElementById('apply-success').style.display = 'block';
+});
+
 let currentUser = null;
 
 function showMemberTabs() {
