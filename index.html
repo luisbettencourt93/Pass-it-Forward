@@ -285,7 +285,7 @@
 const ACCESS_CODE = "founder2026";
 
 document.getElementById('apply-form').addEventListener('submit', function(e) {
-  e.preventDefault();
+  // NO preventDefault — so Formspree actually receives the data
   const name = document.querySelector('input[name="name"]').value;
   const x = document.querySelector('input[name="x_username"]').value;
   const skills = document.querySelector('textarea[name="skills"]').value;
