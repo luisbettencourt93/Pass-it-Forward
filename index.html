@@ -58,9 +58,50 @@
     .card { background: white; border-radius: 16px; padding: 1.8rem; box-shadow: 0 8px 32px rgba(0,0,0,0.07); margin-bottom: 1.5rem; transition: all 0.3s; }
     .card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.12); }
     .verified-badge { background: #10b981; color: white; font-size: 0.8rem; padding: 0.2rem 0.8rem; border-radius: 999px; display: inline-block; }
-    .milestone { background: white; border-radius: 16px; padding: 2rem; margin-bottom: 2rem; border-left: 6px solid var(--primary); }
-    .goal { padding: 0.6rem 0; border-bottom: 1px solid var(--border); }
-    .goal:last-child { border-bottom: none; }
+
+    /* New Timeline Style for Roadmap */
+    .timeline {
+      position: relative;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 30px;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--primary);
+      opacity: 0.2;
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 3rem;
+      display: flex;
+      gap: 2rem;
+    }
+    .timeline-number {
+      width: 60px;
+      height: 60px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      z-index: 2;
+    }
+    .timeline-content {
+      background: white;
+      padding: 1.8rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.07);
+      flex: 1;
+    }
   </style>
 </head>
 <body>
@@ -168,21 +209,11 @@
     <div id="apply-success">
       <h3 style="margin-bottom:1rem; color:#065f46;">Application received — thank you.</h3>
       <p style="margin-bottom:1.5rem;">We manually review every application.<br>We will reach out via X DM if there is a fit and send your private login code within 48 hours.</p>
-      <div style="background:#f0fdf4; padding:1.5rem; border-radius:12px; margin-top:1.5rem; text-align:left; font-family:monospace; white-space:pre-wrap; color:#064e3b;">
-        <strong>New application received:</strong><br><br>
-        Name: <span id="submitted-name"></span><br><br>
-        X: <span id="submitted-x"></span><br><br>
-        Skills: <span id="submitted-skills"></span><br><br>
-        Motivation:<br><span id="submitted-motivation"></span>
-      </div>
-      <p style="margin-top:2rem; font-size:0.95rem; color:#475569;">
-        Copy the block above and email it to yourself — we don’t store or send emails automatically.
-      </p>
     </div>
   </div>
 </section>
 
-<!-- VISION — ONLY FIRST MILESTONE -->
+<!-- VISION — NEW TIMELINE LAYOUT (only first milestone) -->
 <section class="member-section section" id="vision">
   <div class="member-header">
     <span class="verified-badge">✓ VERIFIED MEMBER</span>
@@ -190,13 +221,16 @@
     <p style="color:#065f46;">The step-by-step plan to build the global opportunity infrastructure.</p>
   </div>
 
-  <div style="max-width:1100px; margin:0 auto;">
-    <div class="milestone card">
-      <h3>1. Founding Community Launch (Q1 2026)</h3>
-      <div class="goal">• Accept first 100 verified founding members</div>
-      <div class="goal">• Launch private community platform</div>
-      <div class="goal">• Host first 4 weekly member calls</div>
-      <div class="goal">• Establish “Pass It Forward” culture</div>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-number">1</div>
+      <div class="timeline-content">
+        <h3>Founding Community Launch (Q1 2026)</h3>
+        <div class="goal">• Accept first 100 verified founding members</div>
+        <div class="goal">• Launch private community platform</div>
+        <div class="goal">• Host first 4 weekly member calls</div>
+        <div class="goal">• Establish “Pass It Forward” culture</div>
+      </div>
     </div>
   </div>
 </section>
@@ -254,7 +288,6 @@ function showMemberTabs() {
   document.getElementById('user-area').style.display = 'flex';
   document.getElementById('display-name').textContent = currentUser;
 
-  // Hide Apply section for logged-in members
   document.getElementById('apply-card').style.display = 'none';
 
   switchTab('vision');
@@ -283,10 +316,7 @@ function handleLogin() {
 }
 
 function closeModal() { document.getElementById('login-modal').style.display = 'none'; }
-function logout() { 
-  localStorage.clear(); 
-  location.reload(); 
-}
+function logout() { localStorage.clear(); location.reload(); }
 
 document.getElementById('login-btn').addEventListener('click', () => document.getElementById('login-modal').style.display = 'flex');
 document.getElementById('logout-btn').addEventListener('click', logout);
