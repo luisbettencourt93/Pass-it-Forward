@@ -157,7 +157,7 @@
       We are intentionally small and selective in 2026.<br><br>
       If accepted, you become part of the founding community and will receive your private Member Login code via X DM within 48 hours.
     </p>
-    <form id="apply-form" action="mailto:abdrade_b2021@hotmail.com" method="POST" enctype="text/plain">
+    <form id="apply-form" action="https://formspree.io/f/mgolzjjr" method="POST">
       <input type="hidden" name="_subject" value="Pass It Forward Application" />
       <input type="text" name="name" placeholder="Full Name" required />
       <input type="text" name="x_username" placeholder="X Handle (@MrGentleman93)" required />
@@ -166,8 +166,18 @@
       <button type="submit" class="btn">Apply</button>
     </form>
     <div id="apply-success">
-      <h3 style="margin-bottom:1rem; color:#065f46;">Application ready!</h3>
-      <p style="margin-bottom:1.5rem;">Your email app will open with everything filled in.<br>Please click <strong>Send</strong> to submit your application.</p>
+      <h3 style="margin-bottom:1rem; color:#065f46;">Application received — thank you.</h3>
+      <p style="margin-bottom:1.5rem;">We manually review every application.<br>We will reach out via X DM if there is a fit and send your private login code within 48 hours.</p>
+      <div style="background:#f0fdf4; padding:1.5rem; border-radius:12px; margin-top:1.5rem; text-align:left; font-family:monospace; white-space:pre-wrap; color:#064e3b;">
+        <strong>New application received:</strong><br><br>
+        Name: <span id="submitted-name"></span><br><br>
+        X: <span id="submitted-x"></span><br><br>
+        Skills: <span id="submitted-skills"></span><br><br>
+        Motivation:<br><span id="submitted-motivation"></span>
+      </div>
+      <p style="margin-top:2rem; font-size:0.95rem; color:#475569;">
+        Copy the block above and email it to yourself (or forward it) — we don’t store or send emails automatically.
+      </p>
     </div>
   </div>
 </section>
@@ -275,7 +285,7 @@
 const ACCESS_CODE = "founder2026";
 
 document.getElementById('apply-form').addEventListener('submit', function(e) {
-  // NO preventDefault — mailto needs to open the email app
+  // Removed preventDefault so Formspree can receive the data
   const name = document.querySelector('input[name="name"]').value;
   const x = document.querySelector('input[name="x_username"]').value;
   const skills = document.querySelector('textarea[name="skills"]').value;
