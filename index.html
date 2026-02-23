@@ -59,7 +59,7 @@
     .card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.12); }
     .verified-badge { background: #10b981; color: white; font-size: 0.8rem; padding: 0.2rem 0.8rem; border-radius: 999px; display: inline-block; }
 
-    /* New Roadmap Style - Inspired by your image */
+    /* Roadmap like your image */
     .roadmap {
       max-width: 900px;
       margin: 3rem auto;
@@ -122,4 +122,102 @@
     <div id="auth-area">
       <button id="login-btn" class="btn">Member Login</button>
       <div id="user-area" style="display:none; align-items:center; gap:1rem;">
-        <span style="color:#94a3b8;">Welcome, <strong
+        <span style="color:#94a3b8;">Welcome, <strong id="display-name"></strong></span>
+        <button id="logout-btn" class="btn" style="background:#64748b;">Logout</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <h1>Pass It Forward</h1>
+  <p class="lead">
+    A community-driven platform built for <strong>long-term vision</strong>.<br><br>
+    Where serious people create <strong>real opportunities</strong> through <strong>self-made growth</strong> — and <strong>pass it forward</strong>.
+  </p>
+  <div class="brand-keywords">
+    <strong>Self-made growth</strong> • <strong>Real opportunities</strong> • <strong>Community-driven</strong> • <strong>Long-term vision</strong> • <strong>Pass it forward</strong>
+  </div>
+  <div style="margin:3rem 0; font-size:1.3rem; color:#94a3b8;">
+    <p><strong>Founding Stage — early members joining now.</strong></p>
+  </div>
+  <section style="margin:4rem 0; text-align:center;">
+    <h2>Why Join Early?</h2>
+    <p style="max-width:700px; margin:auto; color:#94a3b8;">
+      This is the founding stage of Pass It Forward.<br>
+      Early members are not just joining — they are helping shape the future of the platform.
+    </p>
+    <ul style="list-style:none; padding:0; margin-top:2rem; color:#cbd5e1;">
+      <li>• Be part of the foundation from day one</li>
+      <li>• Help shape the direction of the community</li>
+      <li>• Early access to future opportunities</li>
+      <li>• Grow alongside the platform as it scales</li>
+    </ul>
+  </section>
+  <div class="cta-group">
+    <button class="btn" onclick="document.getElementById('apply-card').scrollIntoView({behavior:'smooth'})">
+      Apply for Access
+    </button>
+  </div>
+</section>
+
+<section class="section">
+  <h2>What Pass It Forward Is</h2>
+  <p class="lead">
+    Pass It Forward is the early-stage foundation of a <strong>global opportunity hub</strong>.<br><br>
+    A place where builders, makers, learners and entrepreneurs connect, trade value, acquire skills, and grow real businesses — together.
+  </p>
+  <div class="audience-grid">
+    <div class="audience-card">
+      <h3>Who it’s for</h3>
+      <p>People who want <strong>self-made growth</strong>.<br><br>People looking for <strong>real opportunities</strong>.<br><br>People who believe in being <strong>community-driven</strong>.<br><br>People committed to a <strong>long-term vision</strong>.<br><br>People who want to <strong>pass it forward</strong>.</p>
+    </div>
+    <div class="audience-card">
+      <h3>Why you should care</h3>
+      <p>Because the next decade will belong to communities that combine trust, commerce, knowledge, and mutual growth.<br><br><br>Pass It Forward is being built to become one of those rare places — a real ecosystem where ordinary people can create <strong>extraordinary long-term value</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <h2>OUR CORE VISION — PASS IT FORWARD</h2>
+  <p class="lead">
+    We are building a real long-term business ecosystem, not just an X account.
+  </p>
+  <div style="background:#ecfdf5; border-radius:20px; padding:3rem; max-width:900px; margin:3rem auto; text-align:center;">
+    <h3 style="font-size:1.9rem; margin-bottom:2rem; color:#065f46;">Main mission:</h3>
+    <ul style="list-style:none; padding:0; font-size:1.28rem; color:#065f46; font-weight:500; line-height:2.2;">
+      <li>• Help people find opportunities</li>
+      <li>• Help people create income</li>
+      <li>• Help people grow independently</li>
+      <li>• Build a strong community that supports each other</li>
+    </ul>
+    <p style="margin-top:2.5rem; font-size:1.4rem; font-weight:600; color:#065f46;">
+      Core principle: <strong>➡️ Pass it forward</strong>
+    </p>
+  </div>
+</section>
+
+<section class="section" id="apply-card">
+  <div class="apply-card">
+    <h2>Apply for Access</h2>
+    <p style="margin-bottom:2.5rem; color:#475569; font-size:1.15rem;">
+      We are intentionally small and selective in 2026.<br><br>
+      If accepted, you become part of the founding community and will receive your private Member Login code via X DM within 48 hours.
+    </p>
+    <form id="apply-form" action="https://formspree.io/f/mgolzjjr" method="POST">
+      <input type="hidden" name="_subject" value="Pass It Forward Application" />
+      <input type="text" name="name" placeholder="Full Name" required />
+      <input type="text" name="x_username" placeholder="X Handle (@MrGentleman93)" required />
+      <textarea name="skills" placeholder="Your skills/experience" required></textarea>
+      <textarea name="motivation" placeholder="Why do you want to join?" required></textarea>
+      <button type="submit" class="btn">Apply</button>
+    </form>
+    <div id="apply-success">
+      <h3 style="margin-bottom:1rem; color:#065f46;">Application received — thank you.</h3>
+      <p style="margin-bottom:1.5rem;">We manually review every application.<br>We will reach out via X DM if there is a fit and send your private login code within 48 hours.</p>
+    </div>
+  </div>
+</section>
+
+<!-- VISION — NEW TIMELINE STYLE
