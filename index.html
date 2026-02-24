@@ -21,12 +21,12 @@
     .header-inner { max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
     .logo { font-size: 1.55rem; font-weight: 700; letter-spacing: -0.4px; }
     nav { display: flex; gap: 2rem; }
-    nav a { color: white; text-decoration: none; font-weight: 500; transition: color 0.3s; }
+    nav a { color: white; text-decoration: none; font-weight: 500; }
     nav a:hover { color: var(--primary); }
     nav a.active { color: var(--primary); border-bottom: 3px solid var(--primary); padding-bottom: 4px; }
 
     .hero { padding: 10rem 5% 8rem; text-align: center; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; }
-    .hero h1 { font-size: 3.8rem; font-weight: 800; margin-bottom: 1.5rem; letter-spacing: -1px; }
+    .hero h1 { font-size: 3.8rem; font-weight: 800; margin-bottom: 1.5rem; letter-spacing: -1px; line-height: 1.05; }
     .hero .lead { font-size: 1.38rem; max-width: 760px; margin: 0 auto 2.5rem; color: #cbd5e1; font-weight: 300; }
     .brand-keywords { font-size: 1.18rem; font-weight: 500; margin: 2.5rem 0 4rem; color: #94a3b8; }
     .brand-keywords strong { color: var(--primary); font-weight: 700; }
@@ -37,6 +37,7 @@
 
     .audience-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; margin: 4rem 0; }
     .audience-card { background: white; border-radius: 16px; padding: 2.2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.07); text-align: center; }
+    .audience-card h3 { font-size: 1.45rem; margin-bottom: 1rem; color: var(--primary-dark); }
 
     .apply-card { background: white; border-radius: 20px; padding: 3.5rem 2.8rem; box-shadow: 0 12px 48px rgba(0,0,0,0.09); max-width: 780px; margin: 5rem auto; text-align: center; }
     .apply-card h2 { font-size: 2.4rem; margin-bottom: 2rem; color: var(--primary-dark); }
@@ -45,13 +46,14 @@
     textarea { min-height: 140px; resize: vertical; }
     .btn { padding: 1.1rem 2.4rem; font-size: 1.08rem; font-weight: 600; border-radius: 999px; background: var(--primary); color: white; border: none; cursor: pointer; transition: all 0.25s; }
     .btn:hover { background: var(--primary-dark); transform: translateY(-2px); }
+    #apply-success { display: none; margin-top: 2.5rem; padding: 1.8rem; background: #ecfdf5; border-radius: 12px; color: #065f46; font-weight: 500; text-align: left; white-space: pre-wrap; }
 
-    .step { display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: flex-start; }
-    .step-number { width: 32px; height: 32px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
-
-    .testimonial { background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.07); }
+    .testimonial { background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.07); margin-bottom: 1.5rem; }
     .testimonial p { font-style: italic; margin-bottom: 1rem; }
     .testimonial .author { font-weight: 600; color: var(--primary-dark); }
+
+    .share-testimonial { background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.07); display: none; }
+    .share-testimonial textarea { width: 100%; min-height: 120px; padding: 1rem; border: 1px solid var(--border); border-radius: 10px; resize: vertical; }
 
     footer { background: var(--dark); color: #cbd5e1; padding: 5rem 5% 3rem; text-align: center; font-size: 0.95rem; }
     footer a { color: var(--primary); text-decoration: none; font-weight: 500; }
@@ -69,7 +71,6 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 4rem;
     }
     .roadmap::before {
       content: '';
@@ -141,20 +142,20 @@
 <section id="hero" class="hero">
   <h1>Pass It Forward</h1>
   <p class="lead">
-    A community driven platform built for <strong>long term vision</strong>.<br><br>
-    Where serious people create <strong>real opportunities</strong> through <strong>self-made growth</strong> and <strong>pass it forward</strong>.
+    A community-driven platform built for <strong>long-term vision</strong>.<br><br>
+    Where serious people create <strong>real opportunities</strong> through <strong>self-made growth</strong> — and <strong>pass it forward</strong>.
   </p>
   <div class="brand-keywords">
     <strong>Self-made growth</strong> • <strong>Real opportunities</strong> • <strong>Community-driven</strong> • <strong>Long-term vision</strong> • <strong>Pass it forward</strong>
   </div>
   <div style="margin:3rem 0; font-size:1.3rem; color:#94a3b8;">
-    <p><strong>Founding Stage  early members joining now.</strong></p>
+    <p><strong>Founding Stage — early members joining now.</strong></p>
   </div>
   <section style="margin:4rem 0; text-align:center;">
     <h2>Why Join Early?</h2>
     <p style="max-width:700px; margin:auto; color:#94a3b8;">
       This is the founding stage of Pass It Forward.<br>
-      Early members are not just joining they are helping shape the future of the platform.
+      Early members are not just joining — they are helping shape the future of the platform.
     </p>
     <ul style="list-style:none; padding:0; margin-top:2rem; color:#cbd5e1;">
       <li>• Be part of the foundation from day one</li>
@@ -173,8 +174,8 @@
 <section class="section">
   <h2>What Pass It Forward Is</h2>
   <p class="lead">
-    Pass It Forward is the early stage foundation of a <strong>global opportunity hub</strong>.<br><br>
-    A place where builders, makers, learners and entrepreneurs connect, trade value, acquire skills, and grow real businesses  together.
+    Pass It Forward is the early-stage foundation of a <strong>global opportunity hub</strong>.<br><br>
+    A place where builders, makers, learners and entrepreneurs connect, trade value, acquire skills, and grow real businesses — together.
   </p>
   <div class="audience-grid">
     <div class="audience-card">
@@ -211,20 +212,16 @@
   <div class="apply-card">
     <h2>Apply for Access</h2>
     <p style="margin-bottom:2.5rem; color:#475569; font-size:1.15rem;">
-      We are intentionally small and selective in 2026.
+      We are intentionally small and selective in 2026.<br><br>
+      If accepted, you become part of the founding community and will receive your private Member Login code via X DM within 48 hours.
     </p>
-    <div style="margin:2rem 0; text-align:left; max-width:540px; margin:auto;">
-      <div class="step"><span class="step-number">1</span> Fill out the form below</div>
-      <div class="step"><span class="step-number">2</span> We review your application (usually within 48 hours)</div>
-      <div class="step"><span class="step-number">3</span> If accepted, you get your private login code via X DM</div>
-    </div>
     <form id="apply-form" action="https://formspree.io/f/mgolzjjr" method="POST">
       <input type="hidden" name="_subject" value="Pass It Forward Application" />
       <input type="text" name="name" placeholder="Full Name" required />
       <input type="text" name="x_username" placeholder="X Handle (@MrGentleman93)" required />
       <textarea name="skills" placeholder="Your skills/experience" required></textarea>
       <textarea name="motivation" placeholder="Why do you want to join?" required></textarea>
-      <button type="submit" class="btn">Apply Now</button>
+      <button type="submit" class="btn">Apply</button>
     </form>
     <div id="apply-success">
       <h3 style="margin-bottom:1rem; color:#065f46;">Application received — thank you.</h3>
@@ -233,10 +230,11 @@
   </div>
 </section>
 
-<!-- Testimonials / Social Proof -->
+<!-- Testimonials Section -->
 <section class="section" id="testimonials">
-  <h2>What Early Members Say</h2>
-  <div class="audience-grid">
+  <h2>What Members Are Saying</h2>
+  <div id="testimonials-container" class="audience-grid">
+    <!-- Static examples -->
     <div class="testimonial">
       <p>"Finally a community that actually builds real opportunities instead of just talking about them."</p>
       <div class="author">@BuilderMindset</div>
@@ -245,10 +243,13 @@
       <p>"The Vision roadmap is insane. Being part of the founding stage feels like being in the early days of something huge."</p>
       <div class="author">@SelfMade2026</div>
     </div>
-    <div class="testimonial">
-      <p>"Applied yesterday, got my code today. Already connected with 3 people who can help me scale my project."</p>
-      <div class="author">@GrowthHustle</div>
-    </div>
+  </div>
+
+  <!-- Share your testimonial (only visible when logged in) -->
+  <div id="share-testimonial" class="share-testimonial" style="margin-top: 3rem;">
+    <h3>Share Your Experience</h3>
+    <textarea id="testimonial-text" placeholder="What do you like about Pass It Forward so far?"></textarea>
+    <button onclick="submitTestimonial()" class="btn" style="margin-top:1rem;">Submit Testimonial</button>
   </div>
 </section>
 
@@ -280,7 +281,7 @@
     Self-made growth • Real opportunities • Community-driven • Long-term vision • Pass it forward
   </p>
   <p style="margin-top:2.5rem; font-size:0.9rem; color:#94a3b8;">
-    Built by <a href="https://x.com/@MrGentleman93" target="_blank">@MrGentleman93</a>
+    Built by <a href="https://x.com/yourhandle" target="_blank">@MrGentleman93</a>
   </p>
 </footer>
 
@@ -300,6 +301,40 @@
 
 <script>
 const ACCESS_CODE = "founder2026";
+
+// Load saved testimonials
+function loadTestimonials() {
+  const saved = JSON.parse(localStorage.getItem('testimonials') || '[]');
+  const container = document.getElementById('testimonials-container');
+  saved.forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'testimonial';
+    div.innerHTML = `<p>"${t.text}"</p><div class="author">@${t.user}</div>`;
+    container.appendChild(div);
+  });
+}
+
+function submitTestimonial() {
+  const text = document.getElementById('testimonial-text').value.trim();
+  if (!text) return alert("Please write something!");
+
+  const user = currentUser || "NewMember";
+  const newTestimonial = { text, user, date: new Date().toISOString() };
+
+  let saved = JSON.parse(localStorage.getItem('testimonials') || '[]');
+  saved.unshift(newTestimonial); // add to top
+  localStorage.setItem('testimonials', JSON.stringify(saved));
+
+  // Show immediately
+  const container = document.getElementById('testimonials-container');
+  const div = document.createElement('div');
+  div.className = 'testimonial';
+  div.innerHTML = `<p>"${text}"</p><div class="author">@${user}</div>`;
+  container.prepend(div);
+
+  document.getElementById('testimonial-text').value = '';
+  alert("Thank you! Your testimonial is now live.");
+}
 
 document.getElementById('apply-form').addEventListener('submit', function(e) {
   const name = document.querySelector('input[name="name"]').value;
@@ -328,7 +363,10 @@ function showMemberTabs() {
   document.getElementById('login-btn').style.display = 'none';
   document.getElementById('user-area').style.display = 'flex';
   document.getElementById('display-name').textContent = currentUser;
+
   document.getElementById('apply-card').style.display = 'none';
+  document.getElementById('share-testimonial').style.display = 'block'; // show share box for members
+
   switchTab('vision');
 }
 
@@ -368,6 +406,9 @@ function toggleRoadmap(el){
   const item = el.closest('.roadmap-item');
   item.classList.toggle('active');
 }
+
+// Load saved testimonials when page loads
+window.onload = loadTestimonials;
 </script>
 </body>
 </html>
