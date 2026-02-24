@@ -340,8 +340,8 @@ function switchTab(tabId) {
   document.querySelectorAll('#main-nav a').forEach(a => a.classList.remove('active'));
   const activeLink = Array.from(document.querySelectorAll('#main-nav a')).find(a => a.getAttribute('href') === '#' + tabId);
   if (activeLink) activeLink.classList.add('active');
-  document.querySelectorAll('.member-section').forEach(s => s.style.display = 'none');
-  document.getElementById(tabId).style.display = 'block';
+  
+   document.getElementById(tabId).style.display = 'block';
 }
 
 function handleLogin() {
