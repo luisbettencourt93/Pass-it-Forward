@@ -64,7 +64,7 @@
     .modal-content { background: white; padding: 2.5rem; border-radius: 20px; width: 100%; max-width: 420px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
     .member-section { background: #f8fafc; display: none; padding: 8rem 5% 6rem; }
 
-    /* Horizontal Pin Roadmap */
+    /* Horizontal Pin Roadmap - Exact style like your picture */
     .roadmap {
       max-width: 900px;
       margin: 4rem auto;
@@ -125,7 +125,6 @@
     <div class="logo">Pass It Forward</div>
     <nav id="main-nav">
       <a href="#hero" class="active">Home</a>
-      <a href="#vision">Vision</a>
       <a href="#apply-card">Apply</a>
       <a href="#testimonials">Testimonials</a>
     </nav>
@@ -236,7 +235,6 @@
   <h2>What Members Are Saying</h2>
   <div id="testimonials-container" class="audience-grid"></div>
 
-  <!-- Share your testimonial -->
   <div id="share-testimonial" class="share-testimonial">
     <h3>Share Your Experience</h3>
     <textarea id="testimonial-text" placeholder="What do you like about Pass It Forward so far?"></textarea>
@@ -244,7 +242,7 @@
   </div>
 </section>
 
-<!-- Vision Roadmap -->
+<!-- ROADMAP - VISIBLE ONLY AFTER LOGIN -->
 <section class="member-section section" id="vision">
   <div class="member-header">
     <span class="verified-badge">✓ VERIFIED MEMBER</span>
@@ -293,9 +291,6 @@
 <script>
 const ACCESS_CODE = "founder2026";
 
-// Clear any corrupted testimonials on load
-localStorage.removeItem('testimonials'); // This removes the broken data once
-
 document.getElementById('apply-form').addEventListener('submit', function(e) {
   const name = document.querySelector('input[name="name"]').value;
   const x = document.querySelector('input[name="x_username"]').value;
@@ -316,7 +311,7 @@ function showMemberTabs() {
   const nav = document.getElementById('main-nav');
   nav.innerHTML = `
     <a href="#hero">Home</a>
-    <a href="#vision" onclick="switchTab('vision');return false"><i class="fas fa-map-signs"></i> Vision</a>
+    <a href="#vision" onclick="switchTab('vision');return false"><i class="fas fa-map-signs"></i> Roadmap</a>
     <a href="#apply-card">Apply</a>
     <a href="#testimonials">Testimonials</a>
   `;
@@ -365,7 +360,7 @@ function toggleRoadmap(el){
   item.classList.toggle('active');
 }
 
-// Fixed testimonial system
+// Testimonials system
 function loadTestimonials() {
   const saved = JSON.parse(localStorage.getItem('testimonials') || '[]');
   const container = document.getElementById('testimonials-container');
@@ -393,7 +388,7 @@ function submitTestimonial() {
   saved.unshift(newTestimonial);
   localStorage.setItem('testimonials', JSON.stringify(saved));
 
-  loadTestimonials(); // refresh
+  loadTestimonials();
   document.getElementById('testimonial-text').value = '';
   alert("Thank you! Your testimonial is live.");
 }
