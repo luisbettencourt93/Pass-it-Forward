@@ -264,7 +264,7 @@
   </div>
 </section>
 
-<!-- ROADMAP - ONLY FOR LOGGED IN MEMBERS -->
+<!-- ROADMAP - ONLY FOR MEMBERS -->
 <section class="member-section section" id="vision">
   <div class="member-header">
     <span class="verified-badge">✓ VERIFIED MEMBER</span>
@@ -374,3 +374,136 @@ function loadOnlineUsers() {
     <div class="online-user" onclick="openChat('${currentUser}')"><strong>@${currentUser.replace('@','')}</strong> <span class="status">(You)</span></div>
     <div class="online-user" onclick="openChat('BuilderMindset')"><strong>@BuilderMindset</strong> <span class="status">online</span></div>
     <div class="online-user" onclick="openChat('GrowthHustle')"><strong>@GrowthHustle</strong> <span class="status">online</span></div>
+  `;
+}
+
+function openChat(username) {
+  currentChatUser = username;
+  document.getElementById('chat-with').textContent = `@${username.replace('@','')}`;
+  document.getElementById('chat-window').style.display = 'flex';
+  loadChatMessages();
+}
+
+function closeChat() {
+  document.getElementById('chat-window').style.display = 'none';
+}
+
+function loadChatMessages() {
+  const key = `chat_${currentUser}_${currentChatUser}`.replace(/@/g,'');
+  const messages = JSON.parse(localStorage.getItem(key) || '[]');
+  const container = document.getElementById('chat-messages');
+  container.innerHTML = '';
+  messages.forEach(m => {
+    const div = document.createElement('div');
+    div.style.marginBottom = '12px';
+    div.style.textAlign = m.from === currentUser ? 'right' : 'left';
+    div.innerHTML = `<small>${m.from}</small><br><strong>${m.text}</strong>`;
+    container.appendChild(div);
+  });
+  container.scrollTop = container.scrollHeight;
+}
+
+function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text || !currentChatUser) return;
+
+  const key = `chat_${currentUser}_${currentChatUser}`.replace(/@/g,'');
+  let messages = JSON.parse(localStorage.getItem(key) || '[]');
+  messages.push({ from: currentUser, text });
+  localStorage.setItem(key, JSON.stringify(messages));
+
+  loadChatMessages();
+  input.value = '';
+}
+
+function toggleRoadmap(el){
+  const item = el.closest('.roadmap-item');
+  item.classList.toggle('active');
+}
+
+function toggleOnlineSidebar() {
+  const sidebar = document.getElementById('online-sidebar');
+  sidebar.style.display = sidebar.style.display === 'block' ? 'none' : 'block';
+}
+
+function loadTestimonials() {
+  const saved = JSON.parse(localStorage.getItem('testimonials') || '[]');
+  const container = document.getElementById('testimonials-container');
+  container.innerHTML = '';
+  saved.forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'testimonial';
+    div.innerHTML = `
+      <p>"${t.text}"</p>
+      <div class="author"><a href="https://x.com/${t.user.replace('@','')}" target="_blank">@${t.user.replace('@','')}</a></div>
+      <button onclick="shareToX(this)" class="btn" style="margin-top:1rem; font-size:0.9rem; padding:0.6rem 1.2rem;">Share on X</button>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function submitTestimonial() {
+  const text = document.getElementById('testimonial-text').value.trim();
+  if (!text) return alert("Please write something!");
+
+  const user = currentUser || "NewMember";
+  const newTestimonial = { text, user };
+
+  let saved = JSON.parse(localStorage.getItem('testimonials') || '[]');
+  saved.unshift(newTestimonial);
+  localStorage.setItem('testimonials', JSON.stringify(saved));
+
+  loadTestimonials();
+  document.getElementById('testimonial-text').value = '';
+  alert("Thank you! Your testimonial is live.");
+}
+
+function shareToX(btn) {
+  const testimonial = btn.parentElement.querySelector('p').textContent;
+  const user = btn.parentElement.querySelector('.author a').textContent;
+  const tweetText = encodeURIComponent(`"${testimonial}" - ${user} #PassItForward`);
+  window.open(`https://x.com/intent/tweet?text=${tweetText}`, '_blank');
+}
+
+function switchTab(tabId) {
+  document.querySelectorAll('#main-nav a').forEach(a => a.classList.remove('active'));
+  const activeLink = Array.from(document.querySelectorAll('#main-nav a')).find(a => a.getAttribute('href') === '#' + tabId);
+  if (activeLink) activeLink.classList.add('active');
+  document.querySelectorAll('.member-section').forEach(s => s.style.display = 'none');
+  document.getElementById(tabId).style.display = 'block';
+  document.getElementById(tabId).scrollIntoView({ behavior: 'smooth' });
+}
+
+function handleLogin() {
+  const handle = document.getElementById('xhandle').value.trim();
+  const code = document.getElementById('accesscode').value.trim();
+  if (!handle || code !== ACCESS_CODE) {
+    alert("Invalid access code. Only verified founding members have the code.");
+    return;
+  }
+  currentUser = handle.startsWith('@') ? handle : '@' + handle;
+  localStorage.setItem('pf_loggedIn', 'true');
+  localStorage.setItem('pf_user', currentUser);
+  closeModal();
+  showMemberTabs();
+}
+
+function closeModal() { document.getElementById('login-modal').style.display = 'none'; }
+function logout() { 
+  localStorage.removeItem('pf_loggedIn'); 
+  localStorage.removeItem('pf_user'); 
+  location.reload(); 
+}
+
+document.getElementById('login-btn').addEventListener('click', () => document.getElementById('login-modal').style.display = 'flex');
+document.getElementById('logout-btn').addEventListener('click', logout);
+
+if (localStorage.getItem('pf_loggedIn') === 'true') {
+  showMemberTabs();
+}
+
+window.onload = loadTestimonials;
+</script>
+</body>
+</html>
