@@ -64,21 +64,20 @@
     .modal-content { background: white; padding: 2.5rem; border-radius: 20px; width: 100%; max-width: 420px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
     .member-section { background: #f8fafc; display: none; padding: 8rem 5% 6rem; }
 
-    /* Online Sidebar - Made BIG and visible */
+    /* Online Sidebar */
     .online-sidebar { 
       position: fixed; right: 20px; top: 90px; width: 300px; background: white; 
       border-radius: 16px; box-shadow: 0 15px 50px rgba(0,0,0,0.15); padding: 1.5rem; 
       z-index: 200; display: none; max-height: 70vh; overflow-y: auto;
     }
-    .online-sidebar h3 { margin-bottom: 1.2rem; color: var(--primary-dark); font-size: 1.3rem; }
-    .online-user { padding: 1rem; border-radius: 12px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+    .online-sidebar h3 { margin-bottom: 1rem; color: var(--primary-dark); }
+    .online-user { padding: 0.8rem 1rem; border-radius: 10px; cursor: pointer; transition: 0.2s; }
     .online-user:hover { background: #ecfdf5; }
-    .online-user .status { color: #10b981; font-size: 0.9rem; font-weight: 500; }
 
     /* Chat Window */
     .chat-window { 
       position: fixed; bottom: 20px; right: 340px; width: 400px; background: white; 
-      border-radius: 16px; box-shadow: 0 15px 50px rgba(0,0,0,0.18); display: none; 
+      border-radius: 16px; box-shadow: 0 15px 50px rgba(0,0,0,0.15); display: none; 
       flex-direction: column; height: 520px; z-index: 300; 
     }
     .chat-header { padding: 1rem; background: var(--primary); color: white; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: center; }
@@ -86,7 +85,7 @@
     .chat-input { padding: 1rem; border-top: 1px solid var(--border); display: flex; gap: 0.5rem; }
     .chat-input input { flex: 1; padding: 0.8rem; border: 1px solid var(--border); border-radius: 999px; }
 
-    /* Horizontal Pin Roadmap */
+    /* Roadmap */
     .roadmap {
       max-width: 900px;
       margin: 4rem auto;
@@ -147,7 +146,6 @@
     <div class="logo">Pass It Forward</div>
     <nav id="main-nav">
       <a href="#hero" class="active">Home</a>
-      <a href="#vision" onclick="switchTab('vision');return false">Roadmap</a>
       <a href="#apply-card">Apply</a>
       <a href="#testimonials">Testimonials</a>
     </nav>
@@ -287,12 +285,13 @@
   </div>
 </section>
 
-<!-- ONLINE MEMBER BAR + CHAT -->
+<!-- ONLINE CHAT SIDEBAR -->
 <div id="online-sidebar" class="online-sidebar">
-  <h3><i class="fas fa-circle" style="color:#10b981"></i> Who's Online Now</h3>
+  <h3><i class="fas fa-circle" style="color:#10b981"></i> Who's Online</h3>
   <div id="online-list"></div>
 </div>
 
+<!-- CHAT WINDOW -->
 <div id="chat-window" class="chat-window">
   <div class="chat-header">
     <strong id="chat-with"></strong>
@@ -362,7 +361,7 @@ function showMemberTabs() {
   document.getElementById('display-name').textContent = currentUser;
   document.getElementById('apply-card').style.display = 'none';
   document.getElementById('share-testimonial').style.display = 'block';
-  document.getElementById('online-sidebar').style.display = 'block';   // FORCED SHOW
+  document.getElementById('online-sidebar').style.display = 'block';
   loadOnlineUsers();
   loadTestimonials();
   switchTab('vision');
@@ -371,7 +370,7 @@ function showMemberTabs() {
 function loadOnlineUsers() {
   const list = document.getElementById('online-list');
   list.innerHTML = `
-    <div class="online-user" onclick="openChat('${currentUser}')"><strong>@${currentUser.replace('@','')}</strong> <span class="status">(You - online)</span></div>
+    <div class="online-user" onclick="openChat('${currentUser}')"><strong>@${currentUser.replace('@','')}</strong> <span class="status">(You)</span></div>
     <div class="online-user" onclick="openChat('BuilderMindset')"><strong>@BuilderMindset</strong> <span class="status">online</span></div>
     <div class="online-user" onclick="openChat('GrowthHustle')"><strong>@GrowthHustle</strong> <span class="status">online</span></div>
     <div class="online-user" onclick="openChat('SelfMade2026')"><strong>@SelfMade2026</strong> <span class="status">online</span></div>
@@ -411,7 +410,7 @@ function sendMessage() {
 
   const key = `chat_${currentUser}_${currentChatUser}`.replace(/@/g,'');
   let messages = JSON.parse(localStorage.getItem(key) || '[]');
-  messages.push({ from: currentUser, text, time: new Date().toISOString() });
+  messages.push({ from: currentUser, text });
   localStorage.setItem(key, JSON.stringify(messages));
 
   loadChatMessages();
@@ -423,7 +422,6 @@ function toggleRoadmap(el){
   item.classList.toggle('active');
 }
 
-// Testimonials
 function loadTestimonials() {
   const saved = JSON.parse(localStorage.getItem('testimonials') || '[]');
   const container = document.getElementById('testimonials-container');
@@ -461,28 +459,6 @@ function shareToX(btn) {
   const user = btn.parentElement.querySelector('.author a').textContent;
   const tweetText = encodeURIComponent(`"${testimonial}" - ${user} #PassItForward`);
   window.open(`https://x.com/intent/tweet?text=${tweetText}`, '_blank');
-}
-
-let currentUser = null;
-
-function showMemberTabs() {
-  currentUser = localStorage.getItem('pf_user');
-  const nav = document.getElementById('main-nav');
-  nav.innerHTML = `
-    <a href="#hero">Home</a>
-    <a href="#vision" onclick="switchTab('vision');return false">Roadmap</a>
-    <a href="#apply-card">Apply</a>
-    <a href="#testimonials">Testimonials</a>
-  `;
-  document.getElementById('login-btn').style.display = 'none';
-  document.getElementById('user-area').style.display = 'flex';
-  document.getElementById('display-name').textContent = currentUser;
-  document.getElementById('apply-card').style.display = 'none';
-  document.getElementById('share-testimonial').style.display = 'block';
-  document.getElementById('online-sidebar').style.display = 'block';   // FORCED SHOW
-  loadOnlineUsers();
-  loadTestimonials();
-  switchTab('vision');
 }
 
 function switchTab(tabId) {
