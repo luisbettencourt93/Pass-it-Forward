@@ -64,7 +64,7 @@
     .modal-content { background: white; padding: 2.5rem; border-radius: 20px; width: 100%; max-width: 420px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
     .member-section { background: #f8fafc; display: none; padding: 8rem 5% 6rem; }
 
-    /* Horizontal Pin Roadmap - Exact style like your picture */
+    /* Horizontal Pin Roadmap */
     .roadmap {
       max-width: 900px;
       margin: 4rem auto;
@@ -231,7 +231,7 @@
   </div>
 </section>
 
-<!-- Testimonials with X integration -->
+<!-- Testimonials -->
 <section class="section" id="testimonials">
   <h2>What Members Are Saying</h2>
   <div id="testimonials-container" class="audience-grid">
@@ -239,11 +239,6 @@
     <div class="testimonial">
       <p>"Finally a community that actually builds real opportunities instead of just talking about them."</p>
       <div class="author"><a href="https://x.com/BuilderMindset" target="_blank">@BuilderMindset</a></div>
-      <button onclick="shareToX(this)" class="btn" style="margin-top:1rem; font-size:0.9rem; padding:0.6rem 1.2rem;">Share on X</button>
-    </div>
-    <div class="testimonial">
-      <p>"The Vision roadmap is insane. Being part of the founding stage feels like being in the early days of something huge."</p>
-      <div class="author"><a href="https://x.com/SelfMade2026" target="_blank">@SelfMade2026</a></div>
       <button onclick="shareToX(this)" class="btn" style="margin-top:1rem; font-size:0.9rem; padding:0.6rem 1.2rem;">Share on X</button>
     </div>
   </div>
@@ -374,7 +369,22 @@ function toggleRoadmap(el){
   item.classList.toggle('active');
 }
 
-// X API integration for testimonials
+// FIXED testimonial system
+function loadTestimonials() {
+  const saved = JSON.parse(localStorage.getItem('testimonials') || '[]');
+  const container = document.getElementById('testimonials-container');
+  saved.forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'testimonial';
+    div.innerHTML = `
+      <p>"${t.text}"</p>
+      <div class="author"><a href="https://x.com/${t.user.replace('@','')}" target="_blank">@${t.user.replace('@','')}</a></div>
+      <button onclick="shareToX(this)" class="btn" style="margin-top:1rem; font-size:0.9rem; padding:0.6rem 1.2rem;">Share on X</button>
+    `;
+    container.appendChild(div);
+  });
+}
+
 function submitTestimonial() {
   const text = document.getElementById('testimonial-text').value.trim();
   if (!text) return alert("Please write something!");
@@ -397,7 +407,7 @@ function submitTestimonial() {
   container.prepend(div);
 
   document.getElementById('testimonial-text').value = '';
-  alert("Thank you! Your testimonial is live and clickable.");
+  alert("Thank you! Your testimonial is live and your name is now clickable.");
 }
 
 function shareToX(btn) {
@@ -405,22 +415,6 @@ function shareToX(btn) {
   const user = btn.parentElement.querySelector('.author a').textContent;
   const tweetText = encodeURIComponent(`"${testimonial}" - ${user} #PassItForward`);
   window.open(`https://x.com/intent/tweet?text=${tweetText}`, '_blank');
-}
-
-// Load saved testimonials
-function loadTestimonials() {
-  const saved = JSON.parse(localStorage.getItem('testimonials') || '[]');
-  const container = document.getElementById('testimonials-container');
-  saved.forEach(t => {
-    const div = document.createElement('div');
-    div.className = 'testimonial';
-    div.innerHTML = `
-      <p>"${t.text}"</p>
-      <div class="author"><a href="https://x.com/${t.user.replace('@','')}" target="_blank">@${t.user.replace('@','')}</a></div>
-      <button onclick="shareToX(this)" class="btn" style="margin-top:1rem; font-size:0.9rem; padding:0.6rem 1.2rem;">Share on X</button>
-    `;
-    container.appendChild(div);
-  });
 }
 
 window.onload = loadTestimonials;
