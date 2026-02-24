@@ -125,6 +125,7 @@
     <div class="logo">Pass It Forward</div>
     <nav id="main-nav">
       <a href="#hero" class="active">Home</a>
+      <a href="#vision" onclick="switchTab('vision');return false">Roadmap</a>
       <a href="#apply-card">Apply</a>
       <a href="#testimonials">Testimonials</a>
     </nav>
@@ -320,7 +321,7 @@ function showMemberTabs() {
   document.getElementById('display-name').textContent = currentUser;
   document.getElementById('apply-card').style.display = 'none';
   document.getElementById('share-testimonial').style.display = 'block';
-  loadTestimonials(); 
+  loadTestimonials();
   switchTab('vision');
 }
 
@@ -328,11 +329,8 @@ function switchTab(tabId) {
   document.querySelectorAll('#main-nav a').forEach(a => a.classList.remove('active'));
   const activeLink = Array.from(document.querySelectorAll('#main-nav a')).find(a => a.getAttribute('href') === '#' + tabId);
   if (activeLink) activeLink.classList.add('active');
-
   document.querySelectorAll('.member-section').forEach(s => s.style.display = 'none');
   document.getElementById(tabId).style.display = 'block';
-
-  // Scroll to the section
   document.getElementById(tabId).scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -351,7 +349,13 @@ function handleLogin() {
 }
 
 function closeModal() { document.getElementById('login-modal').style.display = 'none'; }
-function logout() { localStorage.clear(); location.reload(); }
+
+// FIXED LOGOUT - only clears login, keeps testimonials
+function logout() { 
+  localStorage.removeItem('pf_loggedIn'); 
+  localStorage.removeItem('pf_user'); 
+  location.reload(); 
+}
 
 document.getElementById('login-btn').addEventListener('click', () => document.getElementById('login-modal').style.display = 'flex');
 document.getElementById('logout-btn').addEventListener('click', logout);
@@ -365,7 +369,7 @@ function toggleRoadmap(el){
   item.classList.toggle('active');
 }
 
-// Testimonials - FIXED persistence
+// Testimonials - now 100% persistent
 function loadTestimonials() {
   const saved = JSON.parse(localStorage.getItem('testimonials') || '[]');
   const container = document.getElementById('testimonials-container');
