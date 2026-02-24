@@ -50,9 +50,10 @@
 
     .testimonial { background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.07); margin-bottom: 1.5rem; }
     .testimonial p { font-style: italic; margin-bottom: 1rem; }
-    .testimonial .author { font-weight: 600; color: var(--primary-dark); }
+    .testimonial .author a { color: #10b981; text-decoration: none; font-weight: 600; }
+    .testimonial .author a:hover { text-decoration: underline; }
 
-    .share-testimonial { background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.07); display: none; }
+    .share-testimonial { background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.07); display: none; margin-top: 3rem; }
     .share-testimonial textarea { width: 100%; min-height: 120px; padding: 1rem; border: 1px solid var(--border); border-radius: 10px; resize: vertical; }
 
     footer { background: var(--dark); color: #cbd5e1; padding: 5rem 5% 3rem; text-align: center; font-size: 0.95rem; }
@@ -63,7 +64,7 @@
     .modal-content { background: white; padding: 2.5rem; border-radius: 20px; width: 100%; max-width: 420px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
     .member-section { background: #f8fafc; display: none; padding: 8rem 5% 6rem; }
 
-    /* Horizontal Orange Pin Roadmap - Exact style like your picture */
+    /* Horizontal Pin Roadmap - Exact style like your picture */
     .roadmap {
       max-width: 900px;
       margin: 4rem auto;
@@ -230,23 +231,23 @@
   </div>
 </section>
 
-<!-- Testimonials Section -->
+<!-- Testimonials -->
 <section class="section" id="testimonials">
   <h2>What Members Are Saying</h2>
   <div id="testimonials-container" class="audience-grid">
     <!-- Static examples -->
     <div class="testimonial">
       <p>"Finally a community that actually builds real opportunities instead of just talking about them."</p>
-      <div class="author">@BuilderMindset</div>
+      <div class="author"><a href="https://x.com/BuilderMindset" target="_blank">@BuilderMindset</a></div>
     </div>
     <div class="testimonial">
       <p>"The Vision roadmap is insane. Being part of the founding stage feels like being in the early days of something huge."</p>
-      <div class="author">@SelfMade2026</div>
+      <div class="author"><a href="https://x.com/SelfMade2026" target="_blank">@SelfMade2026</a></div>
     </div>
   </div>
 
-  <!-- Share your testimonial (only visible when logged in) -->
-  <div id="share-testimonial" class="share-testimonial" style="margin-top: 3rem;">
+  <!-- Share your testimonial (only for logged-in members) -->
+  <div id="share-testimonial" class="share-testimonial">
     <h3>Share Your Experience</h3>
     <textarea id="testimonial-text" placeholder="What do you like about Pass It Forward so far?"></textarea>
     <button onclick="submitTestimonial()" class="btn" style="margin-top:1rem;">Submit Testimonial</button>
@@ -309,7 +310,7 @@ function loadTestimonials() {
   saved.forEach(t => {
     const div = document.createElement('div');
     div.className = 'testimonial';
-    div.innerHTML = `<p>"${t.text}"</p><div class="author">@${t.user}</div>`;
+    div.innerHTML = `<p>"${t.text}"</p><div class="author"><a href="https://x.com/${t.user.replace('@','')}" target="_blank">@${t.user.replace('@','')}</a></div>`;
     container.appendChild(div);
   });
 }
@@ -322,18 +323,18 @@ function submitTestimonial() {
   const newTestimonial = { text, user, date: new Date().toISOString() };
 
   let saved = JSON.parse(localStorage.getItem('testimonials') || '[]');
-  saved.unshift(newTestimonial); // add to top
+  saved.unshift(newTestimonial);
   localStorage.setItem('testimonials', JSON.stringify(saved));
 
-  // Show immediately
+  // Show immediately with clickable link
   const container = document.getElementById('testimonials-container');
   const div = document.createElement('div');
   div.className = 'testimonial';
-  div.innerHTML = `<p>"${text}"</p><div class="author">@${user}</div>`;
+  div.innerHTML = `<p>"${text}"</p><div class="author"><a href="https://x.com/${user.replace('@','')}" target="_blank">@${user.replace('@','')}</a></div>`;
   container.prepend(div);
 
   document.getElementById('testimonial-text').value = '';
-  alert("Thank you! Your testimonial is now live.");
+  alert("Thank you! Your testimonial is now live and clickable.");
 }
 
 document.getElementById('apply-form').addEventListener('submit', function(e) {
@@ -365,7 +366,7 @@ function showMemberTabs() {
   document.getElementById('display-name').textContent = currentUser;
 
   document.getElementById('apply-card').style.display = 'none';
-  document.getElementById('share-testimonial').style.display = 'block'; // show share box for members
+  document.getElementById('share-testimonial').style.display = 'block';
 
   switchTab('vision');
 }
@@ -407,7 +408,6 @@ function toggleRoadmap(el){
   item.classList.toggle('active');
 }
 
-// Load saved testimonials when page loads
 window.onload = loadTestimonials;
 </script>
 </body>
