@@ -242,7 +242,7 @@
   </div>
 </section>
 
-<!-- ROADMAP - ONLY FOR LOGGED IN MEMBERS -->
+<!-- ROADMAP -->
 <section class="member-section section" id="vision">
   <div class="member-header">
     <span class="verified-badge">✓ VERIFIED MEMBER</span>
@@ -320,7 +320,7 @@ function showMemberTabs() {
   document.getElementById('display-name').textContent = currentUser;
   document.getElementById('apply-card').style.display = 'none';
   document.getElementById('share-testimonial').style.display = 'block';
-  loadTestimonials(); // <-- Fixed: reload testimonials after login
+  loadTestimonials(); 
   switchTab('vision');
 }
 
@@ -365,7 +365,7 @@ function toggleRoadmap(el){
   item.classList.toggle('active');
 }
 
-// Testimonials system
+// Testimonials - FIXED persistence
 function loadTestimonials() {
   const saved = JSON.parse(localStorage.getItem('testimonials') || '[]');
   const container = document.getElementById('testimonials-container');
