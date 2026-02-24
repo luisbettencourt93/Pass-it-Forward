@@ -9,34 +9,199 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <style>
-    /* (all the CSS is the same as last time - I kept it clean) */
-    /* ... full CSS from previous message ... */
+    :root {
+      --primary: #10b981;
+      --primary-dark: #059669;
+      --dark: #0f172a;
+      --gray: #64748b;
+      --light: #f8fafc;
+      --border: #e2e8f0;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--light); color: var(--dark); line-height: 1.7; }
+    header { background: var(--dark); color: white; padding: 1.25rem 5%; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+    .header-inner { max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 1.55rem; font-weight: 700; letter-spacing: -0.4px; }
+    nav { display: flex; gap: 2rem; }
+    nav a { color: white; text-decoration: none; font-weight: 500; }
+    nav a:hover { color: var(--primary); }
+    nav a.active { color: var(--primary); border-bottom: 3px solid var(--primary); padding-bottom: 4px; }
+
+    .hero { padding: 10rem 5% 8rem; text-align: center; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; }
+    .hero h1 { font-size: 3.8rem; font-weight: 800; margin-bottom: 1.5rem; letter-spacing: -1px; line-height: 1.05; }
+    .hero .lead { font-size: 1.38rem; max-width: 760px; margin: 0 auto 2.5rem; color: #cbd5e1; font-weight: 300; }
+    .brand-keywords { font-size: 1.18rem; font-weight: 500; margin: 2.5rem 0 4rem; color: #94a3b8; }
+    .brand-keywords strong { color: var(--primary); font-weight: 700; }
+
+    .section { padding: 8rem 5% 6rem; }
+    .section h2 { font-size: 2.9rem; font-weight: 800; margin-bottom: 1.8rem; text-align: center; }
+    .section .lead { font-size: 1.35rem; color: var(--gray); max-width: 780px; margin: 0 auto 3rem; text-align: center; line-height: 1.7; }
+
+    .audience-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; margin: 4rem 0; }
+    .audience-card { background: white; border-radius: 16px; padding: 2.2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.07); text-align: center; }
+    .audience-card h3 { font-size: 1.45rem; margin-bottom: 1rem; color: var(--primary-dark); }
+
+    .apply-card { background: white; border-radius: 20px; padding: 3.5rem 2.8rem; box-shadow: 0 12px 48px rgba(0,0,0,0.09); max-width: 780px; margin: 5rem auto; text-align: center; }
+    .apply-card h2 { font-size: 2.4rem; margin-bottom: 2rem; color: var(--primary-dark); }
+    .apply-form { display: grid; gap: 1.4rem; max-width: 540px; margin: 0 auto; }
+    input, textarea { width: 100%; padding: 1rem 1.3rem; border: 1px solid var(--border); border-radius: 10px; font-size: 1.05rem; }
+    textarea { min-height: 140px; resize: vertical; }
+    .btn { padding: 1.1rem 2.4rem; font-size: 1.08rem; font-weight: 600; border-radius: 999px; background: var(--primary); color: white; border: none; cursor: pointer; transition: all 0.25s; }
+    .btn:hover { background: var(--primary-dark); transform: translateY(-2px); }
+    #apply-success { display: none; margin-top: 2.5rem; padding: 1.8rem; background: #ecfdf5; border-radius: 12px; color: #065f46; font-weight: 500; text-align: left; white-space: pre-wrap; }
+
+    .testimonial { background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.07); margin-bottom: 1.5rem; }
+    .testimonial p { font-style: italic; margin-bottom: 1rem; }
+    .testimonial .author a { color: #10b981; text-decoration: none; font-weight: 600; }
+    .testimonial .author a:hover { text-decoration: underline; }
+
+    .share-testimonial { background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.07); display: none; margin-top: 3rem; }
+    .share-testimonial textarea { width: 100%; min-height: 120px; padding: 1rem; border: 1px solid var(--border); border-radius: 10px; resize: vertical; }
+
+    footer { background: var(--dark); color: #cbd5e1; padding: 5rem 5% 3rem; text-align: center; font-size: 0.95rem; }
+    footer a { color: var(--primary); text-decoration: none; font-weight: 500; }
+    footer a:hover { text-decoration: underline; }
+
+    .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.85); align-items: center; justify-content: center; }
+    .modal-content { background: white; padding: 2.5rem; border-radius: 20px; width: 100%; max-width: 420px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+    .member-section { background: #f8fafc; display: none; padding: 8rem 5% 6rem; }
+
+    /* Small Online Sidebar */
+    .online-sidebar { 
+      position: fixed; right: 20px; top: 120px; width: 240px; background: white; 
+      border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.12); padding: 1rem; 
+      z-index: 200; display: none; max-height: 60vh; overflow-y: auto;
+    }
+    .online-sidebar h3 { margin-bottom: 1rem; color: var(--primary-dark); font-size: 1.1rem; }
+    .online-user { padding: 0.7rem 1rem; border-radius: 10px; cursor: pointer; transition: 0.2s; font-size: 0.95rem; }
+    .online-user:hover { background: #ecfdf5; }
+
+    /* Chat Window */
+    .chat-window { 
+      position: fixed; bottom: 20px; right: 280px; width: 380px; background: white; 
+      border-radius: 16px; box-shadow: 0 15px 50px rgba(0,0,0,0.15); display: none; 
+      flex-direction: column; height: 500px; z-index: 300; 
+    }
+    .chat-header { padding: 1rem; background: var(--primary); color: white; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: center; }
+    .chat-messages { flex: 1; padding: 1rem; overflow-y: auto; background: #f8fafc; }
+    .chat-input { padding: 1rem; border-top: 1px solid var(--border); display: flex; gap: 0.5rem; }
+    .chat-input input { flex: 1; padding: 0.8rem; border: 1px solid var(--border); border-radius: 999px; }
+
+    /* Horizontal Pin Roadmap */
+    .roadmap {
+      max-width: 900px;
+      margin: 4rem auto;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .roadmap::before {
+      content: '';
+      position: absolute;
+      top: 37px;
+      left: 80px;
+      right: 80px;
+      height: 4px;
+      background: repeating-linear-gradient(to right, #10b981 0, #10b981 12px, transparent 12px, transparent 24px);
+    }
+    .roadmap-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+    .roadmap-pin {
+      width: 75px;
+      height: 75px;
+      background: linear-gradient(135deg, #FF9500, #FF5E00);
+      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: white;
+      box-shadow: 0 10px 25px rgba(255,149,0,0.4);
+      margin-bottom: 15px;
+      cursor: pointer;
+    }
+    .roadmap-content {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      min-width: 280px;
+      text-align: center;
+    }
+    .roadmap-content h3 {
+      color: #065f46;
+      margin-bottom: 1rem;
+    }
   </style>
 </head>
 <body>
-  <!-- (all HTML sections same as last time) -->
 
-<script>
-const ACCESS_CODE = "founder2026";
+<header>
+  <div class="header-inner">
+    <div class="logo">Pass It Forward</div>
+    <nav id="main-nav">
+      <a href="#hero" class="active">Home</a>
+      <a href="#apply-card">Apply</a>
+      <a href="#testimonials">Testimonials</a>
+    </nav>
+    <div id="auth-area">
+      <button id="login-btn" class="btn">Member Login</button>
+      <div id="user-area" style="display:none; align-items:center; gap:0.8rem;">
+        <span class="founder-badge">✓ VERIFIED FOUNDER</span>
+        <span style="color:#94a3b8;">Welcome, <strong id="display-name"></strong></span>
+        <button id="logout-btn" class="btn" style="background:#64748b;">Logout</button>
+        <button onclick="toggleOnlineSidebar()" class="btn" style="background:#e0f2fe; color:#0e7490; font-size:0.9rem;">Online</button>
+      </div>
+    </div>
+  </div>
+</header>
 
-// ← PASTE YOUR FIREBASE CONFIG HERE (replace everything below)
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-  projectId: "YOUR_PROJECT",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abcdef123456"
-};
+<section id="hero" class="hero">
+  <h1>Pass It Forward</h1>
+  <p class="lead">
+    A community-driven platform built for <strong>long-term vision</strong>.<br><br>
+    Where serious people create <strong>real opportunities</strong> through <strong>self-made growth</strong> — and <strong>pass it forward</strong>.
+  </p>
+  <div class="brand-keywords">
+    <strong>Self-made growth</strong> • <strong>Real opportunities</strong> • <strong>Community-driven</strong> • <strong>Long-term vision</strong> • <strong>Pass it forward</strong>
+  </div>
+  <div style="margin:3rem 0; font-size:1.3rem; color:#94a3b8;">
+    <p><strong>Founding Stage — early members joining now.</strong></p>
+  </div>
+  <section style="margin:4rem 0; text-align:center;">
+    <h2>Why Join Early?</h2>
+    <p style="max-width:700px; margin:auto; color:#94a3b8;">
+      This is the founding stage of Pass It Forward.<br>
+      Early members are not just joining — they are helping shape the future of the platform.
+    </p>
+    <ul style="list-style:none; padding:0; margin-top:2rem; color:#cbd5e1;">
+      <li>• Be part of the foundation from day one</li>
+      <li>• Help shape the direction of the community</li>
+      <li>• Early access to future opportunities</li>
+      <li>• Grow alongside the platform as it scales</li>
+    </ul>
+  </section>
+  <div class="cta-group">
+    <button class="btn" onclick="document.getElementById('apply-card').scrollIntoView({behavior:'smooth'})">
+      Apply for Access
+    </button>
+  </div>
+</section>
 
-const app = firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
-
-// rest of the script is the same as before
-// (login, roadmap hidden, chat, etc.)
-
-// ... full script from previous message ...
-</script>
-</body>
-</html>
+<section class="section">
+  <h2>What Pass It Forward Is</h2>
+  <p class="lead">
+    Pass It Forward is the early-stage foundation of a <strong>global opportunity hub</strong>.<br><br>
+    A place where builders, makers, learners and entrepreneurs connect, trade value, acquire skills, and grow real businesses — together.
+  </p>
+  <div class="audience-grid">
+    <div class="audience-card">
+      <h3>Who it’s for</h3>
+      <p>People who want <strong>self-made growth</strong>.<br><br>
