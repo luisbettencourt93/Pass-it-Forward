@@ -64,6 +64,27 @@
     .modal-content { background: white; padding: 2.5rem; border-radius: 20px; width: 100%; max-width: 420px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
     .member-section { background: #f8fafc; display: none; padding: 8rem 5% 6rem; }
 
+    /* Online Sidebar */
+    .online-sidebar { 
+      position: fixed; right: 20px; top: 100px; width: 280px; background: white; 
+      border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); padding: 1.5rem; 
+      z-index: 100; display: none; max-height: 70vh; overflow-y: auto;
+    }
+    .online-user { padding: 0.8rem 1rem; border-radius: 10px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
+    .online-user:hover { background: #ecfdf5; }
+    .online-user .status { color: #10b981; font-size: 0.85rem; }
+
+    /* Chat Window */
+    .chat-window { 
+      position: fixed; bottom: 20px; right: 320px; width: 380px; background: white; 
+      border-radius: 16px; box-shadow: 0 15px 50px rgba(0,0,0,0.15); display: none; 
+      flex-direction: column; height: 480px; z-index: 200; 
+    }
+    .chat-header { padding: 1rem; background: var(--primary); color: white; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: center; }
+    .chat-messages { flex: 1; padding: 1rem; overflow-y: auto; background: #f8fafc; }
+    .chat-input { padding: 1rem; border-top: 1px solid var(--border); display: flex; gap: 0.5rem; }
+    .chat-input input { flex: 1; padding: 0.8rem; border: 1px solid var(--border); border-radius: 999px; }
+
     /* Horizontal Pin Roadmap */
     .roadmap {
       max-width: 900px;
@@ -242,8 +263,8 @@
   </div>
 </section>
 
-<!-- ROADMAP - ONLY VISIBLE TO LOGGED-IN MEMBERS -->
-<section class="member-section section" id="vision" style="display:none;">
+<!-- ROADMAP - ONLY FOR MEMBERS -->
+<section class="member-section section" id="vision">
   <div class="member-header">
     <span class="verified-badge">✓ VERIFIED MEMBER</span>
     <h2 style="color:#065f46;">Our 2026–2030 Roadmap</h2>
@@ -263,6 +284,24 @@
     </div>
   </div>
 </section>
+
+<!-- ONLINE USERS + CHAT -->
+<div id="online-sidebar" class="online-sidebar">
+  <h3><i class="fas fa-circle" style="color:#10b981"></i> Online Now</h3>
+  <div id="online-list"></div>
+</div>
+
+<div id="chat-window" class="chat-window">
+  <div class="chat-header">
+    <strong id="chat-with"></strong>
+    <button onclick="closeChat()" style="background:none;border:none;color:white;cursor:pointer;">✕</button>
+  </div>
+  <div id="chat-messages" class="chat-messages"></div>
+  <div class="chat-input">
+    <input id="chat-input" type="text" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
+    <button onclick="sendMessage()" class="btn">Send</button>
+  </div>
+</div>
 
 <footer>
   <p>© 2026 Pass It Forward — Building serious opportunity infrastructure</p>
@@ -305,6 +344,7 @@ document.getElementById('apply-form').addEventListener('submit', function(e) {
 });
 
 let currentUser = null;
+let currentChatUser = null;
 
 function showMemberTabs() {
   currentUser = localStorage.getItem('pf_user');
@@ -320,49 +360,60 @@ function showMemberTabs() {
   document.getElementById('display-name').textContent = currentUser;
   document.getElementById('apply-card').style.display = 'none';
   document.getElementById('share-testimonial').style.display = 'block';
+  document.getElementById('online-sidebar').style.display = 'block';
+  loadOnlineUsers();
   loadTestimonials();
   switchTab('vision');
 }
 
-function switchTab(tabId) {
-  document.querySelectorAll('#main-nav a').forEach(a => a.classList.remove('active'));
-  const activeLink = Array.from(document.querySelectorAll('#main-nav a')).find(a => a.getAttribute('href') === '#' + tabId);
-  if (activeLink) activeLink.classList.add('active');
-
-  document.querySelectorAll('.member-section').forEach(s => s.style.display = 'none');
-  const section = document.getElementById(tabId);
-  if (section) {
-    section.style.display = 'block';
-    section.scrollIntoView({ behavior: 'smooth' });
-  }
+function loadOnlineUsers() {
+  const list = document.getElementById('online-list');
+  list.innerHTML = `
+    <div class="online-user" onclick="openChat('${currentUser}')"><strong>@${currentUser.replace('@','')}</strong> <span class="status">(You)</span></div>
+    <div class="online-user" onclick="openChat('BuilderMindset')"><strong>@BuilderMindset</strong> <span class="status">online</span></div>
+    <div class="online-user" onclick="openChat('GrowthHustle')"><strong>@GrowthHustle</strong> <span class="status">online</span></div>
+    <div class="online-user" onclick="openChat('SelfMade2026')"><strong>@SelfMade2026</strong> <span class="status">online</span></div>
+  `;
 }
 
-function handleLogin() {
-  const handle = document.getElementById('xhandle').value.trim();
-  const code = document.getElementById('accesscode').value.trim();
-  if (!handle || code !== ACCESS_CODE) {
-    alert("Invalid access code. Only verified founding members have the code.");
-    return;
-  }
-  currentUser = handle.startsWith('@') ? handle : '@' + handle;
-  localStorage.setItem('pf_loggedIn', 'true');
-  localStorage.setItem('pf_user', currentUser);
-  closeModal();
-  showMemberTabs();
+function openChat(username) {
+  currentChatUser = username;
+  document.getElementById('chat-with').textContent = `@${username.replace('@','')}`;
+  document.getElementById('chat-window').style.display = 'flex';
+  loadChatMessages();
 }
 
-function closeModal() { document.getElementById('login-modal').style.display = 'none'; }
-function logout() { 
-  localStorage.removeItem('pf_loggedIn'); 
-  localStorage.removeItem('pf_user'); 
-  location.reload(); 
+function closeChat() {
+  document.getElementById('chat-window').style.display = 'none';
 }
 
-document.getElementById('login-btn').addEventListener('click', () => document.getElementById('login-modal').style.display = 'flex');
-document.getElementById('logout-btn').addEventListener('click', logout);
+function loadChatMessages() {
+  const key = `chat_${currentUser}_${currentChatUser}`.replace(/@/g,'');
+  const messages = JSON.parse(localStorage.getItem(key) || '[]');
+  const container = document.getElementById('chat-messages');
+  container.innerHTML = '';
+  messages.forEach(m => {
+    const div = document.createElement('div');
+    div.style.marginBottom = '12px';
+    div.style.textAlign = m.from === currentUser ? 'right' : 'left';
+    div.innerHTML = `<small>${m.from}</small><br><strong>${m.text}</strong>`;
+    container.appendChild(div);
+  });
+  container.scrollTop = container.scrollHeight;
+}
 
-if (localStorage.getItem('pf_loggedIn') === 'true') {
-  showMemberTabs();
+function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text || !currentChatUser) return;
+
+  const key = `chat_${currentUser}_${currentChatUser}`.replace(/@/g,'');
+  let messages = JSON.parse(localStorage.getItem(key) || '[]');
+  messages.push({ from: currentUser, text, time: new Date().toISOString() });
+  localStorage.setItem(key, JSON.stringify(messages));
+
+  loadChatMessages();
+  input.value = '';
 }
 
 function toggleRoadmap(el){
@@ -370,7 +421,7 @@ function toggleRoadmap(el){
   item.classList.toggle('active');
 }
 
-// Testimonials - 100% persistent
+// Testimonials
 function loadTestimonials() {
   const saved = JSON.parse(localStorage.getItem('testimonials') || '[]');
   const container = document.getElementById('testimonials-container');
@@ -408,6 +459,65 @@ function shareToX(btn) {
   const user = btn.parentElement.querySelector('.author a').textContent;
   const tweetText = encodeURIComponent(`"${testimonial}" - ${user} #PassItForward`);
   window.open(`https://x.com/intent/tweet?text=${tweetText}`, '_blank');
+}
+
+let currentUser = null;
+
+function showMemberTabs() {
+  currentUser = localStorage.getItem('pf_user');
+  const nav = document.getElementById('main-nav');
+  nav.innerHTML = `
+    <a href="#hero">Home</a>
+    <a href="#vision" onclick="switchTab('vision');return false">Roadmap</a>
+    <a href="#apply-card">Apply</a>
+    <a href="#testimonials">Testimonials</a>
+  `;
+  document.getElementById('login-btn').style.display = 'none';
+  document.getElementById('user-area').style.display = 'flex';
+  document.getElementById('display-name').textContent = currentUser;
+  document.getElementById('apply-card').style.display = 'none';
+  document.getElementById('share-testimonial').style.display = 'block';
+  document.getElementById('online-sidebar').style.display = 'block';
+  loadOnlineUsers();
+  loadTestimonials();
+  switchTab('vision');
+}
+
+function switchTab(tabId) {
+  document.querySelectorAll('#main-nav a').forEach(a => a.classList.remove('active'));
+  const activeLink = Array.from(document.querySelectorAll('#main-nav a')).find(a => a.getAttribute('href') === '#' + tabId);
+  if (activeLink) activeLink.classList.add('active');
+  document.querySelectorAll('.member-section').forEach(s => s.style.display = 'none');
+  document.getElementById(tabId).style.display = 'block';
+  document.getElementById(tabId).scrollIntoView({ behavior: 'smooth' });
+}
+
+function handleLogin() {
+  const handle = document.getElementById('xhandle').value.trim();
+  const code = document.getElementById('accesscode').value.trim();
+  if (!handle || code !== ACCESS_CODE) {
+    alert("Invalid access code. Only verified founding members have the code.");
+    return;
+  }
+  currentUser = handle.startsWith('@') ? handle : '@' + handle;
+  localStorage.setItem('pf_loggedIn', 'true');
+  localStorage.setItem('pf_user', currentUser);
+  closeModal();
+  showMemberTabs();
+}
+
+function closeModal() { document.getElementById('login-modal').style.display = 'none'; }
+function logout() { 
+  localStorage.removeItem('pf_loggedIn'); 
+  localStorage.removeItem('pf_user'); 
+  location.reload(); 
+}
+
+document.getElementById('login-btn').addEventListener('click', () => document.getElementById('login-modal').style.display = 'flex');
+document.getElementById('logout-btn').addEventListener('click', logout);
+
+if (localStorage.getItem('pf_loggedIn') === 'true') {
+  showMemberTabs();
 }
 
 window.onload = loadTestimonials;
