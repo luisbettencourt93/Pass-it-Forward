@@ -234,14 +234,7 @@
 <!-- Testimonials -->
 <section class="section" id="testimonials">
   <h2>What Members Are Saying</h2>
-  <div id="testimonials-container" class="audience-grid">
-    <!-- Static examples -->
-    <div class="testimonial">
-      <p>"Finally a community that actually builds real opportunities instead of just talking about them."</p>
-      <div class="author"><a href="https://x.com/BuilderMindset" target="_blank">@BuilderMindset</a></div>
-      <button onclick="shareToX(this)" class="btn" style="margin-top:1rem; font-size:0.9rem; padding:0.6rem 1.2rem;">Share on X</button>
-    </div>
-  </div>
+  <div id="testimonials-container" class="audience-grid"></div>
 
   <!-- Share your testimonial -->
   <div id="share-testimonial" class="share-testimonial">
@@ -299,6 +292,9 @@
 
 <script>
 const ACCESS_CODE = "founder2026";
+
+// Clear any corrupted testimonials on load
+localStorage.removeItem('testimonials'); // This removes the broken data once
 
 document.getElementById('apply-form').addEventListener('submit', function(e) {
   const name = document.querySelector('input[name="name"]').value;
@@ -369,10 +365,11 @@ function toggleRoadmap(el){
   item.classList.toggle('active');
 }
 
-// FIXED testimonial system
+// Fixed testimonial system
 function loadTestimonials() {
   const saved = JSON.parse(localStorage.getItem('testimonials') || '[]');
   const container = document.getElementById('testimonials-container');
+  container.innerHTML = '';
   saved.forEach(t => {
     const div = document.createElement('div');
     div.className = 'testimonial';
@@ -390,24 +387,15 @@ function submitTestimonial() {
   if (!text) return alert("Please write something!");
 
   const user = currentUser || "NewMember";
-  const newTestimonial = { text, user, date: new Date().toISOString() };
+  const newTestimonial = { text, user };
 
   let saved = JSON.parse(localStorage.getItem('testimonials') || '[]');
   saved.unshift(newTestimonial);
   localStorage.setItem('testimonials', JSON.stringify(saved));
 
-  const container = document.getElementById('testimonials-container');
-  const div = document.createElement('div');
-  div.className = 'testimonial';
-  div.innerHTML = `
-    <p>"${text}"</p>
-    <div class="author"><a href="https://x.com/${user.replace('@','')}" target="_blank">@${user.replace('@','')}</a></div>
-    <button onclick="shareToX(this)" class="btn" style="margin-top:1rem; font-size:0.9rem; padding:0.6rem 1.2rem;">Share on X</button>
-  `;
-  container.prepend(div);
-
+  loadTestimonials(); // refresh
   document.getElementById('testimonial-text').value = '';
-  alert("Thank you! Your testimonial is live and your name is now clickable.");
+  alert("Thank you! Your testimonial is live.");
 }
 
 function shareToX(btn) {
