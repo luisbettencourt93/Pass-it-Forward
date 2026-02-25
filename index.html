@@ -138,16 +138,21 @@
       margin-bottom: 1rem;
     }
 
-    /* Enhanced Dashboard - Makes members feel proud */
+    /* User Dashboard - Proud & Usable */
     .dashboard-card { background: white; border-radius: 24px; padding: 3rem; box-shadow: 0 15px 50px rgba(0,0,0,0.1); }
     .dashboard-header { text-align: center; margin-bottom: 3rem; }
-    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
-    .stat-card { background: #f8fafc; padding: 1.5rem; border-radius: 16px; text-align: center; }
-    .stat-card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 0.5rem; }
-    .progress-ring { width: 120px; height: 120px; margin: 1rem auto; position: relative; }
-    .progress-ring circle { transition: stroke-dashoffset 0.5s; }
-    .achievement-badges { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 2rem; }
-    .badge { width: 70px; height: 70px; background: #ecfdf5; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: 0 4px 12px rgba(16,185,129,0.2); }
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+    .stat-card { background: #f8fafc; padding: 1.8rem; border-radius: 16px; text-align: center; }
+    .stat-card i { font-size: 2.8rem; color: var(--primary); margin-bottom: 0.8rem; }
+    .goal-input { display: flex; gap: 0.8rem; margin: 1.5rem 0; }
+    .goal-input input { flex: 1; padding: 1rem; border: 1px solid var(--border); border-radius: 12px; font-size: 1.05rem; }
+    .goal-list { list-style: none; padding: 0; }
+    .goal-list li { 
+      display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f8fafc; 
+      margin-bottom: 0.8rem; border-radius: 12px; transition: all 0.2s;
+    }
+    .goal-list li:hover { background: #ecfdf5; }
+    .progress-bar { height: 10px; background: #10b981; border-radius: 999px; margin-top: 1rem; }
   </style>
 </head>
 <body>
@@ -297,12 +302,12 @@
   </div>
 </section>
 
-<!-- ENHANCED USER PROFILE DASHBOARD - MAKES MEMBERS FEEL PROUD -->
+<!-- USER DASHBOARD - FOR MEMBERS TO FEEL PROUD -->
 <section class="member-section section" id="dashboard">
   <div class="dashboard-card">
     <div class="dashboard-header">
-      <h2 style="color:#065f46; font-size:2.8rem;">Welcome back, <span id="profile-name"></span>!</h2>
-      <p style="font-size:1.4rem; color:#10b981;">Proud Founding Member • Building the future together</p>
+      <h2 style="color:#065f46;">Welcome back, <span id="profile-name"></span>!</h2>
+      <p style="color:#10b981; font-size:1.25rem;">You're a verified founding member building the future.</p>
     </div>
 
     <div class="stat-grid">
@@ -312,29 +317,26 @@
         <p>Goals Completed</p>
       </div>
       <div class="stat-card">
-        <i class="fas fa-comment"></i>
+        <i class="fas fa-comment-dots"></i>
         <h3 id="testimonials-count">0</h3>
         <p>Testimonials Shared</p>
       </div>
       <div class="stat-card">
-        <i class="fas fa-calendar"></i>
+        <i class="fas fa-calendar-check"></i>
         <h3>Day 1</h3>
         <p>Member since Feb 2026</p>
       </div>
     </div>
 
-    <h3 style="margin:2.5rem 0 1rem;">My Personal Goals</h3>
+    <h3>My Personal Goals</h3>
     <div class="goal-input">
-      <input id="personal-goal-input" type="text" placeholder="What do you want to achieve? (e.g. Launch my first project)" style="flex:1; padding:1rem; border:1px solid var(--border); border-radius:12px;">
+      <input id="personal-goal-input" type="text" placeholder="What do you want to achieve next?">
       <button onclick="addPersonalGoal()" class="btn">Add Goal</button>
     </div>
     <ul id="personal-goals-list" class="goal-list"></ul>
 
-    <h3 style="margin:2.5rem 0 1rem;">Community Milestones</h3>
-    <ul id="community-milestones" class="goal-list" style="background:#ecfdf5; padding:1.5rem; border-radius:16px;"></ul>
-
-    <h3 style="margin:2.5rem 0 1rem;">Your Achievements</h3>
-    <div class="achievement-badges" id="achievements"></div>
+    <h3 style="margin-top:2.5rem;">Community Milestones</h3>
+    <ul id="community-milestones" class="goal-list" style="background:#ecfdf5;"></ul>
 
     <h3 style="margin-top:2.5rem;">Your Testimonials</h3>
     <div id="my-testimonials" class="audience-grid"></div>
@@ -410,6 +412,7 @@ function showMemberTabs() {
     <a href="#hero">Home</a>
     <a href="#vision" onclick="switchTab('vision');return false">Roadmap</a>
     <a href="#testimonials">Testimonials</a>
+    <a href="#dashboard" onclick="switchTab('dashboard');return false">Dashboard</a>
   `;
   document.getElementById('login-btn').style.display = 'none';
   document.getElementById('user-area').style.display = 'flex';
@@ -579,7 +582,7 @@ function loadMyTestimonials() {
   });
 }
 
-// PERSONAL GOALS - INTERACTIVE & VISUAL
+// Personal Goals - Interactive
 function addPersonalGoal() {
   const input = document.getElementById('personal-goal-input');
   const text = input.value.trim();
@@ -630,44 +633,7 @@ function loadPersonalGoals() {
   renderPersonalGoals();
 }
 
-// Community Milestones
-const communityMilestones = [
-  "Reach 100 verified founding members",
-  "Host first live community call (March 2026)",
-  "Launch first member project showcase",
-  "Hit 500 total testimonials",
-  "Organize first in-person meetup"
-];
-
-function renderCommunityMilestones() {
-  const container = document.getElementById('community-milestones');
-  container.innerHTML = '';
-  communityMilestones.forEach(m => {
-    const li = document.createElement('li');
-    li.textContent = m;
-    container.appendChild(li);
-  });
-}
-
-// Achievements / Badges
-function renderAchievements() {
-  const container = document.getElementById('achievements');
-  container.innerHTML = `
-    <div class="badge" title="First Goal Completed">🏆</div>
-    <div class="badge" title="Active Contributor">🔥</div>
-    <div class="badge" title="Visionary Member">🌟</div>
-  `;
-}
-
-window.onload = function() {
-  loadTestimonials();
-  if (localStorage.getItem('pf_loggedIn') === 'true') {
-    showMemberTabs();
-    renderPersonalGoals();
-    renderCommunityMilestones();
-    renderAchievements();
-  }
-};
+window.onload = loadTestimonials;
 </script>
 </body>
 </html>
