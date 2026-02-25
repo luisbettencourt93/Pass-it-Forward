@@ -126,7 +126,7 @@ document.getElementById("apply-form").style.display="none";
 document.getElementById("apply-success").style.display="block";
 });
 
-/* LOGIN - FIXED */
+/* LOGIN - FIXED WITH TABS */
 document.getElementById("login-btn").onclick=function(){
 const code=prompt("Enter member code:");
 if(code===ACCESS_CODE){
@@ -188,7 +188,7 @@ renderGoals();
 }
 renderGoals();
 
-/* COMMUNITY MILESTONES - FIXED */
+/* COMMUNITY MILESTONES - FIXED & SAVED */
 let communityMilestonesData = JSON.parse(localStorage.getItem('communityMilestones')) || [
   { id: 1, text: "Reach 100 verified founding members", progress: 42, supporters: 18 },
   { id: 2, text: "Host first live community call", progress: 65, supporters: 31 },
