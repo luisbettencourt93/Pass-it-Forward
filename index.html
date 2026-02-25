@@ -209,19 +209,33 @@ document.getElementById("apply-form").style.display="none";
 document.getElementById("apply-success").style.display="block";
 });
 
-/* LOGIN */
+/* LOGIN - FIXED */
 document.getElementById("login-btn").onclick=function(){
 const code=prompt("Enter member code:");
 if(code===ACCESS_CODE){
+currentUser = "member";
 document.getElementById("dashboard").style.display="block";
 document.getElementById("vision").style.display="block";
 document.getElementById("chat-window").style.display="flex";
 
+// Update nav to show tabs
+document.querySelector("nav").innerHTML = `
+<a href="#hero">Home</a>
+<a href="#vision" onclick="switchTab('vision');return false">Roadmap</a>
+<a href="#testimonials">Testimonials</a>
+<a href="#dashboard" onclick="switchTab('dashboard');return false">Dashboard</a>
+`;
+
 // Welcome message with simple tasks
-document.getElementById("welcome-name").textContent = "Member";
+document.getElementById("welcome-name").textContent = currentUser;
 document.getElementById("welcome-modal").style.display="flex";
 }
 };
+
+function switchTab(tabId) {
+  document.querySelectorAll('.member-section').forEach(s => s.style.display = 'none');
+  document.getElementById(tabId).style.display = 'block';
+}
 
 /* WELCOME MODAL */
 function closeWelcome(){
@@ -258,7 +272,7 @@ renderGoals();
 }
 renderGoals();
 
-/* COMMUNITY MILESTONES - FIXED & SAVED */
+/* COMMUNITY MILESTONES - WORKING & SAVED */
 let communityMilestonesData = JSON.parse(localStorage.getItem('communityMilestones')) || [
   { id: 1, text: "Reach 100 verified founding members", progress: 42, supporters: 18 },
   { id: 2, text: "Host first live community call", progress: 65, supporters: 31 },
