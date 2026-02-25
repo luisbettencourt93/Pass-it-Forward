@@ -6,6 +6,8 @@
   <title>Pass It Forward — Opportunity Infrastructure</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <style>
     :root {
       --primary: #10b981;
@@ -137,11 +139,6 @@
       color: #065f46;
       margin-bottom: 1rem;
     }
-
-    /* Start Here Section */
-    .start-here-card { background: white; border-radius: 20px; padding: 3rem; box-shadow: 0 12px 48px rgba(0,0,0,0.09); }
-    .start-here-card ol { font-size: 1.15rem; line-height: 2; margin: 2rem 0; padding-left: 1.5rem; }
-    .start-here-card li { margin-bottom: 1.2rem; }
   </style>
 </head>
 <body>
@@ -291,21 +288,6 @@
   </div>
 </section>
 
-<!-- START HERE SECTION - NEW -->
-<section class="member-section section" id="start-here">
-  <div class="start-here-card">
-    <h2 style="color:#065f46;">🚀 Start Here — Welcome to the Community</h2>
-    <p style="font-size:1.25rem; margin:1.5rem 0;">Let's get you set up in 3 easy steps:</p>
-    <ol>
-      <li><strong>Introduce yourself</strong> — Post a short intro in the testimonials or chat so everyone knows you're here.</li>
-      <li><strong>Explore the Roadmap</strong> — See where we're headed and how you can contribute.</li>
-      <li><strong>Join the conversation</strong> — Say hi in the chat and connect with other founding members.</li>
-    </ol>
-    <button onclick="switchTab('testimonials')" class="btn" style="margin-right:1rem;">Post Your Intro</button>
-    <button onclick="switchTab('vision')" class="btn">Explore Roadmap</button>
-  </div>
-</section>
-
 <!-- ONLINE SIDEBAR -->
 <div id="online-sidebar" class="online-sidebar">
   <h3><i class="fas fa-circle" style="color:#10b981"></i> Who's Online</h3>
@@ -349,205 +331,9 @@
   </div>
 </div>
 
-<!-- WELCOME MODAL - NEW -->
-<div id="welcome-modal" class="modal">
-  <div class="modal-content" style="max-width:480px;">
-    <h2 style="color:#065f46;">Welcome, <span id="welcome-name"></span>! 🎉</h2>
-    <p style="font-size:1.2rem; margin:1.5rem 0;">We're thrilled to have you as a verified founding member of Pass It Forward.</p>
-    <p style="margin-bottom:2rem;">To get started, head to the <strong>Start Here</strong> section for a quick onboarding.</p>
-    <button onclick="goToStartHere()" class="btn" style="width:100%; margin-bottom:1rem;">Go to Start Here</button>
-    <button onclick="closeWelcomeModal()" style="background:none; border:none; color:#64748b; cursor:pointer;">Close</button>
-  </div>
-</div>
-
 <script>
 const ACCESS_CODE = "founder2026";
 
-document.getElementById('apply-form').addEventListener('submit', function(e) {
-  const name = document.querySelector('input[name="name"]').value;
-  const x = document.querySelector('input[name="x_username"]').value;
-  const skills = document.querySelector('textarea[name="skills"]').value;
-  const motivation = document.querySelector('textarea[name="motivation"]').value;
-  document.getElementById('submitted-name').textContent = name;
-  document.getElementById('submitted-x').textContent = x;
-  document.getElementById('submitted-skills').textContent = skills;
-  document.getElementById('submitted-motivation').textContent = motivation;
-  document.getElementById('apply-form').style.display = 'none';
-  document.getElementById('apply-success').style.display = 'block';
-});
-
-let currentUser = null;
-let currentChatUser = null;
-
-function showMemberTabs() {
-  currentUser = localStorage.getItem('pf_user');
-  const nav = document.getElementById('main-nav');
-  nav.innerHTML = `
-    <a href="#hero">Home</a>
-    <a href="#vision" onclick="switchTab('vision');return false">Roadmap</a>
-    <a href="#testimonials">Testimonials</a>
-    <a href="#start-here" onclick="switchTab('start-here');return false">Start Here</a>
-  `;
-  document.getElementById('login-btn').style.display = 'none';
-  document.getElementById('user-area').style.display = 'flex';
-  document.getElementById('display-name').textContent = currentUser;
-  document.getElementById('apply-card').style.display = 'none';
-  document.getElementById('share-testimonial').style.display = 'block';
-  document.getElementById('online-sidebar').style.display = 'block';
-  loadOnlineUsers();
-  loadTestimonials();
-  switchTab('start-here');
-
-  // Show personalized welcome modal
-  document.getElementById('welcome-name').textContent = currentUser;
-  document.getElementById('welcome-modal').style.display = 'flex';
-}
-
-function goToStartHere() {
-  closeWelcomeModal();
-  switchTab('start-here');
-}
-
-function closeWelcomeModal() {
-  document.getElementById('welcome-modal').style.display = 'none';
-}
-
-function switchTab(tabId) {
-  document.querySelectorAll('#main-nav a').forEach(a => a.classList.remove('active'));
-  const activeLink = Array.from(document.querySelectorAll('#main-nav a')).find(a => a.getAttribute('href') === '#' + tabId);
-  if (activeLink) activeLink.classList.add('active');
-  document.querySelectorAll('.member-section').forEach(s => s.style.display = 'none');
-  document.getElementById(tabId).style.display = 'block';
-  document.getElementById(tabId).scrollIntoView({ behavior: 'smooth' });
-}
-
-function handleLogin() {
-  const handle = document.getElementById('xhandle').value.trim();
-  const code = document.getElementById('accesscode').value.trim();
-  if (!handle || code !== ACCESS_CODE) {
-    alert("Invalid access code. Only verified founding members have the code.");
-    return;
-  }
-  currentUser = handle.startsWith('@') ? handle : '@' + handle;
-  localStorage.setItem('pf_loggedIn', 'true');
-  localStorage.setItem('pf_user', currentUser);
-  closeModal();
-  showMemberTabs();
-}
-
-function closeModal() { document.getElementById('login-modal').style.display = 'none'; }
-function logout() { 
-  localStorage.removeItem('pf_loggedIn'); 
-  localStorage.removeItem('pf_user'); 
-  location.reload(); 
-}
-
-document.getElementById('login-btn').addEventListener('click', () => document.getElementById('login-modal').style.display = 'flex');
-document.getElementById('logout-btn').addEventListener('click', logout);
-
-if (localStorage.getItem('pf_loggedIn') === 'true') {
-  showMemberTabs();
-}
-
-function toggleRoadmap(el){
-  const item = el.closest('.roadmap-item');
-  item.classList.toggle('active');
-}
-
-function toggleOnlineSidebar() {
-  const sidebar = document.getElementById('online-sidebar');
-  sidebar.style.display = sidebar.style.display === 'block' ? 'none' : 'block';
-}
-
-function loadOnlineUsers() {
-  const list = document.getElementById('online-list');
-  list.innerHTML = `
-    <div class="online-user" onclick="openChat('${currentUser}')"><strong>@${currentUser.replace('@','')}</strong> <span class="status">(You)</span></div>
-    <div class="online-user" onclick="openChat('BuilderMindset')"><strong>@BuilderMindset</strong> <span class="status">online</span></div>
-    <div class="online-user" onclick="openChat('GrowthHustle')"><strong>@GrowthHustle</strong> <span class="status">online</span></div>
-  `;
-}
-
-function openChat(username) {
-  currentChatUser = username;
-  document.getElementById('chat-with').textContent = `@${username.replace('@','')}`;
-  document.getElementById('chat-window').style.display = 'flex';
-  loadChatMessages();
-}
-
-function closeChat() {
-  document.getElementById('chat-window').style.display = 'none';
-}
-
-function loadChatMessages() {
-  const key = `chat_${currentUser}_${currentChatUser}`.replace(/@/g,'');
-  const messages = JSON.parse(localStorage.getItem(key) || '[]');
-  const container = document.getElementById('chat-messages');
-  container.innerHTML = '';
-  messages.forEach(m => {
-    const div = document.createElement('div');
-    div.style.marginBottom = '12px';
-    div.style.textAlign = m.from === currentUser ? 'right' : 'left';
-    div.innerHTML = `<small>${m.from}</small><br><strong>${m.text}</strong>`;
-    container.appendChild(div);
-  });
-  container.scrollTop = container.scrollHeight;
-}
-
-function sendMessage() {
-  const input = document.getElementById('chat-input');
-  const text = input.value.trim();
-  if (!text || !currentChatUser) return;
-
-  const key = `chat_${currentUser}_${currentChatUser}`.replace(/@/g,'');
-  let messages = JSON.parse(localStorage.getItem(key) || '[]');
-  messages.push({ from: currentUser, text });
-  localStorage.setItem(key, JSON.stringify(messages));
-
-  loadChatMessages();
-  input.value = '';
-}
-
-function loadTestimonials() {
-  const saved = JSON.parse(localStorage.getItem('testimonials') || '[]');
-  const container = document.getElementById('testimonials-container');
-  container.innerHTML = '';
-  saved.forEach(t => {
-    const div = document.createElement('div');
-    div.className = 'testimonial';
-    div.innerHTML = `
-      <p>"${t.text}"</p>
-      <div class="author"><a href="https://x.com/${t.user.replace('@','')}" target="_blank">@${t.user.replace('@','')}</a></div>
-      <button onclick="shareToX(this)" class="btn" style="margin-top:1rem; font-size:0.9rem; padding:0.6rem 1.2rem;">Share on X</button>
-    `;
-    container.appendChild(div);
-  });
-}
-
-function submitTestimonial() {
-  const text = document.getElementById('testimonial-text').value.trim();
-  if (!text) return alert("Please write something!");
-
-  const user = currentUser || "NewMember";
-  const newTestimonial = { text, user };
-
-  let saved = JSON.parse(localStorage.getItem('testimonials') || '[]');
-  saved.unshift(newTestimonial);
-  localStorage.setItem('testimonials', JSON.stringify(saved));
-
-  loadTestimonials();
-  document.getElementById('testimonial-text').value = '';
-  alert("Thank you! Your testimonial is live.");
-}
-
-function shareToX(btn) {
-  const testimonial = btn.parentElement.querySelector('p').textContent;
-  const user = btn.parentElement.querySelector('.author a').textContent;
-  const tweetText = encodeURIComponent(`"${testimonial}" - ${user} #PassItForward`);
-  window.open(`https://x.com/intent/tweet?text=${tweetText}`, '_blank');
-}
-
-window.onload = loadTestimonials;
-</script>
-</body>
-</html>
+// YOUR FIREBASE CONFIG (from your screenshot)
+const firebaseConfig = {
+  apiKey: "AIzaSyDdYdJb2cFv4R5Kf2N
