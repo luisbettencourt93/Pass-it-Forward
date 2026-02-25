@@ -20,10 +20,32 @@
     header { background: var(--dark); color: white; padding: 1.25rem 5%; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
     .header-inner { max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
     .logo { font-size: 1.55rem; font-weight: 700; letter-spacing: -0.4px; }
-    nav { display: flex; gap: 2rem; }
-    nav a { color: white; text-decoration: none; font-weight: 500; }
-    nav a:hover { color: var(--primary); }
-    nav a.active { color: var(--primary); border-bottom: 3px solid var(--primary); padding-bottom: 4px; }
+
+    /* IMPROVED TABS - Modern pill style */
+    nav { 
+      display: flex; 
+      gap: 0.5rem; 
+      background: rgba(255,255,255,0.1); 
+      padding: 8px; 
+      border-radius: 999px; 
+    }
+    nav a { 
+      color: white; 
+      text-decoration: none; 
+      font-weight: 500; 
+      padding: 12px 28px; 
+      border-radius: 999px; 
+      transition: all 0.3s ease; 
+    }
+    nav a:hover { 
+      background: rgba(255,255,255,0.15); 
+    }
+    nav a.active { 
+      background: white; 
+      color: var(--dark); 
+      font-weight: 600; 
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+    }
 
     .hero { padding: 10rem 5% 8rem; text-align: center; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; }
     .hero h1 { font-size: 3.8rem; font-weight: 800; margin-bottom: 1.5rem; letter-spacing: -1px; line-height: 1.05; }
@@ -647,7 +669,7 @@ function loadPersonalGoals() {
   renderPersonalGoals();
 }
 
-// MEANINGFUL COMMUNITY MILESTONES - NOW PERSISTENT
+// MEANINGFUL COMMUNITY MILESTONES - PERSISTENT
 function renderCommunityMilestones() {
   const container = document.getElementById('community-milestones');
   container.innerHTML = '';
@@ -676,7 +698,6 @@ function supportMilestone(id) {
   milestone.progress = Math.min(100, milestone.progress + 10);
   milestone.supporters += 1;
 
-  // SAVE TO LOCALSTORAGE - THIS IS THE FIX
   localStorage.setItem('communityMilestones', JSON.stringify(communityMilestonesData));
 
   renderCommunityMilestones();
