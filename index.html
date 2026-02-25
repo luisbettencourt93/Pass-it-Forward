@@ -4,11 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pass It Forward — Opportunity Infrastructure</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
 <style>
 :root{
 --primary:#10b981;
@@ -18,36 +16,27 @@
 --light:#f8fafc;
 --border:#e2e8f0;
 }
-
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:Inter;background:var(--light);color:var(--dark);line-height:1.7;}
-
 header{background:var(--dark);color:white;padding:1.2rem 5%;}
 .header-inner{display:flex;justify-content:space-between;align-items:center;}
 .logo{font-size:1.5rem;font-weight:700;}
-
 .hero{padding:8rem 5%;text-align:center;background:#0f172a;color:white;}
 .btn{padding:1rem 2rem;border:none;border-radius:999px;background:var(--primary);color:white;cursor:pointer;}
 .btn:hover{background:var(--primary-dark);}
-
 .section{padding:6rem 5%;}
 .apply-card{background:white;padding:2rem;border-radius:16px;max-width:700px;margin:auto;}
 input,textarea{width:100%;padding:1rem;border:1px solid var(--border);border-radius:10px;margin-bottom:1rem;}
 textarea{min-height:120px;}
-
 #apply-success{display:none;background:#ecfdf5;padding:1rem;border-radius:12px;margin-top:1rem;}
-
 .member-section{display:none;}
-
 .dashboard-card{background:white;padding:2rem;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08);}
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin:2rem 0;}
 .stat-card{background:#ecfdf5;padding:1rem;border-radius:12px;text-align:center;}
 .goal-list{list-style:none;padding:0;margin-top:1rem;}
 .goal-list li{display:flex;align-items:center;gap:.7rem;padding:.8rem;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:.6rem;background:white;}
-
 .milestone-progress{height:8px;background:#e2e8f0;border-radius:999px;margin:.5rem 0;}
 .milestone-bar{height:100%;background:#10b981;}
-
 .chat-window{
 position:fixed;
 bottom:20px;
@@ -64,9 +53,57 @@ box-shadow:0 10px 40px rgba(0,0,0,.2);
 .chat-messages{flex:1;overflow:auto;padding:1rem;background:#f8fafc;}
 .chat-input{display:flex;padding:1rem;gap:.5rem;}
 .chat-input input{flex:1;}
+
+/* Roadmap - ORIGINAL PIN LAYOUT */
+.roadmap {
+  max-width:900px;
+  margin:4rem auto;
+  position:relative;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.roadmap::before {
+  content:'';
+  position:absolute;
+  top:37px;
+  left:80px;
+  right:80px;
+  height:4px;
+  background:repeating-linear-gradient(to right,#10b981 0,#10b981 12px,transparent 12px,transparent 24px);
+}
+.roadmap-item {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  position:relative;
+  z-index:2;
+}
+.roadmap-pin {
+  width:75px;
+  height:75px;
+  background:linear-gradient(135deg,#FF9500,#FF5E00);
+  border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:2.2rem;
+  font-weight:700;
+  color:white;
+  box-shadow:0 10px 25px rgba(255,149,0,0.4);
+  margin-bottom:15px;
+  cursor:pointer;
+}
+.roadmap-content {
+  background:white;
+  padding:1.5rem;
+  border-radius:16px;
+  box-shadow:0 8px 25px rgba(0,0,0,0.1);
+  min-width:280px;
+  text-align:center;
+}
 </style>
 </head>
-
 <body>
 
 <header>
@@ -84,7 +121,6 @@ box-shadow:0 10px 40px rgba(0,0,0,.2);
 <section class="section" id="apply-card">
 <div class="apply-card">
 <h2>Apply for Access</h2>
-
 <form id="apply-form" action="https://formspree.io/f/mgolzjjr" method="POST">
 <input type="hidden" name="_subject" value="Pass It Forward Application">
 <input type="text" name="name" placeholder="Full Name" required>
@@ -93,23 +129,38 @@ box-shadow:0 10px 40px rgba(0,0,0,.2);
 <textarea name="motivation" placeholder="Why do you want to join?" required></textarea>
 <button class="btn" type="submit">Apply</button>
 </form>
-
 <div id="apply-success">
 ✔️ Application received — thank you.
 </div>
-
 </div>
 </section>
 
+<!-- ROADMAP - ORIGINAL PIN LAYOUT -->
+<section class="member-section section" id="vision">
+<h2 style="color:#065f46;text-align:center;">Our 2026–2030 Roadmap</h2>
+<div class="roadmap">
+<div class="roadmap-item">
+<div class="roadmap-pin" onclick="toggleRoadmap(this)">1</div>
+<div class="founder-badge">FOUNDING STAGE</div>
+<div class="roadmap-content">
+<h3>Founding Community Launch (Q1 2026)</h3>
+<div class="goal">• Accept first 100 verified founding members</div>
+<div class="goal">• Launch private community platform</div>
+<div class="goal">• Host first 4 weekly member calls</div>
+<div class="goal">• Establish “Pass It Forward” culture</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- DASHBOARD - YOUR ORIGINAL SIMPLE VERSION -->
 <section class="member-section section" id="dashboard">
 <div class="dashboard-card">
 <h2>Dashboard</h2>
-
 <div class="stat-grid">
 <div class="stat-card"><h3 id="goals-completed">0</h3><p>Goals Completed</p></div>
 <div class="stat-card"><h3 id="streak">1</h3><p>Day Streak</p></div>
 </div>
-
 <input id="personal-goal-input" placeholder="Add goal">
 <button class="btn" onclick="addPersonalGoal()">Add Goal</button>
 <ul id="personal-goals-list" class="goal-list"></ul>
@@ -125,6 +176,20 @@ box-shadow:0 10px 40px rgba(0,0,0,.2);
 <div class="chat-input">
 <input id="chat-input" placeholder="Type message..." onkeypress="if(event.key==='Enter') sendMessage()">
 <button class="btn" onclick="sendMessage()">Send</button>
+</div>
+</div>
+
+<!-- WELCOME MESSAGE WITH SIMPLE TASKS -->
+<div id="welcome-modal" class="modal" style="display:none;position:fixed;z-index:3000;background:rgba(15,23,42,0.9);width:100%;height:100%;top:0;left:0;align-items:center;justify-content:center;">
+<div class="modal-content" style="background:white;padding:2.5rem;border-radius:20px;max-width:520px;text-align:center;">
+<h2 style="color:#065f46;">Welcome, <span id="welcome-name"></span>! 🎉</h2>
+<p style="font-size:1.15rem;margin:1.5rem 0;">Here are 3 simple tasks to get started right now:</p>
+<ol style="text-align:left;font-size:1.1rem;line-height:2;margin:1.5rem 0;">
+<li>Post your first testimonial (tell everyone why you're here)</li>
+<li>Add your first personal goal in the dashboard</li>
+<li>Support one of the community milestones</li>
+</ol>
+<button class="btn" onclick="closeWelcome()" style="width:100%;">Got it, let's go!</button>
 </div>
 </div>
 
@@ -149,13 +214,22 @@ document.getElementById("login-btn").onclick=function(){
 const code=prompt("Enter member code:");
 if(code===ACCESS_CODE){
 document.getElementById("dashboard").style.display="block";
+document.getElementById("vision").style.display="block";
 document.getElementById("chat-window").style.display="flex";
+
+// Welcome message with simple tasks
+document.getElementById("welcome-name").textContent = "Member";
+document.getElementById("welcome-modal").style.display="flex";
 }
 };
 
+/* WELCOME MODAL */
+function closeWelcome(){
+document.getElementById("welcome-modal").style.display="none";
+}
+
 /* PERSONAL GOALS */
 let currentUser="member";
-
 function addPersonalGoal(){
 const input=document.getElementById("personal-goal-input");
 if(!input.value.trim())return;
@@ -165,7 +239,6 @@ localStorage.setItem("goals",JSON.stringify(goals));
 input.value="";
 renderGoals();
 }
-
 function renderGoals(){
 const list=document.getElementById("personal-goals-list");
 list.innerHTML="";
@@ -185,12 +258,51 @@ renderGoals();
 }
 renderGoals();
 
+/* COMMUNITY MILESTONES - FIXED & SAVED */
+let communityMilestonesData = JSON.parse(localStorage.getItem('communityMilestones')) || [
+  { id: 1, text: "Reach 100 verified founding members", progress: 42, supporters: 18 },
+  { id: 2, text: "Host first live community call", progress: 65, supporters: 31 },
+  { id: 3, text: "Launch first member project showcase", progress: 28, supporters: 12 }
+];
+
+function renderCommunityMilestones() {
+  const container = document.getElementById('community-milestones');
+  container.innerHTML = '';
+  communityMilestonesData.forEach(m => {
+    const li = document.createElement('li');
+    li.className = 'milestone';
+    li.innerHTML = `
+      <strong>${m.text}</strong>
+      <div class="milestone-progress">
+        <div class="milestone-bar" style="width:${m.progress}%"></div>
+      </div>
+      <div>Supported by ${m.supporters} members</div>
+      <button class="btn" style="margin-top:8px;width:100%" onclick="supportMilestone(${m.id})">Support Milestone</button>
+    `;
+    container.appendChild(li);
+  });
+}
+
+function supportMilestone(id) {
+  const milestone = communityMilestonesData.find(m => m.id === id);
+  if (milestone.progress >= 100) return alert("Already completed!");
+
+  milestone.progress = Math.min(100, milestone.progress + 15);
+  milestone.supporters++;
+
+  localStorage.setItem('communityMilestones', JSON.stringify(communityMilestonesData));
+  renderCommunityMilestones();
+
+  alert(`Thank you! Milestone now at ${milestone.progress}%`);
+}
+
+renderCommunityMilestones();
+
 /* CHAT */
 function loadCommunityMessages(){
 const container=document.getElementById("chat-messages");
 container.innerHTML="";
 const ref=database.ref("communityChat");
-ref.off(); // FIX duplicate listener
 ref.on("child_added",(snap)=>{
 const msg=snap.val();
 const div=document.createElement("div");
@@ -199,7 +311,6 @@ container.appendChild(div);
 container.scrollTop=container.scrollHeight;
 });
 }
-
 function sendMessage(){
 const input=document.getElementById("chat-input");
 if(!input.value.trim())return;
@@ -209,9 +320,12 @@ text:input.value
 });
 input.value="";
 }
-
 loadCommunityMessages();
-</script>
 
+/* Roadmap toggle */
+function toggleRoadmap(el) {
+  el.parentElement.classList.toggle('active');
+}
+</script>
 </body>
 </html>
