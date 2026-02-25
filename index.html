@@ -6,6 +6,8 @@
   <title>Pass It Forward — Opportunity Infrastructure</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <style>
     :root {
       --primary: #10b981;
@@ -20,32 +22,10 @@
     header { background: var(--dark); color: white; padding: 1.25rem 5%; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
     .header-inner { max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
     .logo { font-size: 1.55rem; font-weight: 700; letter-spacing: -0.4px; }
-
-    /* IMPROVED TABS - Modern pill style */
-    nav { 
-      display: flex; 
-      gap: 0.5rem; 
-      background: rgba(255,255,255,0.1); 
-      padding: 8px; 
-      border-radius: 999px; 
-    }
-    nav a { 
-      color: white; 
-      text-decoration: none; 
-      font-weight: 500; 
-      padding: 12px 28px; 
-      border-radius: 999px; 
-      transition: all 0.3s ease; 
-    }
-    nav a:hover { 
-      background: rgba(255,255,255,0.15); 
-    }
-    nav a.active { 
-      background: white; 
-      color: var(--dark); 
-      font-weight: 600; 
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
-    }
+    nav { display: flex; gap: 2rem; }
+    nav a { color: white; text-decoration: none; font-weight: 500; }
+    nav a:hover { color: var(--primary); }
+    nav a.active { color: var(--primary); border-bottom: 3px solid var(--primary); padding-bottom: 4px; }
 
     .hero { padding: 10rem 5% 8rem; text-align: center; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; }
     .hero h1 { font-size: 3.8rem; font-weight: 800; margin-bottom: 1.5rem; letter-spacing: -1px; line-height: 1.05; }
@@ -96,89 +76,21 @@
     .online-user { padding: 0.7rem 1rem; border-radius: 10px; cursor: pointer; transition: 0.2s; font-size: 0.95rem; }
     .online-user:hover { background: #ecfdf5; }
 
-    /* Chat Window */
+    /* Real-time Chat Window */
     .chat-window { 
-      position: fixed; bottom: 20px; right: 280px; width: 380px; background: white; 
+      position: fixed; bottom: 20px; right: 280px; width: 420px; background: white; 
       border-radius: 16px; box-shadow: 0 15px 50px rgba(0,0,0,0.15); display: none; 
-      flex-direction: column; height: 500px; z-index: 300; 
+      flex-direction: column; height: 520px; z-index: 300; 
     }
     .chat-header { padding: 1rem; background: var(--primary); color: white; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: center; }
     .chat-messages { flex: 1; padding: 1rem; overflow-y: auto; background: #f8fafc; }
     .chat-input { padding: 1rem; border-top: 1px solid var(--border); display: flex; gap: 0.5rem; }
     .chat-input input { flex: 1; padding: 0.8rem; border: 1px solid var(--border); border-radius: 999px; }
-
-    /* Horizontal Pin Roadmap */
-    .roadmap {
-      max-width: 900px;
-      margin: 4rem auto;
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .roadmap::before {
-      content: '';
-      position: absolute;
-      top: 37px;
-      left: 80px;
-      right: 80px;
-      height: 4px;
-      background: repeating-linear-gradient(to right, #10b981 0, #10b981 12px, transparent 12px, transparent 24px);
-    }
-    .roadmap-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-      z-index: 2;
-    }
-    .roadmap-pin {
-      width: 75px;
-      height: 75px;
-      background: linear-gradient(135deg, #FF9500, #FF5E00);
-      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.2rem;
-      font-weight: 700;
-      color: white;
-      box-shadow: 0 10px 25px rgba(255,149,0,0.4);
-      margin-bottom: 15px;
-      cursor: pointer;
-    }
-    .roadmap-content {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 16px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-      min-width: 280px;
-      text-align: center;
-    }
-    .roadmap-content h3 {
-      color: #065f46;
-      margin-bottom: 1rem;
-    }
-
-    /* Dashboard */
-    .dashboard-card { background: white; border-radius: 24px; padding: 3rem; box-shadow: 0 15px 50px rgba(0,0,0,0.1); }
-    .dashboard-header { text-align: center; margin-bottom: 3rem; }
-    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
-    .stat-card { background: #f8fafc; padding: 1.8rem; border-radius: 16px; text-align: center; }
-    .stat-card i { font-size: 2.8rem; color: var(--primary); margin-bottom: 0.8rem; }
-    .goal-input { display: flex; gap: 0.8rem; margin: 1.5rem 0; }
-    .goal-input input { flex: 1; padding: 1rem; border: 1px solid var(--border); border-radius: 12px; font-size: 1.05rem; }
-    .goal-list { list-style: none; padding: 0; }
-    .goal-list li { 
-      display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f8fafc; 
-      margin-bottom: 0.8rem; border-radius: 12px; transition: all 0.2s;
-    }
-    .goal-list li:hover { background: #ecfdf5; }
-
-    /* Meaningful Community Milestones */
-    .milestone { padding: 1rem; background: #ecfdf5; border-radius: 12px; margin-bottom: 1rem; }
-    .milestone-progress { height: 10px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin: 0.8rem 0; }
-    .milestone-bar { height: 100%; background: var(--primary); transition: width 0.4s; }
+    .chat-message { margin-bottom: 1rem; }
+    .chat-message .user { font-size: 0.85rem; color: var(--gray); }
+    .chat-message .text { padding: 0.6rem 1rem; border-radius: 12px; max-width: 80%; display: inline-block; }
+    .my-message .text { background: var(--primary); color: white; margin-left: auto; }
+    .other-message .text { background: white; border: 1px solid var(--border); }
   </style>
 </head>
 <body>
@@ -375,10 +287,10 @@
   <div id="online-list"></div>
 </div>
 
-<!-- CHAT WINDOW -->
+<!-- REAL-TIME COMMUNITY CHAT -->
 <div id="chat-window" class="chat-window">
   <div class="chat-header">
-    <strong id="chat-with"></strong>
+    <strong>Community Chat</strong>
     <button onclick="closeChat()" style="background:none;border:none;color:white;cursor:pointer;">✕</button>
   </div>
   <div id="chat-messages" class="chat-messages"></div>
@@ -415,6 +327,20 @@
 <script>
 const ACCESS_CODE = "founder2026";
 
+// Your Firebase Config (real-time chat)
+const firebaseConfig = {
+  apiKey: "AIzaSyDdYdJb2cFv4R5Kf2NruN6zaPsAEkathHj9E",
+  authDomain: "pass-it-forward-chat.firebaseapp.com",
+  databaseURL: "https://pass-it-forward-chat-default-rtdb.firebaseio.com",
+  projectId: "pass-it-forward-chat",
+  storageBucket: "pass-it-forward-chat.firebasestorage.app",
+  messagingSenderId: "329412615309",
+  appId: "1:329412615309:web:c0daf7ef87c0c99d6d6c4"
+};
+
+const app = firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
 document.getElementById('apply-form').addEventListener('submit', function(e) {
   const name = document.querySelector('input[name="name"]').value;
   const x = document.querySelector('input[name="x_username"]').value;
@@ -430,15 +356,6 @@ document.getElementById('apply-form').addEventListener('submit', function(e) {
 
 let currentUser = null;
 let currentChatUser = null;
-
-// Persistent Community Milestones
-let communityMilestonesData = JSON.parse(localStorage.getItem('communityMilestones')) || [
-  { id: 1, text: "Reach 100 verified founding members", progress: 42, supporters: 18 },
-  { id: 2, text: "Host first live community call (March 2026)", progress: 65, supporters: 31 },
-  { id: 3, text: "Launch first member project showcase", progress: 28, supporters: 12 },
-  { id: 4, text: "Hit 500 total testimonials", progress: 19, supporters: 8 },
-  { id: 5, text: "Organize first in-person meetup", progress: 0, supporters: 0 }
-];
 
 function showMemberTabs() {
   currentUser = localStorage.getItem('pf_user');
@@ -513,112 +430,54 @@ function toggleOnlineSidebar() {
 function loadOnlineUsers() {
   const list = document.getElementById('online-list');
   list.innerHTML = `
-    <div class="online-user" onclick="openChat('${currentUser}')"><strong>@${currentUser.replace('@','')}</strong> <span class="status">(You)</span></div>
-    <div class="online-user" onclick="openChat('BuilderMindset')"><strong>@BuilderMindset</strong> <span class="status">online</span></div>
-    <div class="online-user" onclick="openChat('GrowthHustle')"><strong>@GrowthHustle</strong> <span class="status">online</span></div>
+    <div class="online-user" onclick="openCommunityChat()"><strong>Community Chat</strong> <span class="status">(Live)</span></div>
   `;
 }
 
-function openChat(username) {
-  currentChatUser = username;
-  document.getElementById('chat-with').textContent = `@${username.replace('@','')}`;
+// REAL-TIME COMMUNITY CHAT
+function openCommunityChat() {
   document.getElementById('chat-window').style.display = 'flex';
-  loadChatMessages();
+  loadCommunityMessages();
 }
 
 function closeChat() {
   document.getElementById('chat-window').style.display = 'none';
 }
 
-function loadChatMessages() {
-  const key = `chat_${currentUser}_${currentChatUser}`.replace(/@/g,'');
-  const messages = JSON.parse(localStorage.getItem(key) || '[]');
+function loadCommunityMessages() {
   const container = document.getElementById('chat-messages');
   container.innerHTML = '';
-  messages.forEach(m => {
+
+  const chatRef = database.ref('communityChat');
+  chatRef.on('child_added', (snapshot) => {
+    const msg = snapshot.val();
     const div = document.createElement('div');
-    div.style.marginBottom = '12px';
-    div.style.textAlign = m.from === currentUser ? 'right' : 'left';
-    div.innerHTML = `<small>${m.from}</small><br><strong>${m.text}</strong>`;
+    div.className = 'chat-message';
+    div.innerHTML = `
+      <div class="user">@${msg.user}</div>
+      <div class="text">${msg.text}</div>
+    `;
     container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
   });
-  container.scrollTop = container.scrollHeight;
 }
 
 function sendMessage() {
   const input = document.getElementById('chat-input');
   const text = input.value.trim();
-  if (!text || !currentChatUser) return;
+  if (!text || !currentUser) return;
 
-  const key = `chat_${currentUser}_${currentChatUser}`.replace(/@/g,'');
-  let messages = JSON.parse(localStorage.getItem(key) || '[]');
-  messages.push({ from: currentUser, text });
-  localStorage.setItem(key, JSON.stringify(messages));
+  const chatRef = database.ref('communityChat');
+  chatRef.push({
+    user: currentUser.replace('@', ''),
+    text: text,
+    timestamp: Date.now()
+  });
 
-  loadChatMessages();
   input.value = '';
 }
 
-function loadTestimonials() {
-  const saved = JSON.parse(localStorage.getItem('testimonials') || '[]');
-  const container = document.getElementById('testimonials-container');
-  container.innerHTML = '';
-  saved.forEach(t => {
-    const div = document.createElement('div');
-    div.className = 'testimonial';
-    div.innerHTML = `
-      <p>"${t.text}"</p>
-      <div class="author"><a href="https://x.com/${t.user.replace('@','')}" target="_blank">@${t.user.replace('@','')}</a></div>
-      <button onclick="shareToX(this)" class="btn" style="margin-top:1rem; font-size:0.9rem; padding:0.6rem 1.2rem;">Share on X</button>
-    `;
-    container.appendChild(div);
-  });
-}
-
-function submitTestimonial() {
-  const text = document.getElementById('testimonial-text').value.trim();
-  if (!text) return alert("Please write something!");
-
-  const user = currentUser || "NewMember";
-  const newTestimonial = { text, user };
-
-  let saved = JSON.parse(localStorage.getItem('testimonials') || '[]');
-  saved.unshift(newTestimonial);
-  localStorage.setItem('testimonials', JSON.stringify(saved));
-
-  loadTestimonials();
-  document.getElementById('testimonial-text').value = '';
-  alert("Thank you! Your testimonial is live.");
-}
-
-function shareToX(btn) {
-  const testimonial = btn.parentElement.querySelector('p').textContent;
-  const user = btn.parentElement.querySelector('.author a').textContent;
-  const tweetText = encodeURIComponent(`"${testimonial}" - ${user} #PassItForward`);
-  window.open(`https://x.com/intent/tweet?text=${tweetText}`, '_blank');
-}
-
-function loadMyTestimonials() {
-  const saved = JSON.parse(localStorage.getItem('testimonials') || '[]');
-  const container = document.getElementById('my-testimonials');
-  container.innerHTML = '';
-  const myTestis = saved.filter(t => t.user === currentUser);
-  if (myTestis.length === 0) {
-    container.innerHTML = '<p style="color:#64748b; font-style:italic;">You haven\'t posted any testimonials yet.</p>';
-    return;
-  }
-  myTestis.forEach(t => {
-    const div = document.createElement('div');
-    div.className = 'testimonial';
-    div.innerHTML = `
-      <p>"${t.text}"</p>
-      <div class="author"><a href="https://x.com/${t.user.replace('@','')}" target="_blank">@${t.user.replace('@','')}</a></div>
-    `;
-    container.appendChild(div);
-  });
-}
-
-// PERSONAL GOALS
+// PERSONAL GOALS (unchanged)
 function addPersonalGoal() {
   const input = document.getElementById('personal-goal-input');
   const text = input.value.trim();
@@ -669,7 +528,15 @@ function loadPersonalGoals() {
   renderPersonalGoals();
 }
 
-// MEANINGFUL COMMUNITY MILESTONES - PERSISTENT
+// Community Milestones (unchanged)
+let communityMilestonesData = JSON.parse(localStorage.getItem('communityMilestones')) || [
+  { id: 1, text: "Reach 100 verified founding members", progress: 42, supporters: 18 },
+  { id: 2, text: "Host first live community call (March 2026)", progress: 65, supporters: 31 },
+  { id: 3, text: "Launch first member project showcase", progress: 28, supporters: 12 },
+  { id: 4, text: "Hit 500 total testimonials", progress: 19, supporters: 8 },
+  { id: 5, text: "Organize first in-person meetup", progress: 0, supporters: 0 }
+];
+
 function renderCommunityMilestones() {
   const container = document.getElementById('community-milestones');
   container.innerHTML = '';
