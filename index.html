@@ -138,23 +138,20 @@
       margin-bottom: 1rem;
     }
 
-    /* Enhanced Interactive Dashboard */
+    /* Interactive Dashboard Goals */
     .dashboard-card { background: white; border-radius: 24px; padding: 3rem; box-shadow: 0 15px 50px rgba(0,0,0,0.1); }
     .dashboard-header { text-align: center; margin-bottom: 3rem; }
     .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
     .stat-card { background: #f8fafc; padding: 1.8rem; border-radius: 16px; text-align: center; }
     .stat-card i { font-size: 2.8rem; color: var(--primary); margin-bottom: 0.8rem; }
-    .goal-form { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 0.8rem; margin: 1.5rem 0; }
-    .goal-form input, .goal-form select { padding: 1rem; border: 1px solid var(--border); border-radius: 12px; font-size: 1.05rem; }
+    .goal-input { display: flex; gap: 0.8rem; margin: 1.5rem 0; }
+    .goal-input input { flex: 1; padding: 1rem; border: 1px solid var(--border); border-radius: 12px; font-size: 1.05rem; }
     .goal-list { list-style: none; padding: 0; }
     .goal-list li { 
       display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f8fafc; 
       margin-bottom: 0.8rem; border-radius: 12px; transition: all 0.2s;
     }
     .goal-list li:hover { background: #ecfdf5; }
-    .priority-high { background: #fee2e2; color: #ef4444; }
-    .priority-med { background: #fef3c7; color: #d97706; }
-    .priority-low { background: #dbeafe; color: #3b82f6; }
   </style>
 </head>
 <body>
@@ -304,7 +301,7 @@
   </div>
 </section>
 
-<!-- INTERACTIVE USER DASHBOARD -->
+<!-- INTERACTIVE DASHBOARD -->
 <section class="member-section section" id="dashboard">
   <div class="dashboard-card">
     <div class="dashboard-header">
@@ -316,7 +313,7 @@
       <div class="stat-card">
         <i class="fas fa-trophy"></i>
         <h3 id="goals-completed">0</h3>
-        <p>Goals Completed</p>
+        <p id="goals-total">of 0 completed</p>
       </div>
       <div class="stat-card">
         <i class="fas fa-comment-dots"></i>
@@ -332,18 +329,7 @@
 
     <h3>My Personal Goals</h3>
     <div class="goal-input">
-      <input id="personal-goal-input" type="text" placeholder="Goal title..." style="flex:2;">
-      <select id="goal-category" style="padding:1rem; border:1px solid var(--border); border-radius:12px;">
-        <option value="Skill">Skill Development</option>
-        <option value="Project">Project Launch</option>
-        <option value="Contribution">Community Contribution</option>
-      </select>
-      <input id="goal-due" type="date" style="padding:1rem; border:1px solid var(--border); border-radius:12px;">
-      <select id="goal-priority" style="padding:1rem; border:1px solid var(--border); border-radius:12px;">
-        <option value="High">High</option>
-        <option value="Medium">Medium</option>
-        <option value="Low">Low</option>
-      </select>
+      <input id="personal-goal-input" type="text" placeholder="What do you want to achieve next?">
       <button onclick="addPersonalGoal()" class="btn">Add Goal</button>
     </div>
     <ul id="personal-goals-list" class="goal-list"></ul>
@@ -595,20 +581,17 @@ function loadMyTestimonials() {
   });
 }
 
-// INTERACTIVE GOALS
+// INTERACTIVE GOALS - FIXED COUNTING
 function addPersonalGoal() {
-  const title = document.getElementById('personal-goal-input').value.trim();
-  if (!title || !currentUser) return;
+  const input = document.getElementById('personal-goal-input');
+  const text = input.value.trim();
+  if (!text || !currentUser) return;
 
   let goals = JSON.parse(localStorage.getItem(`goals_${currentUser}`) || '[]');
-  goals.unshift({ 
-    id: Date.now(), 
-    text: title, 
-    done: false 
-  });
+  goals.unshift({ id: Date.now(), text: text, done: false });
   localStorage.setItem(`goals_${currentUser}`, JSON.stringify(goals));
 
-  document.getElementById('personal-goal-input').value = '';
+  input.value = '';
   renderPersonalGoals();
 }
 
@@ -617,11 +600,15 @@ function renderPersonalGoals() {
   container.innerHTML = '';
   let goals = JSON.parse(localStorage.getItem(`goals_${currentUser}`) || '[]');
 
+  let completed = goals.filter(g => g.done).length;
+  document.getElementById('goals-completed').textContent = completed;
+  document.getElementById('goals-total').textContent = `of ${goals.length} completed`;
+
   goals.forEach((goal, index) => {
     const li = document.createElement('li');
     li.innerHTML = `
       <input type="checkbox" ${goal.done ? 'checked' : ''} onchange="toggleGoal(${index})">
-      <span onclick="editGoal(${index})" style="${goal.done ? 'text-decoration:line-through; opacity:0.6' : ''}">${goal.text}</span>
+      <span style="${goal.done ? 'text-decoration:line-through; opacity:0.6' : ''}">${goal.text}</span>
       <button onclick="deleteGoal(${index})" style="margin-left:auto; background:none; border:none; color:#ef4444; cursor:pointer;">Delete</button>
     `;
     container.appendChild(li);
@@ -632,7 +619,7 @@ function toggleGoal(index) {
   let goals = JSON.parse(localStorage.getItem(`goals_${currentUser}`) || '[]');
   goals[index].done = !goals[index].done;
   localStorage.setItem(`goals_${currentUser}`, JSON.stringify(goals));
-  renderPersonalGoals();
+  renderPersonalGoals();   // This now instantly updates the count
 }
 
 function deleteGoal(index) {
@@ -640,16 +627,6 @@ function deleteGoal(index) {
   goals.splice(index, 1);
   localStorage.setItem(`goals_${currentUser}`, JSON.stringify(goals));
   renderPersonalGoals();
-}
-
-function editGoal(index) {
-  let goals = JSON.parse(localStorage.getItem(`goals_${currentUser}`) || '[]');
-  const newText = prompt("Edit goal:", goals[index].text);
-  if (newText !== null) {
-    goals[index].text = newText.trim();
-    localStorage.setItem(`goals_${currentUser}`, JSON.stringify(goals));
-    renderPersonalGoals();
-  }
 }
 
 function loadPersonalGoals() {
