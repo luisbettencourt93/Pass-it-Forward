@@ -138,10 +138,10 @@
       margin-bottom: 1rem;
     }
 
-    /* Start Here */
-    .start-here-card { background: white; border-radius: 20px; padding: 3rem; box-shadow: 0 12px 48px rgba(0,0,0,0.09); }
-    .start-here-card ol { font-size: 1.15rem; line-height: 2; margin: 2rem 0; padding-left: 1.5rem; }
-    .start-here-card li { margin-bottom: 1.2rem; }
+    /* Dashboard Goals */
+    .goal-input { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    .goal-list { list-style: none; padding: 0; }
+    .goal-list li { padding: 0.8rem; background: #f8fafc; margin-bottom: 0.5rem; border-radius: 8px; }
   </style>
 </head>
 <body>
@@ -291,18 +291,35 @@
   </div>
 </section>
 
-<!-- START HERE -->
-<section class="member-section section" id="start-here">
-  <div class="start-here-card">
-    <h2 style="color:#065f46;">🚀 Start Here — Welcome to the Community</h2>
-    <p style="font-size:1.25rem; margin:1.5rem 0;">Let's get you set up in 3 easy steps:</p>
-    <ol>
-      <li><strong>Introduce yourself</strong> — Post a short intro in the testimonials or chat so everyone knows you're here.</li>
-      <li><strong>Explore the Roadmap</strong> — See where we're headed and how you can contribute.</li>
-      <li><strong>Join the conversation</strong> — Say hi in the chat and connect with other founding members.</li>
-    </ol>
-    <button onclick="switchTab('testimonials')" class="btn" style="margin-right:1rem;">Post Your Intro</button>
-    <button onclick="switchTab('vision')" class="btn">Explore Roadmap</button>
+<!-- USER PROFILE DASHBOARD - ENHANCED WITH PERSONAL GOALS + COMMUNITY MILESTONES -->
+<section class="member-section section" id="dashboard">
+  <div class="dashboard-card">
+    <h2 style="color:#065f46;">Your Profile Dashboard</h2>
+    <p style="font-size:1.3rem; margin:1.5rem 0;">
+      Welcome back, <strong id="profile-name"></strong><br>
+      <span class="founder-badge" style="font-size:0.95rem;">✓ VERIFIED FOUNDER</span>
+    </p>
+
+    <!-- Personal Goals -->
+    <h3 style="margin-top:2rem;">My Personal Goals</h3>
+    <div class="goal-input">
+      <input id="personal-goal-input" type="text" placeholder="E.g. Learn Firebase, Launch my project..." style="flex:1; padding:0.8rem; border:1px solid var(--border); border-radius:8px;">
+      <button onclick="addPersonalGoal()" class="btn">Add Goal</button>
+    </div>
+    <ul id="personal-goals-list" class="goal-list"></ul>
+
+    <!-- Community Milestones -->
+    <h3 style="margin-top:2.5rem;">Community Milestones</h3>
+    <ul id="community-milestones" class="goal-list" style="background:#ecfdf5; padding:1rem; border-radius:12px;">
+      <li>Reach 100 verified founding members</li>
+      <li>Host first live community call (March 2026)</li>
+      <li>Launch first member project showcase</li>
+      <li>Hit 500 total testimonials</li>
+      <li>Organize first in-person meetup</li>
+    </ul>
+
+    <h3 style="margin-top:2rem; margin-bottom:1rem;">Your Testimonials</h3>
+    <div id="my-testimonials" class="audience-grid"></div>
   </div>
 </section>
 
@@ -349,17 +366,6 @@
   </div>
 </div>
 
-<!-- WELCOME MODAL -->
-<div id="welcome-modal" class="modal">
-  <div class="modal-content" style="max-width:480px;">
-    <h2 style="color:#065f46;">Welcome, <span id="welcome-name"></span>! 🎉</h2>
-    <p style="font-size:1.2rem; margin:1.5rem 0;">We're thrilled to have you as a verified founding member of Pass It Forward.</p>
-    <p style="margin-bottom:2rem;">To get started, head to the <strong>Start Here</strong> section for a quick onboarding.</p>
-    <button onclick="goToStartHere()" class="btn" style="width:100%; margin-bottom:1rem;">Go to Start Here</button>
-    <button onclick="closeWelcomeModal()" style="background:none; border:none; color:#64748b; cursor:pointer;">Close</button>
-  </div>
-</div>
-
 <script>
 const ACCESS_CODE = "founder2026";
 
@@ -385,31 +391,19 @@ function showMemberTabs() {
   nav.innerHTML = `
     <a href="#hero">Home</a>
     <a href="#vision" onclick="switchTab('vision');return false">Roadmap</a>
+    <a href="#apply-card">Apply</a>
     <a href="#testimonials">Testimonials</a>
-    <a href="#start-here" onclick="switchTab('start-here');return false">Start Here</a>
   `;
   document.getElementById('login-btn').style.display = 'none';
   document.getElementById('user-area').style.display = 'flex';
   document.getElementById('display-name').textContent = currentUser;
-  document.getElementById('apply-card').style.display = 'none';   // HIDDEN WHEN LOGGED IN
+  document.getElementById('apply-card').style.display = 'none';
   document.getElementById('share-testimonial').style.display = 'block';
   document.getElementById('online-sidebar').style.display = 'block';
   loadOnlineUsers();
   loadTestimonials();
-  switchTab('start-here');
-
-  // Show welcome message
-  document.getElementById('welcome-name').textContent = currentUser;
-  document.getElementById('welcome-modal').style.display = 'flex';
-}
-
-function goToStartHere() {
-  closeWelcomeModal();
-  switchTab('start-here');
-}
-
-function closeWelcomeModal() {
-  document.getElementById('welcome-modal').style.display = 'none';
+  loadMyTestimonials();
+  switchTab('dashboard');
 }
 
 function switchTab(tabId) {
@@ -547,7 +541,90 @@ function shareToX(btn) {
   window.open(`https://x.com/intent/tweet?text=${tweetText}`, '_blank');
 }
 
-window.onload = loadTestimonials;
+function loadMyTestimonials() {
+  const saved = JSON.parse(localStorage.getItem('testimonials') || '[]');
+  const container = document.getElementById('my-testimonials');
+  container.innerHTML = '';
+  const myTestis = saved.filter(t => t.user === currentUser);
+  if (myTestis.length === 0) {
+    container.innerHTML = '<p style="color:#64748b; font-style:italic;">You haven\'t posted any testimonials yet.</p>';
+    return;
+  }
+  myTestis.forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'testimonial';
+    div.innerHTML = `
+      <p>"${t.text}"</p>
+      <div class="author"><a href="https://x.com/${t.user.replace('@','')}" target="_blank">@${t.user.replace('@','')}</a></div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+// PERSONAL GOALS
+function addPersonalGoal() {
+  const input = document.getElementById('personal-goal-input');
+  const text = input.value.trim();
+  if (!text || !currentUser) return;
+
+  let goals = JSON.parse(localStorage.getItem(`goals_${currentUser}`) || '[]');
+  goals.unshift({ text, done: false });
+  localStorage.setItem(`goals_${currentUser}`, JSON.stringify(goals));
+
+  input.value = '';
+  renderPersonalGoals();
+}
+
+function renderPersonalGoals() {
+  const container = document.getElementById('personal-goals-list');
+  container.innerHTML = '';
+  let goals = JSON.parse(localStorage.getItem(`goals_${currentUser}`) || '[]');
+  goals.forEach((goal, index) => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <input type="checkbox" ${goal.done ? 'checked' : ''} onchange="toggleGoal(${index})">
+      <span style="${goal.done ? 'text-decoration:line-through; opacity:0.6' : ''}">${goal.text}</span>
+    `;
+    container.appendChild(li);
+  });
+}
+
+function toggleGoal(index) {
+  let goals = JSON.parse(localStorage.getItem(`goals_${currentUser}`) || '[]');
+  goals[index].done = !goals[index].done;
+  localStorage.setItem(`goals_${currentUser}`, JSON.stringify(goals));
+  renderPersonalGoals();
+}
+
+// COMMUNITY MILESTONES (static for now)
+const communityMilestones = [
+  "Reach 100 verified founding members",
+  "Host first live community call (March 2026)",
+  "Launch first member project showcase",
+  "Hit 500 total testimonials",
+  "Organize first in-person meetup"
+];
+
+// Render community milestones on load
+function renderCommunityMilestones() {
+  const container = document.getElementById('community-milestones');
+  if (!container) return;
+  container.innerHTML = '';
+  communityMilestones.forEach(m => {
+    const li = document.createElement('li');
+    li.textContent = m;
+    container.appendChild(li);
+  });
+}
+
+window.onload = function() {
+  loadTestimonials();
+  if (localStorage.getItem('pf_loggedIn') === 'true') {
+    showMemberTabs();
+    renderPersonalGoals();
+    renderCommunityMilestones();
+  }
+};
 </script>
 </body>
 </html>
