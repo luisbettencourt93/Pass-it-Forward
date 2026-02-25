@@ -138,7 +138,7 @@
       margin-bottom: 1rem;
     }
 
-    /* Interactive Dashboard Goals */
+    /* Interactive Dashboard */
     .dashboard-card { background: white; border-radius: 24px; padding: 3rem; box-shadow: 0 15px 50px rgba(0,0,0,0.1); }
     .dashboard-header { text-align: center; margin-bottom: 3rem; }
     .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
@@ -152,6 +152,11 @@
       margin-bottom: 0.8rem; border-radius: 12px; transition: all 0.2s;
     }
     .goal-list li:hover { background: #ecfdf5; }
+
+    /* Meaningful Community Milestones */
+    .milestone { padding: 1rem; background: #ecfdf5; border-radius: 12px; margin-bottom: 1rem; }
+    .milestone-progress { height: 10px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin: 0.8rem 0; }
+    .milestone-bar { height: 100%; background: var(--primary); transition: width 0.4s; }
   </style>
 </head>
 <body>
@@ -301,7 +306,7 @@
   </div>
 </section>
 
-<!-- INTERACTIVE DASHBOARD -->
+<!-- USER DASHBOARD - MEANINGFUL COMMUNITY MILESTONES -->
 <section class="member-section section" id="dashboard">
   <div class="dashboard-card">
     <div class="dashboard-header">
@@ -313,7 +318,7 @@
       <div class="stat-card">
         <i class="fas fa-trophy"></i>
         <h3 id="goals-completed">0</h3>
-        <p id="goals-total">of 0 completed</p>
+        <p>Goals Completed</p>
       </div>
       <div class="stat-card">
         <i class="fas fa-comment-dots"></i>
@@ -334,7 +339,7 @@
     </div>
     <ul id="personal-goals-list" class="goal-list"></ul>
 
-    <h3 style="margin-top:2.5rem;">Community Milestones</h3>
+    <h3 style="margin-top:2.5rem;">Community Milestones (Your support matters)</h3>
     <ul id="community-milestones" class="goal-list" style="background:#ecfdf5; padding:1.5rem; border-radius:16px;"></ul>
 
     <h3 style="margin-top:2.5rem;">Your Testimonials</h3>
@@ -423,6 +428,7 @@ function showMemberTabs() {
   loadTestimonials();
   loadMyTestimonials();
   loadPersonalGoals();
+  renderCommunityMilestones();
   switchTab('dashboard');
 }
 
@@ -581,7 +587,7 @@ function loadMyTestimonials() {
   });
 }
 
-// INTERACTIVE GOALS - FIXED COUNTING
+// PERSONAL GOALS
 function addPersonalGoal() {
   const input = document.getElementById('personal-goal-input');
   const text = input.value.trim();
@@ -602,7 +608,6 @@ function renderPersonalGoals() {
 
   let completed = goals.filter(g => g.done).length;
   document.getElementById('goals-completed').textContent = completed;
-  document.getElementById('goals-total').textContent = `of ${goals.length} completed`;
 
   goals.forEach((goal, index) => {
     const li = document.createElement('li');
@@ -619,7 +624,7 @@ function toggleGoal(index) {
   let goals = JSON.parse(localStorage.getItem(`goals_${currentUser}`) || '[]');
   goals[index].done = !goals[index].done;
   localStorage.setItem(`goals_${currentUser}`, JSON.stringify(goals));
-  renderPersonalGoals();   // This now instantly updates the count
+  renderPersonalGoals();
 }
 
 function deleteGoal(index) {
@@ -631,6 +636,57 @@ function deleteGoal(index) {
 
 function loadPersonalGoals() {
   renderPersonalGoals();
+}
+
+// MEANINGFUL COMMUNITY MILESTONES
+let communityMilestonesData = [
+  { id: 1, text: "Reach 100 verified founding members", progress: 42, supporters: 18 },
+  { id: 2, text: "Host first live community call (March 2026)", progress: 65, supporters: 31 },
+  { id: 3, text: "Launch first member project showcase", progress: 28, supporters: 12 },
+  { id: 4, text: "Hit 500 total testimonials", progress: 19, supporters: 8 },
+  { id: 5, text: "Organize first in-person meetup", progress: 0, supporters: 0 }
+];
+
+function renderCommunityMilestones() {
+  const container = document.getElementById('community-milestones');
+  container.innerHTML = '';
+  communityMilestonesData.forEach(m => {
+    const li = document.createElement('li');
+    li.className = 'milestone';
+    li.innerHTML = `
+      <strong>${m.text}</strong>
+      <div class="milestone-progress">
+        <div class="milestone-bar" style="width: ${m.progress}%"></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.95rem;">
+        <span>${m.progress}% complete</span>
+        <span>Supported by ${m.supporters} members</span>
+      </div>
+      <button onclick="supportMilestone(${m.id})" class="btn" style="margin-top:0.8rem; width:100%;">Support this milestone</button>
+    `;
+    container.appendChild(li);
+  });
+}
+
+function supportMilestone(id) {
+  const milestone = communityMilestonesData.find(m => m.id === id);
+  if (!milestone) return;
+
+  if (milestone.progress >= 100) {
+    alert("This milestone is already achieved! 🎉");
+    return;
+  }
+
+  milestone.progress = Math.min(100, milestone.progress + 10);
+  milestone.supporters += 1;
+
+  renderCommunityMilestones();
+
+  if (milestone.progress >= 100) {
+    alert(`🎉 Milestone Achieved: ${milestone.text}!\nThank you for your support!`);
+  } else {
+    alert(`Thank you! You helped advance "${milestone.text}" by 10%.\nNow at ${milestone.progress}% with ${milestone.supporters} supporters.`);
+  }
 }
 
 window.onload = loadTestimonials;
