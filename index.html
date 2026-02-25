@@ -230,6 +230,7 @@
   </div>
 </section>
 
+<!-- APPLY SECTION - HIDDEN AFTER LOGIN -->
 <section class="section" id="apply-card">
   <div class="apply-card">
     <h2>Apply for Access</h2>
@@ -354,18 +355,66 @@ function showMemberTabs() {
   nav.innerHTML = `
     <a href="#hero">Home</a>
     <a href="#vision" onclick="switchTab('vision');return false">Roadmap</a>
-    <a href="#apply-card">Apply</a>
     <a href="#testimonials">Testimonials</a>
   `;
   document.getElementById('login-btn').style.display = 'none';
   document.getElementById('user-area').style.display = 'flex';
   document.getElementById('display-name').textContent = currentUser;
-  document.getElementById('apply-card').style.display = 'none';
+  document.getElementById('apply-card').style.display = 'none';   // HIDE APPLY AFTER LOGIN
   document.getElementById('share-testimonial').style.display = 'block';
   document.getElementById('online-sidebar').style.display = 'block';
   loadOnlineUsers();
   loadTestimonials();
   switchTab('vision');
+}
+
+function switchTab(tabId) {
+  document.querySelectorAll('#main-nav a').forEach(a => a.classList.remove('active'));
+  const activeLink = Array.from(document.querySelectorAll('#main-nav a')).find(a => a.getAttribute('href') === '#' + tabId);
+  if (activeLink) activeLink.classList.add('active');
+  document.querySelectorAll('.member-section').forEach(s => s.style.display = 'none');
+  document.getElementById(tabId).style.display = 'block';
+  document.getElementById(tabId).scrollIntoView({ behavior: 'smooth' });
+}
+
+function handleLogin() {
+  const handle = document.getElementById('xhandle').value.trim();
+  const code = document.getElementById('accesscode').value.trim();
+  if (!handle || code !== ACCESS_CODE) {
+    alert("Invalid access code. Only verified founding members have the code.");
+    return;
+  }
+  currentUser = handle.startsWith('@') ? handle : '@' + handle;
+  localStorage.setItem('pf_loggedIn', 'true');
+  localStorage.setItem('pf_user', currentUser);
+  closeModal();
+  showMemberTabs();
+}
+
+function closeModal() { document.getElementById('login-modal').style.display = 'none'; }
+function logout() { 
+  localStorage.removeItem('pf_loggedIn'); 
+  localStorage.removeItem('pf_user'); 
+  location.reload(); 
+}
+
+document.getElementById('login-btn').addEventListener('click', () => document.getElementById('login-modal').style.display = 'flex');
+document.getElementById('logout-btn').addEventListener('click', logout);
+
+if (localStorage.getItem('pf_loggedIn') === 'true') {
+  showMemberTabs();
+} else {
+  document.getElementById('apply-card').style.display = 'block'; // SHOW APPLY WHEN NOT LOGGED IN
+}
+
+function toggleRoadmap(el){
+  const item = el.closest('.roadmap-item');
+  item.classList.toggle('active');
+}
+
+function toggleOnlineSidebar() {
+  const sidebar = document.getElementById('online-sidebar');
+  sidebar.style.display = sidebar.style.display === 'block' ? 'none' : 'block';
 }
 
 function loadOnlineUsers() {
@@ -417,16 +466,6 @@ function sendMessage() {
   input.value = '';
 }
 
-function toggleRoadmap(el){
-  const item = el.closest('.roadmap-item');
-  item.classList.toggle('active');
-}
-
-function toggleOnlineSidebar() {
-  const sidebar = document.getElementById('online-sidebar');
-  sidebar.style.display = sidebar.style.display === 'block' ? 'none' : 'block';
-}
-
 function loadTestimonials() {
   const saved = JSON.parse(localStorage.getItem('testimonials') || '[]');
   const container = document.getElementById('testimonials-container');
@@ -464,43 +503,6 @@ function shareToX(btn) {
   const user = btn.parentElement.querySelector('.author a').textContent;
   const tweetText = encodeURIComponent(`"${testimonial}" - ${user} #PassItForward`);
   window.open(`https://x.com/intent/tweet?text=${tweetText}`, '_blank');
-}
-
-function switchTab(tabId) {
-  document.querySelectorAll('#main-nav a').forEach(a => a.classList.remove('active'));
-  const activeLink = Array.from(document.querySelectorAll('#main-nav a')).find(a => a.getAttribute('href') === '#' + tabId);
-  if (activeLink) activeLink.classList.add('active');
-  document.querySelectorAll('.member-section').forEach(s => s.style.display = 'none');
-  document.getElementById(tabId).style.display = 'block';
-  document.getElementById(tabId).scrollIntoView({ behavior: 'smooth' });
-}
-
-function handleLogin() {
-  const handle = document.getElementById('xhandle').value.trim();
-  const code = document.getElementById('accesscode').value.trim();
-  if (!handle || code !== ACCESS_CODE) {
-    alert("Invalid access code. Only verified founding members have the code.");
-    return;
-  }
-  currentUser = handle.startsWith('@') ? handle : '@' + handle;
-  localStorage.setItem('pf_loggedIn', 'true');
-  localStorage.setItem('pf_user', currentUser);
-  closeModal();
-  showMemberTabs();
-}
-
-function closeModal() { document.getElementById('login-modal').style.display = 'none'; }
-function logout() { 
-  localStorage.removeItem('pf_loggedIn'); 
-  localStorage.removeItem('pf_user'); 
-  location.reload(); 
-}
-
-document.getElementById('login-btn').addEventListener('click', () => document.getElementById('login-modal').style.display = 'flex');
-document.getElementById('logout-btn').addEventListener('click', logout);
-
-if (localStorage.getItem('pf_loggedIn') === 'true') {
-  showMemberTabs();
 }
 
 window.onload = loadTestimonials;
