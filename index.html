@@ -138,17 +138,16 @@
       margin-bottom: 1rem;
     }
 
-    /* Enhanced Interactive Dashboard */
-    .dashboard-card { background: white; border-radius: 24px; padding: 3rem; box-shadow: 0 12px 48px rgba(0,0,0,0.09); }
-    .goal-input { display: flex; gap: 0.8rem; margin: 1.5rem 0; }
-    .goal-input input { flex: 1; padding: 1rem; border: 1px solid var(--border); border-radius: 12px; font-size: 1.05rem; }
-    .goal-list { list-style: none; padding: 0; }
-    .goal-list li { 
-      display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f8fafc; 
-      margin-bottom: 0.8rem; border-radius: 12px; transition: all 0.2s;
-    }
-    .goal-list li:hover { background: #ecfdf5; }
-    .progress-bar { height: 8px; background: #10b981; border-radius: 999px; margin-top: 1rem; }
+    /* Enhanced Dashboard - Makes members feel proud */
+    .dashboard-card { background: white; border-radius: 24px; padding: 3rem; box-shadow: 0 15px 50px rgba(0,0,0,0.1); }
+    .dashboard-header { text-align: center; margin-bottom: 3rem; }
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+    .stat-card { background: #f8fafc; padding: 1.5rem; border-radius: 16px; text-align: center; }
+    .stat-card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 0.5rem; }
+    .progress-ring { width: 120px; height: 120px; margin: 1rem auto; position: relative; }
+    .progress-ring circle { transition: stroke-dashoffset 0.5s; }
+    .achievement-badges { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 2rem; }
+    .badge { width: 70px; height: 70px; background: #ecfdf5; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: 0 4px 12px rgba(16,185,129,0.2); }
   </style>
 </head>
 <body>
@@ -298,31 +297,46 @@
   </div>
 </section>
 
-<!-- USER PROFILE DASHBOARD - MORE INTERACTIVE -->
+<!-- ENHANCED USER PROFILE DASHBOARD - MAKES MEMBERS FEEL PROUD -->
 <section class="member-section section" id="dashboard">
   <div class="dashboard-card">
-    <h2 style="color:#065f46;">Your Profile Dashboard</h2>
-    <p style="font-size:1.3rem; margin:1.5rem 0;">
-      Welcome back, <strong id="profile-name"></strong><br>
-      <span class="founder-badge" style="font-size:0.95rem;">✓ VERIFIED FOUNDER</span>
-    </p>
+    <div class="dashboard-header">
+      <h2 style="color:#065f46; font-size:2.8rem;">Welcome back, <span id="profile-name"></span>!</h2>
+      <p style="font-size:1.4rem; color:#10b981;">Proud Founding Member • Building the future together</p>
+    </div>
 
-    <!-- Personal Goals - Better Interactive Way -->
-    <h3 style="margin-top:2.5rem;">My Personal Goals</h3>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <i class="fas fa-trophy"></i>
+        <h3 id="goals-completed">0</h3>
+        <p>Goals Completed</p>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-comment"></i>
+        <h3 id="testimonials-count">0</h3>
+        <p>Testimonials Shared</p>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-calendar"></i>
+        <h3>Day 1</h3>
+        <p>Member since Feb 2026</p>
+      </div>
+    </div>
+
+    <h3 style="margin:2.5rem 0 1rem;">My Personal Goals</h3>
     <div class="goal-input">
-      <input id="personal-goal-input" type="text" placeholder="E.g. Learn Firebase, Launch my first project..." style="flex:1; padding:1rem; border:1px solid var(--border); border-radius:12px;">
+      <input id="personal-goal-input" type="text" placeholder="What do you want to achieve? (e.g. Launch my first project)" style="flex:1; padding:1rem; border:1px solid var(--border); border-radius:12px;">
       <button onclick="addPersonalGoal()" class="btn">Add Goal</button>
     </div>
-    <div style="margin:1rem 0; font-size:0.95rem; color:var(--primary);">Progress: <strong id="goal-progress">0/0</strong></div>
     <ul id="personal-goals-list" class="goal-list"></ul>
 
-    <!-- Community Milestones -->
-    <h3 style="margin-top:2.5rem;">Community Milestones</h3>
-    <ul id="community-milestones" class="goal-list" style="background:#ecfdf5; padding:1.5rem; border-radius:16px;">
-      <!-- Populated by script -->
-    </ul>
+    <h3 style="margin:2.5rem 0 1rem;">Community Milestones</h3>
+    <ul id="community-milestones" class="goal-list" style="background:#ecfdf5; padding:1.5rem; border-radius:16px;"></ul>
 
-    <h3 style="margin-top:2.5rem; margin-bottom:1rem;">Your Testimonials</h3>
+    <h3 style="margin:2.5rem 0 1rem;">Your Achievements</h3>
+    <div class="achievement-badges" id="achievements"></div>
+
+    <h3 style="margin-top:2.5rem;">Your Testimonials</h3>
     <div id="my-testimonials" class="audience-grid"></div>
   </div>
 </section>
@@ -400,7 +414,7 @@ function showMemberTabs() {
   document.getElementById('login-btn').style.display = 'none';
   document.getElementById('user-area').style.display = 'flex';
   document.getElementById('display-name').textContent = currentUser;
-  document.getElementById('apply-card').style.display = 'none';   // HIDDEN AFTER LOGIN
+  document.getElementById('apply-card').style.display = 'none';
   document.getElementById('share-testimonial').style.display = 'block';
   document.getElementById('online-sidebar').style.display = 'block';
   loadOnlineUsers();
@@ -565,7 +579,7 @@ function loadMyTestimonials() {
   });
 }
 
-// PERSONAL GOALS - INTERACTIVE
+// PERSONAL GOALS - INTERACTIVE & VISUAL
 function addPersonalGoal() {
   const input = document.getElementById('personal-goal-input');
   const text = input.value.trim();
@@ -585,7 +599,7 @@ function renderPersonalGoals() {
   let goals = JSON.parse(localStorage.getItem(`goals_${currentUser}`) || '[]');
 
   let completed = goals.filter(g => g.done).length;
-  document.getElementById('goal-progress').textContent = `${completed}/${goals.length}`;
+  document.getElementById('goals-completed').textContent = completed;
 
   goals.forEach((goal, index) => {
     const li = document.createElement('li');
@@ -616,7 +630,44 @@ function loadPersonalGoals() {
   renderPersonalGoals();
 }
 
-window.onload = loadTestimonials;
+// Community Milestones
+const communityMilestones = [
+  "Reach 100 verified founding members",
+  "Host first live community call (March 2026)",
+  "Launch first member project showcase",
+  "Hit 500 total testimonials",
+  "Organize first in-person meetup"
+];
+
+function renderCommunityMilestones() {
+  const container = document.getElementById('community-milestones');
+  container.innerHTML = '';
+  communityMilestones.forEach(m => {
+    const li = document.createElement('li');
+    li.textContent = m;
+    container.appendChild(li);
+  });
+}
+
+// Achievements / Badges
+function renderAchievements() {
+  const container = document.getElementById('achievements');
+  container.innerHTML = `
+    <div class="badge" title="First Goal Completed">🏆</div>
+    <div class="badge" title="Active Contributor">🔥</div>
+    <div class="badge" title="Visionary Member">🌟</div>
+  `;
+}
+
+window.onload = function() {
+  loadTestimonials();
+  if (localStorage.getItem('pf_loggedIn') === 'true') {
+    showMemberTabs();
+    renderPersonalGoals();
+    renderCommunityMilestones();
+    renderAchievements();
+  }
+};
 </script>
 </body>
 </html>
