@@ -17,21 +17,13 @@
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family: 'Inter', system-ui, sans-serif; background: var(--light); color: var(--dark); line-height: 1.7; }
-
     header { background: var(--dark); color: white; padding: 1.25rem 5%; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
     .header-inner { max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
     .logo { font-size: 1.55rem; font-weight: 700; letter-spacing: -0.4px; }
-
-    /* IMPROVED TABS - Clean modern look */
-    nav { display: flex; gap: 0.5rem; background: rgba(255,255,255,0.1); padding: 6px; border-radius: 999px; }
-    nav a { 
-      color: white; text-decoration: none; font-weight: 500; padding: 10px 24px; border-radius: 999px; 
-      transition: all 0.3s; 
-    }
-    nav a:hover { background: rgba(255,255,255,0.15); }
-    nav a.active { 
-      background: white; color: var(--dark); font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
+    nav { display: flex; gap: 2rem; }
+    nav a { color: white; text-decoration: none; font-weight: 500; }
+    nav a:hover { color: var(--primary); }
+    nav a.active { color: var(--primary); border-bottom: 3px solid var(--primary); padding-bottom: 4px; }
 
     .hero { padding: 10rem 5% 8rem; text-align: center; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; }
     .hero h1 { font-size: 3.8rem; font-weight: 800; margin-bottom: 1.5rem; letter-spacing: -1px; line-height: 1.05; }
@@ -39,20 +31,22 @@
     .brand-keywords { font-size: 1.18rem; font-weight: 500; margin: 2.5rem 0 4rem; color: #94a3b8; }
     .brand-keywords strong { color: var(--primary); font-weight: 700; }
 
-    /* IMPROVED SECTIONS - Clean cards */
     .section { padding: 8rem 5% 6rem; }
-    .section-content {
-      max-width: 1280px; margin: 0 auto; background: white; border-radius: 24px; 
-      padding: 3.5rem; box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-    }
-    .section h2 { font-size: 2.9rem; font-weight: 800; margin-bottom: 1.8rem; text-align: center; color: var(--dark); }
+    .section h2 { font-size: 2.9rem; font-weight: 800; margin-bottom: 1.8rem; text-align: center; }
     .section .lead { font-size: 1.35rem; color: var(--gray); max-width: 780px; margin: 0 auto 3rem; text-align: center; line-height: 1.7; }
 
     .audience-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; margin: 4rem 0; }
     .audience-card { background: white; border-radius: 16px; padding: 2.2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.07); text-align: center; }
+    .audience-card h3 { font-size: 1.45rem; margin-bottom: 1rem; color: var(--primary-dark); }
 
     .apply-card { background: white; border-radius: 20px; padding: 3.5rem 2.8rem; box-shadow: 0 12px 48px rgba(0,0,0,0.09); max-width: 780px; margin: 5rem auto; text-align: center; }
     .apply-card h2 { font-size: 2.4rem; margin-bottom: 2rem; color: var(--primary-dark); }
+    .apply-form { display: grid; gap: 1.4rem; max-width: 540px; margin: 0 auto; }
+    input, textarea { width: 100%; padding: 1rem 1.3rem; border: 1px solid var(--border); border-radius: 10px; font-size: 1.05rem; }
+    textarea { min-height: 140px; resize: vertical; }
+    .btn { padding: 1.1rem 2.4rem; font-size: 1.08rem; font-weight: 600; border-radius: 999px; background: var(--primary); color: white; border: none; cursor: pointer; transition: all 0.25s; }
+    .btn:hover { background: var(--primary-dark); transform: translateY(-2px); }
+    #apply-success { display: none; margin-top: 2.5rem; padding: 1.8rem; background: #ecfdf5; border-radius: 12px; color: #065f46; font-weight: 500; text-align: left; white-space: pre-wrap; }
 
     .testimonial { background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.07); margin-bottom: 1.5rem; }
     .testimonial p { font-style: italic; margin-bottom: 1rem; }
@@ -60,6 +54,7 @@
     .testimonial .author a:hover { text-decoration: underline; }
 
     .share-testimonial { background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.07); display: none; margin-top: 3rem; }
+    .share-testimonial textarea { width: 100%; min-height: 120px; padding: 1rem; border: 1px solid var(--border); border-radius: 10px; resize: vertical; }
 
     footer { background: var(--dark); color: #cbd5e1; padding: 5rem 5% 3rem; text-align: center; font-size: 0.95rem; }
     footer a { color: var(--primary); text-decoration: none; font-weight: 500; }
@@ -143,10 +138,10 @@
       margin-bottom: 1rem;
     }
 
-    /* Dashboard */
-    .dashboard-card { background: white; border-radius: 20px; padding: 3rem; box-shadow: 0 12px 48px rgba(0,0,0,0.09); }
-    .dashboard-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1.5rem; margin: 2.5rem 0; }
-    .stat-box { background: #f8fafc; padding: 1.5rem; border-radius: 16px; text-align: center; }
+    /* Start Here Section */
+    .start-here-card { background: white; border-radius: 20px; padding: 3rem; box-shadow: 0 12px 48px rgba(0,0,0,0.09); }
+    .start-here-card ol { font-size: 1.15rem; line-height: 2; margin: 2rem 0; padding-left: 1.5rem; }
+    .start-here-card li { margin-bottom: 1.2rem; }
   </style>
 </head>
 <body>
@@ -204,133 +199,110 @@
 </section>
 
 <section class="section">
-  <div class="section-content">
-    <h2>What Pass It Forward Is</h2>
-    <p class="lead">
-      Pass It Forward is the early-stage foundation of a <strong>global opportunity hub</strong>.<br><br>
-      A place where builders, makers, learners and entrepreneurs connect, trade value, acquire skills, and grow real businesses — together.
-    </p>
-    <div class="audience-grid">
-      <div class="audience-card">
-        <h3>Who it’s for</h3>
-        <p>People who want <strong>self-made growth</strong>.<br><br>People looking for <strong>real opportunities</strong>.<br><br>People who believe in being <strong>community-driven</strong>.<br><br>People committed to a <strong>long-term vision</strong>.<br><br>People who want to <strong>pass it forward</strong>.</p>
-      </div>
-      <div class="audience-card">
-        <h3>Why you should care</h3>
-        <p>Because the next decade will belong to communities that combine trust, commerce, knowledge, and mutual growth.<br><br><br>Pass It Forward is being built to become one of those rare places — a real ecosystem where ordinary people can create <strong>extraordinary long-term value</strong>.</p>
-      </div>
+  <h2>What Pass It Forward Is</h2>
+  <p class="lead">
+    Pass It Forward is the early-stage foundation of a <strong>global opportunity hub</strong>.<br><br>
+    A place where builders, makers, learners and entrepreneurs connect, trade value, acquire skills, and grow real businesses — together.
+  </p>
+  <div class="audience-grid">
+    <div class="audience-card">
+      <h3>Who it’s for</h3>
+      <p>People who want <strong>self-made growth</strong>.<br><br>People looking for <strong>real opportunities</strong>.<br><br>People who believe in being <strong>community-driven</strong>.<br><br>People committed to a <strong>long-term vision</strong>.<br><br>People who want to <strong>pass it forward</strong>.</p>
+    </div>
+    <div class="audience-card">
+      <h3>Why you should care</h3>
+      <p>Because the next decade will belong to communities that combine trust, commerce, knowledge, and mutual growth.<br><br><br>Pass It Forward is being built to become one of those rare places — a real ecosystem where ordinary people can create <strong>extraordinary long-term value</strong>.</p>
     </div>
   </div>
 </section>
 
 <section class="section">
-  <div class="section-content">
-    <h2>OUR CORE VISION — PASS IT FORWARD</h2>
-    <p class="lead">
-      We are building a real long-term business ecosystem, not just an X account.
+  <h2>OUR CORE VISION — PASS IT FORWARD</h2>
+  <p class="lead">
+    We are building a real long-term business ecosystem, not just an X account.
+  </p>
+  <div style="background:#ecfdf5; border-radius:20px; padding:3rem; max-width:900px; margin:3rem auto; text-align:center;">
+    <h3 style="font-size:1.9rem; margin-bottom:2rem; color:#065f46;">Main mission:</h3>
+    <ul style="list-style:none; padding:0; font-size:1.28rem; color:#065f46; font-weight:500; line-height:2.2;">
+      <li>• Help people find opportunities</li>
+      <li>• Help people create income</li>
+      <li>• Help people grow independently</li>
+      <li>• Build a strong community that supports each other</li>
+    </ul>
+    <p style="margin-top:2.5rem; font-size:1.4rem; font-weight:600; color:#065f46;">
+      Core principle: <strong>➡️ Pass it forward</strong>
     </p>
-    <div style="background:#ecfdf5; border-radius:20px; padding:3rem; max-width:900px; margin:3rem auto; text-align:center;">
-      <h3 style="font-size:1.9rem; margin-bottom:2rem; color:#065f46;">Main mission:</h3>
-      <ul style="list-style:none; padding:0; font-size:1.28rem; color:#065f46; font-weight:500; line-height:2.2;">
-        <li>• Help people find opportunities</li>
-        <li>• Help people create income</li>
-        <li>• Help people grow independently</li>
-        <li>• Build a strong community that supports each other</li>
-      </ul>
-      <p style="margin-top:2.5rem; font-size:1.4rem; font-weight:600; color:#065f46;">
-        Core principle: <strong>➡️ Pass it forward</strong>
-      </p>
-    </div>
   </div>
 </section>
 
-<!-- APPLY SECTION - HIDDEN AFTER LOGIN -->
 <section class="section" id="apply-card">
-  <div class="section-content">
-    <div class="apply-card">
-      <h2>Apply for Access</h2>
-      <p style="margin-bottom:2.5rem; color:#475569; font-size:1.15rem;">
-        We are intentionally small and selective in 2026.<br><br>
-        If accepted, you become part of the founding community and will receive your private Member Login code via X DM within 48 hours.
-      </p>
-      <form id="apply-form" action="https://formspree.io/f/mgolzjjr" method="POST">
-        <input type="hidden" name="_subject" value="Pass It Forward Application" />
-        <input type="text" name="name" placeholder="Full Name" required />
-        <input type="text" name="x_username" placeholder="X Handle (@MrGentleman93)" required />
-        <textarea name="skills" placeholder="Your skills/experience" required></textarea>
-        <textarea name="motivation" placeholder="Why do you want to join?" required></textarea>
-        <button type="submit" class="btn">Apply</button>
-      </form>
-      <div id="apply-success">
-        <h3 style="margin-bottom:1rem; color:#065f46;">Application received — thank you.</h3>
-        <p style="margin-bottom:1.5rem;">We manually review every application.<br>We will reach out via X DM if there is a fit and send your private login code within 48 hours.</p>
-      </div>
+  <div class="apply-card">
+    <h2>Apply for Access</h2>
+    <p style="margin-bottom:2.5rem; color:#475569; font-size:1.15rem;">
+      We are intentionally small and selective in 2026.<br><br>
+      If accepted, you become part of the founding community and will receive your private Member Login code via X DM within 48 hours.
+    </p>
+    <form id="apply-form" action="https://formspree.io/f/mgolzjjr" method="POST">
+      <input type="hidden" name="_subject" value="Pass It Forward Application" />
+      <input type="text" name="name" placeholder="Full Name" required />
+      <input type="text" name="x_username" placeholder="X Handle (@MrGentleman93)" required />
+      <textarea name="skills" placeholder="Your skills/experience" required></textarea>
+      <textarea name="motivation" placeholder="Why do you want to join?" required></textarea>
+      <button type="submit" class="btn">Apply</button>
+    </form>
+    <div id="apply-success">
+      <h3 style="margin-bottom:1rem; color:#065f46;">Application received — thank you.</h3>
+      <p style="margin-bottom:1.5rem;">We manually review every application.<br>We will reach out via X DM if there is a fit and send your private login code within 48 hours.</p>
     </div>
   </div>
 </section>
 
 <!-- Testimonials -->
 <section class="section" id="testimonials">
-  <div class="section-content">
-    <h2>What Members Are Saying</h2>
-    <div id="testimonials-container" class="audience-grid"></div>
+  <h2>What Members Are Saying</h2>
+  <div id="testimonials-container" class="audience-grid"></div>
 
-    <div id="share-testimonial" class="share-testimonial">
-      <h3>Share Your Experience</h3>
-      <textarea id="testimonial-text" placeholder="What do you like about Pass It Forward so far?"></textarea>
-      <button onclick="submitTestimonial()" class="btn" style="margin-top:1rem;">Submit Testimonial</button>
-    </div>
+  <div id="share-testimonial" class="share-testimonial">
+    <h3>Share Your Experience</h3>
+    <textarea id="testimonial-text" placeholder="What do you like about Pass It Forward so far?"></textarea>
+    <button onclick="submitTestimonial()" class="btn" style="margin-top:1rem;">Submit Testimonial</button>
   </div>
 </section>
 
 <!-- ROADMAP - ONLY FOR MEMBERS -->
 <section class="member-section section" id="vision">
-  <div class="section-content">
-    <div class="member-header">
-      <span class="verified-badge">✓ VERIFIED MEMBER</span>
-      <h2 style="color:#065f46;">Our 2026–2030 Roadmap</h2>
-      <p style="color:#065f46;">The step-by-step plan to build the global opportunity infrastructure.</p>
-    </div>
-    <div class="roadmap">
-      <div class="roadmap-item">
-        <div class="roadmap-pin" onclick="toggleRoadmap(this)">1</div>
-        <div class="founder-badge">FOUNDING STAGE</div>
-        <div class="roadmap-content">
-          <h3>Founding Community Launch (Q1 2026)</h3>
-          <div class="goal">• Accept first 100 verified founding members</div>
-          <div class="goal">• Launch private community platform</div>
-          <div class="goal">• Host first 4 weekly member calls</div>
-          <div class="goal">• Establish “Pass It Forward” culture</div>
-        </div>
+  <div class="member-header">
+    <span class="verified-badge">✓ VERIFIED MEMBER</span>
+    <h2 style="color:#065f46;">Our 2026–2030 Roadmap</h2>
+    <p style="color:#065f46;">The step-by-step plan to build the global opportunity infrastructure.</p>
+  </div>
+  <div class="roadmap">
+    <div class="roadmap-item">
+      <div class="roadmap-pin" onclick="toggleRoadmap(this)">1</div>
+      <div class="founder-badge">FOUNDING STAGE</div>
+      <div class="roadmap-content">
+        <h3>Founding Community Launch (Q1 2026)</h3>
+        <div class="goal">• Accept first 100 verified founding members</div>
+        <div class="goal">• Launch private community platform</div>
+        <div class="goal">• Host first 4 weekly member calls</div>
+        <div class="goal">• Establish “Pass It Forward” culture</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- USER PROFILE DASHBOARD -->
-<section class="member-section section" id="dashboard">
-  <div class="section-content">
-    <div class="dashboard-card">
-      <h2 style="color:#065f46;">Your Profile Dashboard</h2>
-      <p style="font-size:1.3rem; margin:1.5rem 0;">
-        Welcome back, <strong id="profile-name"></strong><br>
-        <span class="founder-badge" style="font-size:0.95rem;">✓ VERIFIED FOUNDER</span>
-      </p>
-      
-      <div class="dashboard-stats">
-        <div class="stat-box">
-          <h3 id="stat-testimonials">0</h3>
-          <p>Testimonials</p>
-        </div>
-        <div class="stat-box">
-          <h3>Member since</h3>
-          <p>February 2026</p>
-        </div>
-      </div>
-
-      <h3 style="margin-top:2rem; margin-bottom:1rem;">Your Testimonials</h3>
-      <div id="my-testimonials" class="audience-grid"></div>
-    </div>
+<!-- START HERE SECTION - NEW -->
+<section class="member-section section" id="start-here">
+  <div class="start-here-card">
+    <h2 style="color:#065f46;">🚀 Start Here — Welcome to the Community</h2>
+    <p style="font-size:1.25rem; margin:1.5rem 0;">Let's get you set up in 3 easy steps:</p>
+    <ol>
+      <li><strong>Introduce yourself</strong> — Post a short intro in the testimonials or chat so everyone knows you're here.</li>
+      <li><strong>Explore the Roadmap</strong> — See where we're headed and how you can contribute.</li>
+      <li><strong>Join the conversation</strong> — Say hi in the chat and connect with other founding members.</li>
+    </ol>
+    <button onclick="switchTab('testimonials')" class="btn" style="margin-right:1rem;">Post Your Intro</button>
+    <button onclick="switchTab('vision')" class="btn">Explore Roadmap</button>
   </div>
 </section>
 
@@ -377,6 +349,17 @@
   </div>
 </div>
 
+<!-- WELCOME MODAL - NEW -->
+<div id="welcome-modal" class="modal">
+  <div class="modal-content" style="max-width:480px;">
+    <h2 style="color:#065f46;">Welcome, <span id="welcome-name"></span>! 🎉</h2>
+    <p style="font-size:1.2rem; margin:1.5rem 0;">We're thrilled to have you as a verified founding member of Pass It Forward.</p>
+    <p style="margin-bottom:2rem;">To get started, head to the <strong>Start Here</strong> section for a quick onboarding.</p>
+    <button onclick="goToStartHere()" class="btn" style="width:100%; margin-bottom:1rem;">Go to Start Here</button>
+    <button onclick="closeWelcomeModal()" style="background:none; border:none; color:#64748b; cursor:pointer;">Close</button>
+  </div>
+</div>
+
 <script>
 const ACCESS_CODE = "founder2026";
 
@@ -403,7 +386,7 @@ function showMemberTabs() {
     <a href="#hero">Home</a>
     <a href="#vision" onclick="switchTab('vision');return false">Roadmap</a>
     <a href="#testimonials">Testimonials</a>
-    <a href="#dashboard" onclick="switchTab('dashboard');return false">Dashboard</a>
+    <a href="#start-here" onclick="switchTab('start-here');return false">Start Here</a>
   `;
   document.getElementById('login-btn').style.display = 'none';
   document.getElementById('user-area').style.display = 'flex';
@@ -413,8 +396,20 @@ function showMemberTabs() {
   document.getElementById('online-sidebar').style.display = 'block';
   loadOnlineUsers();
   loadTestimonials();
-  loadMyTestimonials();
-  switchTab('dashboard');
+  switchTab('start-here');
+
+  // Show personalized welcome modal
+  document.getElementById('welcome-name').textContent = currentUser;
+  document.getElementById('welcome-modal').style.display = 'flex';
+}
+
+function goToStartHere() {
+  closeWelcomeModal();
+  switchTab('start-here');
+}
+
+function closeWelcomeModal() {
+  document.getElementById('welcome-modal').style.display = 'none';
 }
 
 function switchTab(tabId) {
@@ -424,26 +419,6 @@ function switchTab(tabId) {
   document.querySelectorAll('.member-section').forEach(s => s.style.display = 'none');
   document.getElementById(tabId).style.display = 'block';
   document.getElementById(tabId).scrollIntoView({ behavior: 'smooth' });
-}
-
-function loadMyTestimonials() {
-  const saved = JSON.parse(localStorage.getItem('testimonials') || '[]');
-  const container = document.getElementById('my-testimonials');
-  container.innerHTML = '';
-  const myTestis = saved.filter(t => t.user === currentUser);
-  if (myTestis.length === 0) {
-    container.innerHTML = '<p style="color:#64748b; font-style:italic;">You haven\'t posted any testimonials yet.</p>';
-    return;
-  }
-  myTestis.forEach(t => {
-    const div = document.createElement('div');
-    div.className = 'testimonial';
-    div.innerHTML = `
-      <p>"${t.text}"</p>
-      <div class="author"><a href="https://x.com/${t.user.replace('@','')}" target="_blank">@${t.user.replace('@','')}</a></div>
-    `;
-    container.appendChild(div);
-  });
 }
 
 function handleLogin() {
@@ -472,8 +447,6 @@ document.getElementById('logout-btn').addEventListener('click', logout);
 
 if (localStorage.getItem('pf_loggedIn') === 'true') {
   showMemberTabs();
-} else {
-  document.getElementById('apply-card').style.display = 'block';
 }
 
 function toggleRoadmap(el){
