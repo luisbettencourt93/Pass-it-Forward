@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pass It Forward — Opportunity Infrastructure</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <style>
 :root{
 --primary:#10b981;
@@ -37,71 +35,6 @@ textarea{min-height:120px;}
 .goal-list li{display:flex;align-items:center;gap:.7rem;padding:.8rem;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:.6rem;background:white;}
 .milestone-progress{height:8px;background:#e2e8f0;border-radius:999px;margin:.5rem 0;}
 .milestone-bar{height:100%;background:#10b981;}
-.chat-window{
-position:fixed;
-bottom:20px;
-right:20px;
-width:400px;
-height:500px;
-background:white;
-display:none;
-flex-direction:column;
-border-radius:16px;
-box-shadow:0 10px 40px rgba(0,0,0,.2);
-}
-.chat-header{background:var(--primary);color:white;padding:1rem;}
-.chat-messages{flex:1;overflow:auto;padding:1rem;background:#f8fafc;}
-.chat-input{display:flex;padding:1rem;gap:.5rem;}
-.chat-input input{flex:1;}
-
-/* Roadmap - ORIGINAL PIN LAYOUT */
-.roadmap {
-  max-width:900px;
-  margin:4rem auto;
-  position:relative;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-.roadmap::before {
-  content:'';
-  position:absolute;
-  top:37px;
-  left:80px;
-  right:80px;
-  height:4px;
-  background:repeating-linear-gradient(to right,#10b981 0,#10b981 12px,transparent 12px,transparent 24px);
-}
-.roadmap-item {
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  position:relative;
-  z-index:2;
-}
-.roadmap-pin {
-  width:75px;
-  height:75px;
-  background:linear-gradient(135deg,#FF9500,#FF5E00);
-  border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:2.2rem;
-  font-weight:700;
-  color:white;
-  box-shadow:0 10px 25px rgba(255,149,0,0.4);
-  margin-bottom:15px;
-  cursor:pointer;
-}
-.roadmap-content {
-  background:white;
-  padding:1.5rem;
-  border-radius:16px;
-  box-shadow:0 8px 25px rgba(0,0,0,0.1);
-  min-width:280px;
-  text-align:center;
-}
 </style>
 </head>
 <body>
@@ -170,15 +103,6 @@ box-shadow:0 10px 40px rgba(0,0,0,.2);
 </div>
 </section>
 
-<div id="chat-window" class="chat-window">
-<div class="chat-header">Community Chat</div>
-<div id="chat-messages" class="chat-messages"></div>
-<div class="chat-input">
-<input id="chat-input" placeholder="Type message..." onkeypress="if(event.key==='Enter') sendMessage()">
-<button class="btn" onclick="sendMessage()">Send</button>
-</div>
-</div>
-
 <!-- WELCOME MESSAGE WITH SIMPLE TASKS -->
 <div id="welcome-modal" class="modal" style="display:none;position:fixed;z-index:3000;background:rgba(15,23,42,0.9);width:100%;height:100%;top:0;left:0;align-items:center;justify-content:center;">
 <div class="modal-content" style="background:white;padding:2.5rem;border-radius:20px;max-width:520px;text-align:center;">
@@ -196,13 +120,6 @@ box-shadow:0 10px 40px rgba(0,0,0,.2);
 <script>
 const ACCESS_CODE="founder2026";
 
-/* FIREBASE */
-firebase.initializeApp({
-apiKey:"AIzaSyDdYdJb2cFv4R5Kf2NruN6zaPsAEkathHj9E",
-databaseURL:"https://pass-it-forward-chat-default-rtdb.firebaseio.com"
-});
-const database=firebase.database();
-
 /* APPLY FORM */
 document.getElementById("apply-form").addEventListener("submit",()=>{
 document.getElementById("apply-form").style.display="none";
@@ -216,9 +133,8 @@ if(code===ACCESS_CODE){
 currentUser = "member";
 document.getElementById("dashboard").style.display="block";
 document.getElementById("vision").style.display="block";
-document.getElementById("chat-window").style.display="flex";
 
-// Update nav to show tabs
+// Show tabs after login
 document.querySelector("nav").innerHTML = `
 <a href="#hero">Home</a>
 <a href="#vision" onclick="switchTab('vision');return false">Roadmap</a>
@@ -272,7 +188,7 @@ renderGoals();
 }
 renderGoals();
 
-/* COMMUNITY MILESTONES - WORKING & SAVED */
+/* COMMUNITY MILESTONES - FIXED */
 let communityMilestonesData = JSON.parse(localStorage.getItem('communityMilestones')) || [
   { id: 1, text: "Reach 100 verified founding members", progress: 42, supporters: 18 },
   { id: 2, text: "Host first live community call", progress: 65, supporters: 31 },
@@ -311,30 +227,6 @@ function supportMilestone(id) {
 }
 
 renderCommunityMilestones();
-
-/* CHAT */
-function loadCommunityMessages(){
-const container=document.getElementById("chat-messages");
-container.innerHTML="";
-const ref=database.ref("communityChat");
-ref.on("child_added",(snap)=>{
-const msg=snap.val();
-const div=document.createElement("div");
-div.innerHTML=`<strong>@${msg.user}</strong>: ${msg.text}`;
-container.appendChild(div);
-container.scrollTop=container.scrollHeight;
-});
-}
-function sendMessage(){
-const input=document.getElementById("chat-input");
-if(!input.value.trim())return;
-database.ref("communityChat").push({
-user:currentUser,
-text:input.value
-});
-input.value="";
-}
-loadCommunityMessages();
 
 /* Roadmap toggle */
 function toggleRoadmap(el) {
