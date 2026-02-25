@@ -1,607 +1,217 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pass It Forward — Opportunity Infrastructure</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  <style>
-    :root {
-      --primary: #10b981;
-      --primary-dark: #059669;
-      --dark: #0f172a;
-      --gray: #64748b;
-      --light: #f8fafc;
-      --border: #e2e8f0;
-    }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family: 'Inter', system-ui, sans-serif; background: var(--light); color: var(--dark); line-height: 1.7; }
-    header { background: var(--dark); color: white; padding: 1.25rem 5%; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
-    .header-inner { max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-    .logo { font-size: 1.55rem; font-weight: 700; letter-spacing: -0.4px; }
-    nav { display: flex; gap: 2rem; }
-    nav a { color: white; text-decoration: none; font-weight: 500; }
-    nav a:hover { color: var(--primary); }
-    nav a.active { color: var(--primary); border-bottom: 3px solid var(--primary); padding-bottom: 4px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pass It Forward — Opportunity Infrastructure</title>
 
-    .hero { padding: 10rem 5% 8rem; text-align: center; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; }
-    .hero h1 { font-size: 3.8rem; font-weight: 800; margin-bottom: 1.5rem; letter-spacing: -1px; line-height: 1.05; }
-    .hero .lead { font-size: 1.38rem; max-width: 760px; margin: 0 auto 2.5rem; color: #cbd5e1; font-weight: 300; }
-    .brand-keywords { font-size: 1.18rem; font-weight: 500; margin: 2.5rem 0 4rem; color: #94a3b8; }
-    .brand-keywords strong { color: var(--primary); font-weight: 700; }
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-    .section { padding: 8rem 5% 6rem; }
-    .section h2 { font-size: 2.9rem; font-weight: 800; margin-bottom: 1.8rem; text-align: center; }
-    .section .lead { font-size: 1.35rem; color: var(--gray); max-width: 780px; margin: 0 auto 3rem; text-align: center; line-height: 1.7; }
+<style>
+:root{
+--primary:#10b981;
+--primary-dark:#059669;
+--dark:#0f172a;
+--gray:#64748b;
+--light:#f8fafc;
+--border:#e2e8f0;
+}
 
-    .audience-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; margin: 4rem 0; }
-    .audience-card { background: white; border-radius: 16px; padding: 2.2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.07); text-align: center; }
-    .audience-card h3 { font-size: 1.45rem; margin-bottom: 1rem; color: var(--primary-dark); }
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:Inter;background:var(--light);color:var(--dark);line-height:1.7;}
 
-    .apply-card { background: white; border-radius: 20px; padding: 3.5rem 2.8rem; box-shadow: 0 12px 48px rgba(0,0,0,0.09); max-width: 780px; margin: 5rem auto; text-align: center; }
-    .apply-card h2 { font-size: 2.4rem; margin-bottom: 2rem; color: var(--primary-dark); }
-    .apply-form { display: grid; gap: 1.4rem; max-width: 540px; margin: 0 auto; }
-    input, textarea { width: 100%; padding: 1rem 1.3rem; border: 1px solid var(--border); border-radius: 10px; font-size: 1.05rem; }
-    textarea { min-height: 140px; resize: vertical; }
-    .btn { padding: 1.1rem 2.4rem; font-size: 1.08rem; font-weight: 600; border-radius: 999px; background: var(--primary); color: white; border: none; cursor: pointer; transition: all 0.25s; }
-    .btn:hover { background: var(--primary-dark); transform: translateY(-2px); }
-    #apply-success { display: none; margin-top: 2.5rem; padding: 1.8rem; background: #ecfdf5; border-radius: 12px; color: #065f46; font-weight: 500; text-align: left; white-space: pre-wrap; }
+header{background:var(--dark);color:white;padding:1.2rem 5%;}
+.header-inner{display:flex;justify-content:space-between;align-items:center;}
+.logo{font-size:1.5rem;font-weight:700;}
 
-    .testimonial { background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.07); margin-bottom: 1.5rem; }
-    .testimonial p { font-style: italic; margin-bottom: 1rem; }
-    .testimonial .author a { color: #10b981; text-decoration: none; font-weight: 600; }
-    .testimonial .author a:hover { text-decoration: underline; }
+.hero{padding:8rem 5%;text-align:center;background:#0f172a;color:white;}
+.btn{padding:1rem 2rem;border:none;border-radius:999px;background:var(--primary);color:white;cursor:pointer;}
+.btn:hover{background:var(--primary-dark);}
 
-    .share-testimonial { background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.07); display: none; margin-top: 3rem; }
-    .share-testimonial textarea { width: 100%; min-height: 120px; padding: 1rem; border: 1px solid var(--border); border-radius: 10px; resize: vertical; }
+.section{padding:6rem 5%;}
+.apply-card{background:white;padding:2rem;border-radius:16px;max-width:700px;margin:auto;}
+input,textarea{width:100%;padding:1rem;border:1px solid var(--border);border-radius:10px;margin-bottom:1rem;}
+textarea{min-height:120px;}
 
-    footer { background: var(--dark); color: #cbd5e1; padding: 5rem 5% 3rem; text-align: center; font-size: 0.95rem; }
-    footer a { color: var(--primary); text-decoration: none; font-weight: 500; }
-    footer a:hover { text-decoration: underline; }
+#apply-success{display:none;background:#ecfdf5;padding:1rem;border-radius:12px;margin-top:1rem;}
 
-    .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.85); align-items: center; justify-content: center; }
-    .modal-content { background: white; padding: 2.5rem; border-radius: 20px; width: 100%; max-width: 420px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
-    .member-section { background: #f8fafc; display: none; padding: 8rem 5% 6rem; }
+.member-section{display:none;}
 
-    /* Small Online Sidebar */
-    .online-sidebar { 
-      position: fixed; right: 20px; top: 120px; width: 240px; background: white; 
-      border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.12); padding: 1rem; 
-      z-index: 200; display: none; max-height: 60vh; overflow-y: auto;
-    }
-    .online-sidebar h3 { margin-bottom: 1rem; color: var(--primary-dark); font-size: 1.1rem; }
-    .online-user { padding: 0.7rem 1rem; border-radius: 10px; cursor: pointer; transition: 0.2s; font-size: 0.95rem; }
-    .online-user:hover { background: #ecfdf5; }
+.dashboard-card{background:white;padding:2rem;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08);}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin:2rem 0;}
+.stat-card{background:#ecfdf5;padding:1rem;border-radius:12px;text-align:center;}
+.goal-list{list-style:none;padding:0;margin-top:1rem;}
+.goal-list li{display:flex;align-items:center;gap:.7rem;padding:.8rem;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:.6rem;background:white;}
 
-    /* Real-time Chat Window */
-    .chat-window { 
-      position: fixed; bottom: 20px; right: 280px; width: 420px; background: white; 
-      border-radius: 16px; box-shadow: 0 15px 50px rgba(0,0,0,0.15); display: none; 
-      flex-direction: column; height: 520px; z-index: 300; 
-    }
-    .chat-header { padding: 1rem; background: var(--primary); color: white; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: center; }
-    .chat-messages { flex: 1; padding: 1rem; overflow-y: auto; background: #f8fafc; }
-    .chat-input { padding: 1rem; border-top: 1px solid var(--border); display: flex; gap: 0.5rem; }
-    .chat-input input { flex: 1; padding: 0.8rem; border: 1px solid var(--border); border-radius: 999px; }
-    .chat-message { margin-bottom: 1rem; }
-    .chat-message .user { font-size: 0.85rem; color: var(--gray); }
-    .chat-message .text { padding: 0.6rem 1rem; border-radius: 12px; max-width: 80%; display: inline-block; }
-    .my-message .text { background: var(--primary); color: white; margin-left: auto; }
-    .other-message .text { background: white; border: 1px solid var(--border); }
-  </style>
+.milestone-progress{height:8px;background:#e2e8f0;border-radius:999px;margin:.5rem 0;}
+.milestone-bar{height:100%;background:#10b981;}
+
+.chat-window{
+position:fixed;
+bottom:20px;
+right:20px;
+width:400px;
+height:500px;
+background:white;
+display:none;
+flex-direction:column;
+border-radius:16px;
+box-shadow:0 10px 40px rgba(0,0,0,.2);
+}
+.chat-header{background:var(--primary);color:white;padding:1rem;}
+.chat-messages{flex:1;overflow:auto;padding:1rem;background:#f8fafc;}
+.chat-input{display:flex;padding:1rem;gap:.5rem;}
+.chat-input input{flex:1;}
+</style>
 </head>
+
 <body>
 
 <header>
-  <div class="header-inner">
-    <div class="logo">Pass It Forward</div>
-    <nav id="main-nav">
-      <a href="#hero" class="active">Home</a>
-      <a href="#apply-card">Apply</a>
-      <a href="#testimonials">Testimonials</a>
-    </nav>
-    <div id="auth-area">
-      <button id="login-btn" class="btn">Member Login</button>
-      <div id="user-area" style="display:none; align-items:center; gap:0.8rem;">
-        <span style="color:#94a3b8;">Welcome, <strong id="display-name"></strong></span>
-        <button id="logout-btn" class="btn" style="background:#64748b;">Logout</button>
-        <button onclick="toggleOnlineSidebar()" class="btn" style="background:#e0f2fe; color:#0e7490; font-size:0.9rem;">Online</button>
-      </div>
-    </div>
-  </div>
+<div class="header-inner">
+<div class="logo">Pass It Forward</div>
+<button id="login-btn" class="btn">Member Login</button>
+</div>
 </header>
 
-<section id="hero" class="hero">
-  <h1>Pass It Forward</h1>
-  <p class="lead">
-    A community-driven platform built for <strong>long-term vision</strong>.<br><br>
-    Where serious people create <strong>real opportunities</strong> through <strong>self-made growth</strong> — and <strong>pass it forward</strong>.
-  </p>
-  <div class="brand-keywords">
-    <strong>Self-made growth</strong> • <strong>Real opportunities</strong> • <strong>Community-driven</strong> • <strong>Long-term vision</strong> • <strong>Pass it forward</strong>
-  </div>
-  <div style="margin:3rem 0; font-size:1.3rem; color:#94a3b8;">
-    <p><strong>Founding Stage — early members joining now.</strong></p>
-  </div>
-  <section style="margin:4rem 0; text-align:center;">
-    <h2>Why Join Early?</h2>
-    <p style="max-width:700px; margin:auto; color:#94a3b8;">
-      This is the founding stage of Pass It Forward.<br>
-      Early members are not just joining — they are helping shape the future of the platform.
-    </p>
-    <ul style="list-style:none; padding:0; margin-top:2rem; color:#cbd5e1;">
-      <li>• Be part of the foundation from day one</li>
-      <li>• Help shape the direction of the community</li>
-      <li>• Early access to future opportunities</li>
-      <li>• Grow alongside the platform as it scales</li>
-    </ul>
-  </section>
-  <div class="cta-group">
-    <button class="btn" onclick="document.getElementById('apply-card').scrollIntoView({behavior:'smooth'})">
-      Apply for Access
-    </button>
-  </div>
-</section>
-
-<section class="section">
-  <h2>What Pass It Forward Is</h2>
-  <p class="lead">
-    Pass It Forward is the early-stage foundation of a <strong>global opportunity hub</strong>.<br><br>
-    A place where builders, makers, learners and entrepreneurs connect, trade value, acquire skills, and grow real businesses — together.
-  </p>
-  <div class="audience-grid">
-    <div class="audience-card">
-      <h3>Who it’s for</h3>
-      <p>People who want <strong>self-made growth</strong>.<br><br>People looking for <strong>real opportunities</strong>.<br><br>People who believe in being <strong>community-driven</strong>.<br><br>People committed to a <strong>long-term vision</strong>.<br><br>People who want to <strong>pass it forward</strong>.</p>
-    </div>
-    <div class="audience-card">
-      <h3>Why you should care</h3>
-      <p>Because the next decade will belong to communities that combine trust, commerce, knowledge, and mutual growth.<br><br><br>Pass It Forward is being built to become one of those rare places — a real ecosystem where ordinary people can create <strong>extraordinary long-term value</strong>.</p>
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <h2>OUR CORE VISION — PASS IT FORWARD</h2>
-  <p class="lead">
-    We are building a real long-term business ecosystem, not just an X account.
-  </p>
-  <div style="background:#ecfdf5; border-radius:20px; padding:3rem; max-width:900px; margin:3rem auto; text-align:center;">
-    <h3 style="font-size:1.9rem; margin-bottom:2rem; color:#065f46;">Main mission:</h3>
-    <ul style="list-style:none; padding:0; font-size:1.28rem; color:#065f46; font-weight:500; line-height:2.2;">
-      <li>• Help people find opportunities</li>
-      <li>• Help people create income</li>
-      <li>• Help people grow independently</li>
-      <li>• Build a strong community that supports each other</li>
-    </ul>
-    <p style="margin-top:2.5rem; font-size:1.4rem; font-weight:600; color:#065f46;">
-      Core principle: <strong>➡️ Pass it forward</strong>
-    </p>
-  </div>
+<section class="hero">
+<h1>Pass It Forward</h1>
+<p>Community-driven opportunity infrastructure.</p>
 </section>
 
 <section class="section" id="apply-card">
-  <div class="apply-card">
-    <h2>Apply for Access</h2>
-    <p style="margin-bottom:2.5rem; color:#475569; font-size:1.15rem;">
-      We are intentionally small and selective in 2026.<br><br>
-      If accepted, you become part of the founding community and will receive your private Member Login code via X DM within 48 hours.
-    </p>
-    <form id="apply-form" action="https://formspree.io/f/mgolzjjr" method="POST">
-      <input type="hidden" name="_subject" value="Pass It Forward Application" />
-      <input type="text" name="name" placeholder="Full Name" required />
-      <input type="text" name="x_username" placeholder="X Handle (@MrGentleman93)" required />
-      <textarea name="skills" placeholder="Your skills/experience" required></textarea>
-      <textarea name="motivation" placeholder="Why do you want to join?" required></textarea>
-      <button type="submit" class="btn">Apply</button>
-    </form>
-    <div id="apply-success">
-      <h3 style="margin-bottom:1rem; color:#065f46;">Application received — thank you.</h3>
-      <p style="margin-bottom:1.5rem;">We manually review every application.<br>We will reach out via X DM if there is a fit and send your private login code within 48 hours.</p>
-    </div>
-  </div>
+<div class="apply-card">
+<h2>Apply for Access</h2>
+
+<form id="apply-form" action="https://formspree.io/f/mgolzjjr" method="POST">
+<input type="hidden" name="_subject" value="Pass It Forward Application">
+<input type="text" name="name" placeholder="Full Name" required>
+<input type="text" name="x_username" placeholder="X Handle" required>
+<textarea name="skills" placeholder="Your skills/experience" required></textarea>
+<textarea name="motivation" placeholder="Why do you want to join?" required></textarea>
+<button class="btn" type="submit">Apply</button>
+</form>
+
+<div id="apply-success">
+✔️ Application received — thank you.
+</div>
+
+</div>
 </section>
 
-<!-- Testimonials -->
-<section class="section" id="testimonials">
-  <h2>What Members Are Saying</h2>
-  <div id="testimonials-container" class="audience-grid"></div>
-
-  <div id="share-testimonial" class="share-testimonial">
-    <h3>Share Your Experience</h3>
-    <textarea id="testimonial-text" placeholder="What do you like about Pass It Forward so far?"></textarea>
-    <button onclick="submitTestimonial()" class="btn" style="margin-top:1rem;">Submit Testimonial</button>
-  </div>
-</section>
-
-<!-- ROADMAP - ORIGINAL SIMPLE LAYOUT YOU LIKED -->
-<section class="member-section section" id="vision">
-  <div class="member-header">
-    <h2 style="color:#065f46;">Our 2026–2030 Roadmap</h2>
-    <p style="color:#065f46;">The step-by-step plan to build the global opportunity infrastructure.</p>
-  </div>
-  <div class="roadmap">
-    <div class="roadmap-item">
-      <div class="roadmap-pin" onclick="toggleRoadmap(this)">1</div>
-      <div class="founder-badge">FOUNDING STAGE</div>
-      <div class="roadmap-content">
-        <h3>Founding Community Launch (Q1 2026)</h3>
-        <div class="goal">• Accept first 100 verified founding members</div>
-        <div class="goal">• Launch private community platform</div>
-        <div class="goal">• Host first 4 weekly member calls</div>
-        <div class="goal">• Establish “Pass It Forward” culture</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- DASHBOARD - ORIGINAL SIMPLE VERSION YOU LIKED -->
 <section class="member-section section" id="dashboard">
-  <div class="dashboard-card">
-    <div class="dashboard-header">
-      <h2 style="color:#065f46;">Welcome back, <span id="profile-name"></span>!</h2>
-      <p style="color:#10b981; font-size:1.25rem;">You're a verified founding member building the future.</p>
-    </div>
+<div class="dashboard-card">
+<h2>Dashboard</h2>
 
-    <div class="stat-grid">
-      <div class="stat-card">
-        <i class="fas fa-trophy"></i>
-        <h3 id="goals-completed">0</h3>
-        <p>Goals Completed</p>
-      </div>
-      <div class="stat-card">
-        <i class="fas fa-comment-dots"></i>
-        <h3 id="testimonials-count">0</h3>
-        <p>Testimonials Shared</p>
-      </div>
-      <div class="stat-card">
-        <i class="fas fa-fire"></i>
-        <h3 id="streak">1</h3>
-        <p>Day Streak 🔥</p>
-      </div>
-    </div>
+<div class="stat-grid">
+<div class="stat-card"><h3 id="goals-completed">0</h3><p>Goals Completed</p></div>
+<div class="stat-card"><h3 id="streak">1</h3><p>Day Streak</p></div>
+</div>
 
-    <h3>My Personal Goals</h3>
-    <div class="goal-input">
-      <input id="personal-goal-input" type="text" placeholder="What do you want to achieve next?">
-      <button onclick="addPersonalGoal()" class="btn">Add Goal</button>
-    </div>
-    <ul id="personal-goals-list" class="goal-list"></ul>
+<input id="personal-goal-input" placeholder="Add goal">
+<button class="btn" onclick="addPersonalGoal()">Add Goal</button>
+<ul id="personal-goals-list" class="goal-list"></ul>
 
-    <h3 style="margin-top:2.5rem;">Community Milestones</h3>
-    <ul id="community-milestones" class="goal-list" style="background:#ecfdf5; padding:1.5rem; border-radius:16px;"></ul>
-
-    <h3 style="margin-top:2.5rem;">Your Testimonials</h3>
-    <div id="my-testimonials" class="audience-grid"></div>
-  </div>
+<h3 style="margin-top:2rem;">Community Milestones</h3>
+<ul id="community-milestones" class="goal-list"></ul>
+</div>
 </section>
 
-<!-- ONLINE SIDEBAR -->
-<div id="online-sidebar" class="online-sidebar">
-  <h3><i class="fas fa-circle" style="color:#10b981"></i> Who's Online</h3>
-  <div id="online-list"></div>
-</div>
-
-<!-- REAL-TIME COMMUNITY CHAT -->
 <div id="chat-window" class="chat-window">
-  <div class="chat-header">
-    <strong>Community Chat</strong>
-    <button onclick="closeChat()" style="background:none;border:none;color:white;cursor:pointer;">✕</button>
-  </div>
-  <div id="chat-messages" class="chat-messages"></div>
-  <div class="chat-input">
-    <input id="chat-input" type="text" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
-    <button onclick="sendMessage()" class="btn">Send</button>
-  </div>
+<div class="chat-header">Community Chat</div>
+<div id="chat-messages" class="chat-messages"></div>
+<div class="chat-input">
+<input id="chat-input" placeholder="Type message..." onkeypress="if(event.key==='Enter') sendMessage()">
+<button class="btn" onclick="sendMessage()">Send</button>
 </div>
-
-<footer>
-  <p>© 2026 Pass It Forward — Building serious opportunity infrastructure</p>
-  <p style="margin-top:1.8rem; font-size:0.95rem;">
-    Self-made growth • Real opportunities • Community-driven • Long-term vision • Pass it forward
-  </p>
-  <p style="margin-top:2.5rem; font-size:0.9rem; color:#94a3b8;">
-    Built by <a href="https://x.com/yourhandle" target="_blank">@MrGentleman93</a>
-  </p>
-</footer>
-
-<div id="login-modal" class="modal">
-  <div class="modal-content">
-    <h2>Member Login</h2>
-    <p style="margin-bottom:1.5rem; color:#64748b;">Verified founding members only</p>
-    <input type="text" id="xhandle" placeholder="X Handle (@yourname)" />
-    <input type="password" id="accesscode" placeholder="Access Code" />
-    <button onclick="handleLogin()" class="btn" style="width:100%; margin-top:1rem;">Login</button>
-    <p style="font-size:0.85rem; margin-top:1.5rem; color:#94a3b8;">
-      You will receive your personal access code via X DM after your application is approved.
-    </p>
-    <button onclick="closeModal()" style="background:none; border:none; margin-top:1rem; color:#64748b; cursor:pointer;">Cancel</button>
-  </div>
-</div>
-
-<!-- WELCOME MESSAGE WITH SIMPLE TASKS -->
-<div id="welcome-modal" class="modal">
-  <div class="modal-content" style="max-width:520px;">
-    <h2 style="color:#065f46;">Welcome, <span id="welcome-name"></span>! 🎉</h2>
-    <p style="font-size:1.2rem; margin:1.5rem 0;">Here are 3 simple tasks to get started right now:</p>
-    <ol style="text-align:left; margin:1.5rem 0; font-size:1.1rem; line-height:2;">
-      <li>Post your first testimonial (tell everyone why you're here)</li>
-      <li>Add your first personal goal in the dashboard</li>
-      <li>Support one of the community milestones</li>
-    </ol>
-    <button onclick="goToStartHere()" class="btn" style="width:100%; margin-bottom:1rem;">Go to Dashboard</button>
-    <button onclick="closeWelcomeModal()" style="background:none; border:none; color:#64748b; cursor:pointer;">Close for now</button>
-  </div>
 </div>
 
 <script>
-const ACCESS_CODE = "founder2026";
+const ACCESS_CODE="founder2026";
 
-// Firebase for real-time chat
-const firebaseConfig = {
-  apiKey: "AIzaSyDdYdJb2cFv4R5Kf2NruN6zaPsAEkathHj9E",
-  authDomain: "pass-it-forward-chat.firebaseapp.com",
-  databaseURL: "https://pass-it-forward-chat-default-rtdb.firebaseio.com",
-  projectId: "pass-it-forward-chat",
-  storageBucket: "pass-it-forward-chat.firebasestorage.app",
-  messagingSenderId: "329412615309",
-  appId: "1:329412615309:web:c0daf7ef87c0c99d6d6c4"
-};
+/* FIREBASE */
+firebase.initializeApp({
+apiKey:"AIzaSyDdYdJb2cFv4R5Kf2NruN6zaPsAEkathHj9E",
+databaseURL:"https://pass-it-forward-chat-default-rtdb.firebaseio.com"
+});
+const database=firebase.database();
 
-const app = firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
-
-document.getElementById('apply-form').addEventListener('submit', function(e) {
-  const name = document.querySelector('input[name="name"]').value;
-  const x = document.querySelector('input[name="x_username"]').value;
-  const skills = document.querySelector('textarea[name="skills"]').value;
-  const motivation = document.querySelector('textarea[name="motivation"]').value;
-  document.getElementById('submitted-name').textContent = name;
-  document.getElementById('submitted-x').textContent = x;
-  document.getElementById('submitted-skills').textContent = skills;
-  document.getElementById('submitted-motivation').textContent = motivation;
-  document.getElementById('apply-form').style.display = 'none';
-  document.getElementById('apply-success').style.display = 'block';
+/* APPLY FORM */
+document.getElementById("apply-form").addEventListener("submit",()=>{
+document.getElementById("apply-form").style.display="none";
+document.getElementById("apply-success").style.display="block";
 });
 
-let currentUser = null;
+/* LOGIN */
+document.getElementById("login-btn").onclick=function(){
+const code=prompt("Enter member code:");
+if(code===ACCESS_CODE){
+document.getElementById("dashboard").style.display="block";
+document.getElementById("chat-window").style.display="flex";
+}
+};
 
-function showMemberTabs() {
-  currentUser = localStorage.getItem('pf_user');
-  const nav = document.getElementById('main-nav');
-  nav.innerHTML = `
-    <a href="#hero">Home</a>
-    <a href="#vision" onclick="switchTab('vision');return false">Roadmap</a>
-    <a href="#testimonials">Testimonials</a>
-    <a href="#dashboard" onclick="switchTab('dashboard');return false">Dashboard</a>
-  `;
-  document.getElementById('login-btn').style.display = 'none';
-  document.getElementById('user-area').style.display = 'flex';
-  document.getElementById('display-name').textContent = currentUser;
-  document.getElementById('apply-card').style.display = 'none';
-  document.getElementById('share-testimonial').style.display = 'block';
-  document.getElementById('online-sidebar').style.display = 'block';
-  loadOnlineUsers();
-  loadTestimonials();
-  loadMyTestimonials();
-  loadPersonalGoals();
-  renderCommunityMilestones();
-  switchTab('dashboard');
+/* PERSONAL GOALS */
+let currentUser="member";
 
-  // Welcome message with simple tasks
-  document.getElementById('welcome-name').textContent = currentUser;
-  document.getElementById('welcome-modal').style.display = 'flex';
+function addPersonalGoal(){
+const input=document.getElementById("personal-goal-input");
+if(!input.value.trim())return;
+let goals=JSON.parse(localStorage.getItem("goals")||"[]");
+goals.push({text:input.value,done:false});
+localStorage.setItem("goals",JSON.stringify(goals));
+input.value="";
+renderGoals();
 }
 
-function goToStartHere() {
-  closeWelcomeModal();
-  switchTab('dashboard');
+function renderGoals(){
+const list=document.getElementById("personal-goals-list");
+list.innerHTML="";
+let goals=JSON.parse(localStorage.getItem("goals")||"[]");
+document.getElementById("goals-completed").textContent=goals.filter(g=>g.done).length;
+goals.forEach((g,i)=>{
+const li=document.createElement("li");
+li.innerHTML=`<input type="checkbox" onchange="toggleGoal(${i})" ${g.done?"checked":""}> ${g.text}`;
+list.appendChild(li);
+});
+}
+function toggleGoal(i){
+let goals=JSON.parse(localStorage.getItem("goals")||"[]");
+goals[i].done=!goals[i].done;
+localStorage.setItem("goals",JSON.stringify(goals));
+renderGoals();
+}
+renderGoals();
+
+/* CHAT */
+function loadCommunityMessages(){
+const container=document.getElementById("chat-messages");
+container.innerHTML="";
+const ref=database.ref("communityChat");
+ref.off(); // FIX duplicate listener
+ref.on("child_added",(snap)=>{
+const msg=snap.val();
+const div=document.createElement("div");
+div.innerHTML=`<strong>@${msg.user}</strong>: ${msg.text}`;
+container.appendChild(div);
+container.scrollTop=container.scrollHeight;
+});
 }
 
-function closeWelcomeModal() {
-  document.getElementById('welcome-modal').style.display = 'none';
+function sendMessage(){
+const input=document.getElementById("chat-input");
+if(!input.value.trim())return;
+database.ref("communityChat").push({
+user:currentUser,
+text:input.value
+});
+input.value="";
 }
 
-function switchTab(tabId) {
-  document.querySelectorAll('#main-nav a').forEach(a => a.classList.remove('active'));
-  const activeLink = Array.from(document.querySelectorAll('#main-nav a')).find(a => a.getAttribute('href') === '#' + tabId);
-  if (activeLink) activeLink.classList.add('active');
-  document.querySelectorAll('.member-section').forEach(s => s.style.display = 'none');
-  document.getElementById(tabId).style.display = 'block';
-  document.getElementById(tabId).scrollIntoView({ behavior: 'smooth' });
-}
-
-function handleLogin() {
-  const handle = document.getElementById('xhandle').value.trim();
-  const code = document.getElementById('accesscode').value.trim();
-  if (!handle || code !== ACCESS_CODE) {
-    alert("Invalid access code. Only verified founding members have the code.");
-    return;
-  }
-  currentUser = handle.startsWith('@') ? handle : '@' + handle;
-  localStorage.setItem('pf_loggedIn', 'true');
-  localStorage.setItem('pf_user', currentUser);
-  closeModal();
-  showMemberTabs();
-}
-
-function closeModal() { document.getElementById('login-modal').style.display = 'none'; }
-function logout() { 
-  localStorage.removeItem('pf_loggedIn'); 
-  localStorage.removeItem('pf_user'); 
-  location.reload(); 
-}
-
-document.getElementById('login-btn').addEventListener('click', () => document.getElementById('login-modal').style.display = 'flex');
-document.getElementById('logout-btn').addEventListener('click', logout);
-
-if (localStorage.getItem('pf_loggedIn') === 'true') {
-  showMemberTabs();
-}
-
-function toggleRoadmap(el){
-  const item = el.closest('.roadmap-item');
-  item.classList.toggle('active');
-}
-
-function toggleOnlineSidebar() {
-  const sidebar = document.getElementById('online-sidebar');
-  sidebar.style.display = sidebar.style.display === 'block' ? 'none' : 'block';
-}
-
-function loadOnlineUsers() {
-  const list = document.getElementById('online-list');
-  list.innerHTML = `
-    <div class="online-user" onclick="openCommunityChat()"><strong>Community Chat</strong> <span class="status">(Live)</span></div>
-  `;
-}
-
-// REAL-TIME COMMUNITY CHAT
-function openCommunityChat() {
-  document.getElementById('chat-window').style.display = 'flex';
-  loadCommunityMessages();
-}
-
-function closeChat() {
-  document.getElementById('chat-window').style.display = 'none';
-}
-
-function loadCommunityMessages() {
-  const container = document.getElementById('chat-messages');
-  container.innerHTML = '';
-
-  const chatRef = database.ref('communityChat');
-  chatRef.on('child_added', (snapshot) => {
-    const msg = snapshot.val();
-    const div = document.createElement('div');
-    div.className = 'chat-message';
-    div.innerHTML = `
-      <div class="user">@${msg.user}</div>
-      <div class="text">${msg.text}</div>
-    `;
-    container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
-  });
-}
-
-function sendMessage() {
-  const input = document.getElementById('chat-input');
-  const text = input.value.trim();
-  if (!text || !currentUser) return;
-
-  const chatRef = database.ref('communityChat');
-  chatRef.push({
-    user: currentUser.replace('@', ''),
-    text: text,
-    timestamp: Date.now()
-  });
-
-  input.value = '';
-}
-
-// PERSONAL GOALS - SIMPLE ORIGINAL
-function addPersonalGoal() {
-  const input = document.getElementById('personal-goal-input');
-  const text = input.value.trim();
-  if (!text || !currentUser) return;
-
-  let goals = JSON.parse(localStorage.getItem(`goals_${currentUser}`) || '[]');
-  goals.unshift({ id: Date.now(), text: text, done: false });
-  localStorage.setItem(`goals_${currentUser}`, JSON.stringify(goals));
-
-  input.value = '';
-  renderPersonalGoals();
-}
-
-function renderPersonalGoals() {
-  const container = document.getElementById('personal-goals-list');
-  container.innerHTML = '';
-  let goals = JSON.parse(localStorage.getItem(`goals_${currentUser}`) || '[]');
-
-  let completed = goals.filter(g => g.done).length;
-  document.getElementById('goals-completed').textContent = completed;
-
-  goals.forEach((goal, index) => {
-    const li = document.createElement('li');
-    li.innerHTML = `
-      <input type="checkbox" ${goal.done ? 'checked' : ''} onchange="toggleGoal(${index})">
-      <span style="${goal.done ? 'text-decoration:line-through; opacity:0.6' : ''}">${goal.text}</span>
-      <button onclick="deleteGoal(${index})" style="margin-left:auto; background:none; border:none; color:#ef4444; cursor:pointer;">Delete</button>
-    `;
-    container.appendChild(li);
-  });
-}
-
-function toggleGoal(index) {
-  let goals = JSON.parse(localStorage.getItem(`goals_${currentUser}`) || '[]');
-  goals[index].done = !goals[index].done;
-  localStorage.setItem(`goals_${currentUser}`, JSON.stringify(goals));
-  renderPersonalGoals();
-}
-
-function deleteGoal(index) {
-  let goals = JSON.parse(localStorage.getItem(`goals_${currentUser}`) || '[]');
-  goals.splice(index, 1);
-  localStorage.setItem(`goals_${currentUser}`, JSON.stringify(goals));
-  renderPersonalGoals();
-}
-
-function loadPersonalGoals() {
-  renderPersonalGoals();
-}
-
-// COMMUNITY MILESTONES - FUNCTIONAL AND SAVED
-let communityMilestonesData = JSON.parse(localStorage.getItem('communityMilestones')) || [
-  { id: 1, text: "Reach 100 verified founding members", progress: 42, supporters: 18 },
-  { id: 2, text: "Host first live community call (March 2026)", progress: 65, supporters: 31 },
-  { id: 3, text: "Launch first member project showcase", progress: 28, supporters: 12 },
-  { id: 4, text: "Hit 500 total testimonials", progress: 19, supporters: 8 },
-  { id: 5, text: "Organize first in-person meetup", progress: 0, supporters: 0 }
-];
-
-function renderCommunityMilestones() {
-  const container = document.getElementById('community-milestones');
-  container.innerHTML = '';
-  communityMilestonesData.forEach(m => {
-    const li = document.createElement('li');
-    li.className = 'milestone';
-    li.innerHTML = `
-      <strong>${m.text}</strong>
-      <div class="milestone-progress">
-        <div class="milestone-bar" style="width: ${m.progress}%"></div>
-      </div>
-      <div style="display:flex; justify-content:space-between; font-size:0.95rem;">
-        <span>${m.progress}% complete</span>
-        <span>Supported by ${m.supporters} members</span>
-      </div>
-      <button onclick="supportMilestone(${m.id})" class="btn" style="margin-top:0.8rem; width:100%;">Support this milestone</button>
-    `;
-    container.appendChild(li);
-  });
-}
-
-function supportMilestone(id) {
-  const milestone = communityMilestonesData.find(m => m.id === id);
-  if (!milestone || milestone.progress >= 100) return;
-
-  milestone.progress = Math.min(100, milestone.progress + 10);
-  milestone.supporters += 1;
-
-  localStorage.setItem('communityMilestones', JSON.stringify(communityMilestonesData));
-
-  renderCommunityMilestones();
-
-  if (milestone.progress >= 100) {
-    alert(`🎉 Milestone Achieved: ${milestone.text}!\nThank you for your support!`);
-  } else {
-    alert(`Thank you! You helped advance "${milestone.text}" by 10%.\nNow at ${milestone.progress}% with ${milestone.supporters} supporters.`);
-  }
-}
-
-window.onload = loadTestimonials;
+loadCommunityMessages();
 </script>
+
 </body>
 </html>
