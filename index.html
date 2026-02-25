@@ -35,6 +35,53 @@ textarea{min-height:120px;}
 .goal-list li{display:flex;align-items:center;gap:.7rem;padding:.8rem;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:.6rem;background:white;}
 .milestone-progress{height:8px;background:#e2e8f0;border-radius:999px;margin:.5rem 0;}
 .milestone-bar{height:100%;background:#10b981;}
+.roadmap {
+  max-width:900px;
+  margin:4rem auto;
+  position:relative;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.roadmap::before {
+  content:'';
+  position:absolute;
+  top:37px;
+  left:80px;
+  right:80px;
+  height:4px;
+  background:repeating-linear-gradient(to right,#10b981 0,#10b981 12px,transparent 12px,transparent 24px);
+}
+.roadmap-item {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  position:relative;
+  z-index:2;
+}
+.roadmap-pin {
+  width:75px;
+  height:75px;
+  background:linear-gradient(135deg,#FF9500,#FF5E00);
+  border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:2.2rem;
+  font-weight:700;
+  color:white;
+  box-shadow:0 10px 25px rgba(255,149,0,0.4);
+  margin-bottom:15px;
+  cursor:pointer;
+}
+.roadmap-content {
+  background:white;
+  padding:1.5rem;
+  border-radius:16px;
+  box-shadow:0 8px 25px rgba(0,0,0,0.1);
+  min-width:280px;
+  text-align:center;
+}
 </style>
 </head>
 <body>
