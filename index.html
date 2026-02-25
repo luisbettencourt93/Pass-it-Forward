@@ -137,6 +137,11 @@
       color: #065f46;
       margin-bottom: 1rem;
     }
+
+    /* User Profile Dashboard */
+    .dashboard-card { background: white; border-radius: 16px; padding: 2.5rem; box-shadow: 0 8px 32px rgba(0,0,0,0.07); }
+    .dashboard-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin: 2rem 0; }
+    .stat-box { background: #f8fafc; padding: 1rem; border-radius: 12px; text-align: center; }
   </style>
 </head>
 <body>
@@ -230,7 +235,6 @@
   </div>
 </section>
 
-<!-- APPLY SECTION - HIDDEN AFTER LOGIN -->
 <section class="section" id="apply-card">
   <div class="apply-card">
     <h2>Apply for Access</h2>
@@ -284,6 +288,31 @@
         <div class="goal">• Establish “Pass It Forward” culture</div>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- USER PROFILE DASHBOARD - ONLY FOR MEMBERS -->
+<section class="member-section section" id="dashboard">
+  <div class="dashboard-card">
+    <h2 style="color:#065f46;">Your Profile Dashboard</h2>
+    <p style="font-size:1.3rem; margin:1.5rem 0;">
+      Welcome back, <strong id="profile-name"></strong><br>
+      <span class="founder-badge" style="font-size:0.95rem;">✓ VERIFIED FOUNDER</span>
+    </p>
+    
+    <div class="dashboard-stats">
+      <div class="stat-box">
+        <h3 id="stat-testimonials">0</h3>
+        <p>Testimonials</p>
+      </div>
+      <div class="stat-box">
+        <h3>Member since</h3>
+        <p>February 2026</p>
+      </div>
+    </div>
+
+    <h3 style="margin-top:2rem; margin-bottom:1rem;">Your Testimonials</h3>
+    <div id="my-testimonials" class="audience-grid"></div>
   </div>
 </section>
 
@@ -355,17 +384,20 @@ function showMemberTabs() {
   nav.innerHTML = `
     <a href="#hero">Home</a>
     <a href="#vision" onclick="switchTab('vision');return false">Roadmap</a>
+    <a href="#apply-card">Apply</a>
     <a href="#testimonials">Testimonials</a>
+    <a href="#dashboard" onclick="switchTab('dashboard');return false">Dashboard</a>
   `;
   document.getElementById('login-btn').style.display = 'none';
   document.getElementById('user-area').style.display = 'flex';
   document.getElementById('display-name').textContent = currentUser;
-  document.getElementById('apply-card').style.display = 'none';   // HIDE APPLY AFTER LOGIN
+  document.getElementById('apply-card').style.display = 'none';
   document.getElementById('share-testimonial').style.display = 'block';
   document.getElementById('online-sidebar').style.display = 'block';
   loadOnlineUsers();
   loadTestimonials();
-  switchTab('vision');
+  loadMyTestimonials();
+  switchTab('dashboard');
 }
 
 function switchTab(tabId) {
@@ -375,6 +407,26 @@ function switchTab(tabId) {
   document.querySelectorAll('.member-section').forEach(s => s.style.display = 'none');
   document.getElementById(tabId).style.display = 'block';
   document.getElementById(tabId).scrollIntoView({ behavior: 'smooth' });
+}
+
+function loadMyTestimonials() {
+  const saved = JSON.parse(localStorage.getItem('testimonials') || '[]');
+  const container = document.getElementById('my-testimonials');
+  container.innerHTML = '';
+  const myTestis = saved.filter(t => t.user === currentUser);
+  if (myTestis.length === 0) {
+    container.innerHTML = '<p style="color:#64748b; font-style:italic;">You haven\'t posted any testimonials yet.</p>';
+    return;
+  }
+  myTestis.forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'testimonial';
+    div.innerHTML = `
+      <p>"${t.text}"</p>
+      <div class="author"><a href="https://x.com/${t.user.replace('@','')}" target="_blank">@${t.user.replace('@','')}</a></div>
+    `;
+    container.appendChild(div);
+  });
 }
 
 function handleLogin() {
@@ -403,8 +455,6 @@ document.getElementById('logout-btn').addEventListener('click', logout);
 
 if (localStorage.getItem('pf_loggedIn') === 'true') {
   showMemberTabs();
-} else {
-  document.getElementById('apply-card').style.display = 'block'; // SHOW APPLY WHEN NOT LOGGED IN
 }
 
 function toggleRoadmap(el){
