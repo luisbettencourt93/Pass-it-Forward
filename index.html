@@ -193,6 +193,11 @@
         <span id="display-goal" style="font-style:italic;color:#065f46;"></span>
         <button onclick="deleteGoal()" class="delete-goal" title="Delete goal">🗑</button>
       </div>
+
+      <!-- RESET WELCOME FOR TESTING -->
+      <small onclick="resetWelcome()" style="color:#64748b;cursor:pointer;display:block;margin-top:1.5rem;text-align:center;">
+        (Reset welcome modal for testing)
+      </small>
     </div>
 
     <div class="dashboard-grid" style="margin-top:2rem;">
@@ -477,6 +482,12 @@ function welcomeAction(type) {
   }, 400);
 }
 
+/* RESET WELCOME FOR TESTING */
+function resetWelcome() {
+  localStorage.removeItem('pf_welcomeShown');
+  showToast("Welcome modal has been reset. Refresh the page to see it again.");
+}
+
 /* LOGIN & TABS */
 function showMemberTabs() {
   currentUser = localStorage.getItem('pf_user');
@@ -490,9 +501,9 @@ function showMemberTabs() {
   switchTab('dashboard');
   renderGoal();
 
-  // ONE-TIME WELCOME
+  // ONE-TIME WELCOME - ONLY SHOWS THE FIRST TIME YOU EVER LOGIN
   if (!localStorage.getItem('pf_welcomeShown')) {
-    setTimeout(showWelcomeModal, 800);
+    setTimeout(showWelcomeModal, 900);
   }
 }
 function handleLogin() {
@@ -550,7 +561,7 @@ setInterval(() => {
   }
 }, 4500);
 
-console.log('%c✅ PASS IT FORWARD v3.7 — ONE-TIME WELCOME MODAL ADDED 🔥\nFirst login now shows beautiful welcome with 3 things to do. Everything else unchanged.', 'color:#10b981;font-weight:700;font-size:15px');
+console.log('%c✅ PASS IT FORWARD v3.8 LIVE READY — ONE-TIME WELCOME + RESET BUTTON ADDED 🔥\nWelcome modal now shows ONLY ONCE (as you wanted). Use the small reset link in dashboard to test it again. Copy this file and upload — we are DONE!', 'color:#10b981;font-weight:700;font-size:16px');
 </script>
 </body>
 </html>
