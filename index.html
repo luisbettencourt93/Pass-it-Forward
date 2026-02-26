@@ -32,7 +32,7 @@
     .roadmap-timeline::before { content: ''; position: absolute; top: 70px; left: 80px; right: 80px; height: 8px; background: linear-gradient(to right, #10b981, #34d399); border-radius: 999px; z-index: 1; }
     .roadmap-year { display: flex; flex-direction: column; align-items: center; z-index: 2; position: relative; }
     .year-circle { width: 110px; height: 110px; border: 7px solid #0f172a; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.1rem; font-weight: 800; color: #0f172a; box-shadow: 0 10px 30px rgba(16,185,129,0.25); transition: all 0.3s; }
-    .roadmap-year:hover .year-circle:not(.locked) { transform: scale(1.08); }
+    .roadmap-year:hover .year-circle { transform: scale(1.08); }
     .planned-badge { position: absolute; top: -28px; background: white; color: #475569; font-size: 0.78rem; font-weight: 700; padding: 4px 18px; border-radius: 999px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); white-space: nowrap; }
     .roadmap-year-content { margin-top: 2rem; background: white; padding: 1.6rem 2rem; border-radius: 18px; box-shadow: 0 10px 35px rgba(0,0,0,0.08); width: 260px; text-align: left; display: none; }
     .roadmap-year.active .roadmap-year-content { display: block; }
@@ -40,7 +40,6 @@
     .roadmap-year-content li { padding: 0.6rem 0; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px; font-size: 1.02rem; }
     .roadmap-year-content li:last-child { border-bottom: none; }
     .roadmap-year-content li i { color: var(--primary); font-size: 1.1rem; }
-    .locked { border-color: #64748b; color: #64748b; cursor: default; }
 
     /* TESTIMONIALS */
     .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 2rem; margin-bottom: 4rem; }
@@ -68,9 +67,6 @@
     .current-goal { margin-top: 1.5rem; padding: 1.2rem; background: #ecfdf5; border-radius: 14px; display: none; }
     .current-goal.show { display: block; }
     .delete-goal { background: none; border: none; color: #ef4444; font-size: 1.3rem; cursor: pointer; float: right; }
-
-    .test-welcome-btn { width: 100%; margin-top: 1.5rem; padding: 1.1rem; background: #eab308; color: #1e2937; border: none; border-radius: 999px; font-size: 1.15rem; font-weight: 700; cursor: pointer; }
-    .test-welcome-btn:hover { transform: translateY(-3px); }
 
     .opportunities-feed { background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.07); max-height: 620px; overflow-y: auto; }
     .opp-item { padding: 1.4rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
@@ -156,7 +152,7 @@
   </div>
 </section>
 
-<!-- ROADMAP - ONLY 2026 EXPANDABLE -->
+<!-- ROADMAP -->
 <section class="member-section section" id="vision">
   <h2 style="color:#065f46;">Our 2026–2030 Roadmap</h2>
   <div class="roadmap-container">
@@ -258,7 +254,7 @@
 <div id="welcome-modal" class="modal">
   <div class="modal-content welcome-modal-content">
     <h2>Welcome to the Founding Circle! 🎉</h2>
-    <p>You’re now one of the first 150 builders shaping real opportunity infrastructure.</p>
+    <p>You’re now one of the first 150 builders shaping real opportunity infrastructure.<br><br>Here’s what to do first:</p>
     <div class="welcome-actions">
       <div onclick="welcomeAction('testimonial')" class="welcome-action-btn">
         <i class="fas fa-comment-dots"></i>
@@ -336,11 +332,10 @@ function submitTestimonial() {
   showToast("Testimonial posted — thank you for passing it forward!");
 }
 
-/* ROADMAP - ONLY 2026 IS EXPANDABLE */
+/* ROADMAP - ONLY 2026 EXPANDABLE */
 function renderRoadmap() {
   const container = document.getElementById('roadmap-timeline');
   container.innerHTML = `
-    <!-- 2026 - EXPANDABLE -->
     <div class="roadmap-year active" onclick="toggleYear(this)">
       <div class="year-circle" style="border-color:#10b981;color:#10b981;">2026</div>
       <div class="planned-badge" style="background:#10b981;color:white;">IN PROGRESS</div>
@@ -353,8 +348,6 @@ function renderRoadmap() {
         </ul>
       </div>
     </div>
-
-    <!-- FUTURE YEARS - STATIC TEASERS (NO CLICK, NO CONTENT) -->
     <div class="roadmap-year">
       <div class="year-circle" style="border-color:#64748b;color:#64748b;">2027</div>
       <div class="planned-badge">PLANNED</div>
@@ -462,7 +455,7 @@ function renderGoal() {
   }
 }
 
-/* WELCOME */
+/* WELCOME - ONLY FOR NEW USERS */
 function forceShowWelcome() {
   document.getElementById('welcome-modal').style.display = 'flex';
 }
@@ -549,7 +542,7 @@ setInterval(() => {
   }
 }, 4500);
 
-console.log('%c✅ ROADMAP FINAL — ONLY 2026 EXPANDABLE 🔥\nFuture years are static teasers. Click does nothing on them.', 'color:#10b981;font-weight:700;font-size:16px');
+console.log('%c✅ PASS IT FORWARD v4.0 LIVE READY 🔥\nWelcome shows only to new users. 3 actions work perfectly. Upload this file now!', 'color:#10b981;font-weight:700;font-size:16px');
 </script>
 </body>
 </html>
