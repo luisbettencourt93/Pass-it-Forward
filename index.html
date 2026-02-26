@@ -28,15 +28,17 @@
 
     /* TESTIMONIALS */
     .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 2rem; margin-bottom: 4rem; }
-    .testimonial-card { background: white; border-radius: 20px; padding: 2.8rem 2.4rem; box-shadow: 0 10px 40px rgba(0,0,0,0.08); transition: all 0.3s; }
+    .testimonial-card { background: white; border-radius: 20px; padding: 2.8rem 2.4rem; box-shadow: 0 10px 40px rgba(0,0,0,0.08); transition: all 0.3s; position: relative; }
     .testimonial-card:hover { transform: translateY(-8px); box-shadow: 0 20px 50px rgba(0,0,0,0.12); }
     .testimonial-card p { font-size: 1.15rem; font-style: italic; color: #334155; }
     .testimonial-author { margin-top: 1.8rem; font-weight: 600; color: var(--primary-dark); display: flex; align-items: center; gap: 10px; }
+    .delete-testimonial { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #ef4444; font-size: 1.4rem; cursor: pointer; display: none; }
+    .testimonial-card:hover .delete-testimonial { display: block; }
 
     .add-testimonial { background: white; border-radius: 20px; padding: 3rem; box-shadow: 0 10px 40px rgba(0,0,0,0.08); margin-top: 3rem; }
     .add-testimonial textarea { width: 100%; height: 140px; padding: 1.2rem; border: 2px solid var(--border); border-radius: 14px; font-size: 1.1rem; margin-bottom: 1rem; resize: vertical; }
 
-    /* ROADMAP - BADGE NOW IN FRONT + BIGGER */
+    /* ROADMAP - ONLY 2026 EXPANDABLE */
     .roadmap-container { overflow-x: auto; padding: 2rem 0; scrollbar-width: thin; }
     .roadmap-timeline { display: flex; gap: 2.5rem; min-width: 1200px; position: relative; }
     .roadmap-timeline::before { content: ''; position: absolute; top: 68px; left: 60px; right: 60px; height: 6px; background: linear-gradient(to right, var(--primary), #34d399); z-index: 1; }
@@ -47,7 +49,7 @@
       font-size: 1.9rem; font-weight: 700; color: var(--primary); box-shadow: 0 15px 40px rgba(16,185,129,0.3); 
       transition: all 0.3s; position: relative; cursor: pointer; z-index: 3;
     }
-    .roadmap-year-header.locked { border-color: #64748b; color: #64748b; }
+    .roadmap-year-header.locked { border-color: #64748b; color: #64748b; cursor: default; }
     .roadmap-year:hover .roadmap-year-header:not(.locked) { transform: scale(1.1); }
     .status-badge { 
       position: absolute; top: -18px; right: -10px; font-size: 0.82rem; padding: 6px 18px; 
@@ -68,6 +70,9 @@
     .welcome-card h3 { color: #065f46; margin-bottom: 1.5rem; }
     .quick-action { display: flex; align-items: center; gap: 12px; padding: 1rem; background: #f8fafc; border-radius: 14px; margin-bottom: 1rem; cursor: pointer; transition: all 0.2s; }
     .quick-action:hover { background: #ecfdf5; transform: translateX(8px); }
+    .current-goal { margin-top: 1.5rem; padding: 1.2rem; background: #ecfdf5; border-radius: 14px; display: none; }
+    .current-goal.show { display: block; }
+    .delete-goal { background: none; border: none; color: #ef4444; font-size: 1.3rem; cursor: pointer; float: right; }
 
     .opportunities-feed { background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.07); max-height: 620px; overflow-y: auto; }
     .opp-item { padding: 1.4rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
@@ -135,7 +140,7 @@
   </div>
 </section>
 
-<!-- TESTIMONIALS -->
+<!-- TESTIMONIALS - DELETE OWN -->
 <section class="member-section section" id="testimonials">
   <h2>What Members Are Saying</h2>
   <div class="testimonials-grid" id="testimonials-grid"></div>
@@ -146,7 +151,7 @@
   </div>
 </section>
 
-<!-- ROADMAP -->
+<!-- ROADMAP - ONLY 2026 EXPANDABLE -->
 <section class="member-section section" id="vision">
   <h2 style="color:#065f46;">Our 2026–2030 Roadmap</h2>
   <div class="roadmap-container">
@@ -160,17 +165,27 @@
     <div class="welcome-card">
       <h3>Welcome back, <span id="profile-name" style="color:var(--primary);"></span> 👋</h3>
       <p style="margin-bottom:2rem;color:#475569;">You're a verified founding member. Here's what you can do right now:</p>
+      
       <div onclick="switchTab('testimonials')" class="quick-action">
         <i class="fas fa-comment-dots" style="font-size:1.6rem;color:var(--primary);"></i>
         <div><strong>Leave a Testimonial</strong><br><small>Tell the community how Pass It Forward helped you</small></div>
       </div>
+      
       <div onclick="showGoalModal()" class="quick-action">
         <i class="fas fa-bullseye" style="font-size:1.6rem;color:var(--primary);"></i>
         <div><strong>Set Your First Goal</strong><br><small>What do you want to achieve in the next 30 days?</small></div>
       </div>
+      
       <div onclick="showPostModal()" class="quick-action">
         <i class="fas fa-bolt" style="font-size:1.6rem;color:var(--primary);"></i>
         <div><strong>Post an Opportunity</strong><br><small>Share what you need or what you can offer</small></div>
+      </div>
+
+      <!-- YOUR CURRENT GOAL -->
+      <div id="current-goal-box" class="current-goal">
+        <strong>Your 30-day goal:</strong><br>
+        <span id="display-goal" style="font-style:italic;color:#065f46;"></span>
+        <button onclick="deleteGoal()" class="delete-goal" title="Delete goal">🗑</button>
       </div>
     </div>
 
@@ -261,16 +276,28 @@ function showToast(msg) {
   setTimeout(() => toast.style.display = 'none', 2800);
 }
 
-/* TESTIMONIALS */
+/* TESTIMONIALS + DELETE OWN */
 function renderTestimonials() {
   const grid = document.getElementById('testimonials-grid');
   grid.innerHTML = '';
-  testimonials.forEach(t => {
+  testimonials.forEach((t, index) => {
     const card = document.createElement('div');
     card.className = 'testimonial-card';
-    card.innerHTML = `<p>"${t.text}"</p><div class="testimonial-author"><i class="fas fa-user-circle"></i> ${t.author}</div>`;
+    const isMine = currentUser && t.author === currentUser;
+    card.innerHTML = `
+      <p>"${t.text}"</p>
+      <div class="testimonial-author"><i class="fas fa-user-circle"></i> ${t.author}</div>
+      ${isMine ? `<button onclick="deleteTestimonial(${index})" class="delete-testimonial">🗑</button>` : ''}
+    `;
     grid.appendChild(card);
   });
+}
+function deleteTestimonial(index) {
+  if (!confirm("Delete this testimonial?")) return;
+  testimonials.splice(index, 1);
+  localStorage.setItem('pf_testimonials', JSON.stringify(testimonials));
+  renderTestimonials();
+  showToast("Testimonial deleted");
 }
 function submitTestimonial() {
   const text = document.getElementById('new-testimonial').value.trim();
@@ -283,31 +310,39 @@ function submitTestimonial() {
   showToast("Testimonial posted — thank you for passing it forward!");
 }
 
-/* ROADMAP */
+/* ROADMAP - ONLY 2026 EXPANDABLE */
 function renderRoadmap() {
   const container = document.getElementById('roadmap-timeline');
   container.innerHTML = `
+    <!-- 2026 - expandable -->
     <div class="roadmap-year active" onclick="toggleYear(this)">
       <div class="roadmap-year-header">2026<div class="status-badge status-progress">IN PROGRESS</div></div>
-      <div class="roadmap-year-content"><ul><li><i class="fas fa-check"></i> First 150 founding members accepted</li><li><i class="fas fa-check"></i> Private Discord + Notion live</li><li><i class="fas fa-check"></i> Weekly calls & workshops</li><li><i class="fas fa-clock"></i> Internal opportunity marketplace</li></ul></div>
+      <div class="roadmap-year-content">
+        <ul>
+          <li><i class="fas fa-check"></i> First 150 founding members accepted</li>
+          <li><i class="fas fa-check"></i> Private Discord + Notion live</li>
+          <li><i class="fas fa-check"></i> Weekly calls & workshops</li>
+          <li><i class="fas fa-clock"></i> Internal opportunity marketplace</li>
+        </ul>
+      </div>
     </div>
-    <div class="roadmap-year" onclick="toggleYear(this)">
+    <!-- FUTURE YEARS - LOCKED, NO TOGGLE -->
+    <div class="roadmap-year">
       <div class="roadmap-year-header locked">2027<div class="status-badge status-planned">PLANNED</div></div>
-      <div class="roadmap-year-content"><ul><li><i class="fas fa-clock"></i> Scale to 1,000 verified members</li><li><i class="fas fa-clock"></i> First annual summit</li><li><i class="fas fa-clock"></i> Revenue share model launch</li></ul></div>
     </div>
-    <div class="roadmap-year" onclick="toggleYear(this)">
+    <div class="roadmap-year">
       <div class="roadmap-year-header locked">2028<div class="status-badge status-planned">PLANNED</div></div>
-      <div class="roadmap-year-content"><ul><li><i class="fas fa-clock"></i> Regional chapters (EU, LATAM)</li><li><i class="fas fa-clock"></i> Proprietary matching engine</li><li><i class="fas fa-clock"></i> Pass It Forward Fund I</li></ul></div>
     </div>
-    <div class="roadmap-year" onclick="toggleYear(this)">
+    <div class="roadmap-year">
       <div class="roadmap-year-header locked">2030<div class="status-badge status-planned">LEGACY</div></div>
-      <div class="roadmap-year-content"><ul><li><i class="fas fa-clock"></i> 10,000+ active members</li><li><i class="fas fa-clock"></i> Multiple unicorns born inside</li><li><i class="fas fa-clock"></i> Global opportunity infrastructure</li></ul></div>
     </div>
   `;
 }
-function toggleYear(el) { el.classList.toggle('active'); }
+function toggleYear(el) {
+  if (!el.querySelector('.locked')) el.classList.toggle('active');
+}
 
-/* DASHBOARD OPPORTUNITIES */
+/* DASHBOARD */
 function renderOpportunities() {
   const feed = document.getElementById('opportunities-feed');
   feed.innerHTML = '';
@@ -355,30 +390,19 @@ function postOpportunity() {
   const desc = document.getElementById('opp-desc').value.trim();
   const postToX = document.getElementById('post-to-x').checked;
   if (!title) return;
-  
-  const newOpp = { 
-    id: Date.now(), 
-    title, 
-    desc: desc || "New opportunity", 
-    interest: 1,
-    poster: currentUser 
-  };
+  const newOpp = { id: Date.now(), title, desc: desc || "New opportunity", interest: 1, poster: currentUser };
   opportunities.unshift(newOpp);
   localStorage.setItem('pf_opportunities', JSON.stringify(opportunities));
   renderOpportunities();
   closePostModal();
-
   showToast("Opportunity posted!");
-
-  // POST TO X
   if (postToX) {
     const tweetText = `Just posted an opportunity on Pass It Forward 🔥\n\n${title}\n${desc}\n\nJoin the real builders → passitforward.xyz`;
-    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
-    window.open(url, '_blank');
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`, '_blank');
   }
 }
 
-/* GOAL */
+/* GOAL - SHOW + DELETE */
 function showGoalModal() {
   if (!currentUser) return showToast("Login first");
   document.getElementById('goal-modal').style.display = 'flex';
@@ -389,7 +413,25 @@ function saveGoal() {
   if (!goal) return;
   localStorage.setItem('pf_goal', goal);
   closeGoalModal();
-  showToast("Goal saved! Check back in 30 days 🔥");
+  showToast("Goal saved!");
+  renderGoal();
+}
+function deleteGoal() {
+  if (!confirm("Delete your goal?")) return;
+  localStorage.removeItem('pf_goal');
+  renderGoal();
+  showToast("Goal deleted");
+}
+function renderGoal() {
+  const goal = localStorage.getItem('pf_goal');
+  const box = document.getElementById('current-goal-box');
+  const text = document.getElementById('display-goal');
+  if (goal) {
+    text.textContent = goal;
+    box.classList.add('show');
+  } else {
+    box.classList.remove('show');
+  }
 }
 
 /* LOGIN & TABS */
@@ -402,6 +444,7 @@ function showMemberTabs() {
   document.getElementById('apply-card').style.display = 'none';
   document.getElementById('add-testimonial-form').style.display = 'block';
   switchTab('dashboard');
+  renderGoal();
 }
 function handleLogin() {
   const handle = document.getElementById('xhandle').value.trim();
@@ -458,7 +501,7 @@ setInterval(() => {
   }
 }, 4500);
 
-console.log('%c✅ PASS IT FORWARD v3.5 FINAL — DELETE + POST TO X + ROADMAP BADGE FIXED 🔥\nCopy → paste → test → GO LIVE!', 'color:#10b981;font-weight:700;font-size:15px');
+console.log('%c✅ PASS IT FORWARD v3.6 FINAL — ROADMAP LOCKED + DELETE TESTIMONIALS + DELETE GOAL 🔥\nEverything you asked for is done. Copy → paste → GO LIVE!', 'color:#10b981;font-weight:700;font-size:15px');
 </script>
 </body>
 </html>
