@@ -38,7 +38,7 @@
     .add-testimonial { background: white; border-radius: 20px; padding: 3rem; box-shadow: 0 10px 40px rgba(0,0,0,0.08); margin-top: 3rem; }
     .add-testimonial textarea { width: 100%; height: 140px; padding: 1.2rem; border: 2px solid var(--border); border-radius: 14px; font-size: 1.1rem; margin-bottom: 1rem; resize: vertical; }
 
-    /* ROADMAP - ONLY 2026 EXPANDABLE */
+    /* ROADMAP */
     .roadmap-container { overflow-x: auto; padding: 2rem 0; scrollbar-width: thin; }
     .roadmap-timeline { display: flex; gap: 2.5rem; min-width: 1200px; position: relative; }
     .roadmap-timeline::before { content: ''; position: absolute; top: 68px; left: 60px; right: 60px; height: 6px; background: linear-gradient(to right, var(--primary), #34d399); z-index: 1; }
@@ -51,10 +51,7 @@
     }
     .roadmap-year-header.locked { border-color: #64748b; color: #64748b; cursor: default; }
     .roadmap-year:hover .roadmap-year-header:not(.locked) { transform: scale(1.1); }
-    .status-badge { 
-      position: absolute; top: -18px; right: -10px; font-size: 0.82rem; padding: 6px 18px; 
-      border-radius: 999px; font-weight: 700; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 4;
-    }
+    .status-badge { position: absolute; top: -18px; right: -10px; font-size: 0.82rem; padding: 6px 18px; border-radius: 999px; font-weight: 700; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 4; }
     .status-progress { background: #eab308; color: #1e2937; }
     .roadmap-year-content { display: none; background: white; padding: 1.8rem; border-radius: 18px; box-shadow: 0 10px 35px rgba(0,0,0,0.07); text-align: left; margin-top: 1rem; }
     .roadmap-year.active .roadmap-year-content { display: block; }
@@ -86,8 +83,18 @@
     .btn { padding: 1.15rem 2.8rem; font-size: 1.1rem; font-weight: 600; border-radius: 9999px; background: var(--primary); color: white; border: none; cursor: pointer; transition: all 0.3s; }
     .btn:hover { background: var(--primary-dark); transform: translateY(-3px); }
 
-    .modal { display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.92); align-items: center; justify-content: center; }
-    .modal-content { background: white; padding: 3rem; border-radius: 24px; width: 100%; max-width: 520px; box-shadow: 0 30px 80px rgba(0,0,0,0.3); }
+    .modal { display: none; position: fixed; z-index: 4000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.95); align-items: center; justify-content: center; }
+    .modal-content { background: white; padding: 3rem; border-radius: 24px; width: 100%; max-width: 560px; box-shadow: 0 30px 80px rgba(0,0,0,0.3); text-align: center; }
+
+    .welcome-modal-content h2 { font-size: 2.6rem; margin-bottom: 1rem; }
+    .welcome-modal-content p { font-size: 1.2rem; color: #475569; margin-bottom: 2.5rem; }
+    .welcome-actions { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    .welcome-action-btn {
+      display: flex; align-items: center; gap: 16px; padding: 1.4rem; background: #f8fafc; border-radius: 16px;
+      text-align: left; cursor: pointer; transition: all 0.3s; border: 2px solid transparent;
+    }
+    .welcome-action-btn:hover { background: #ecfdf5; border-color: var(--primary); transform: translateY(-4px); }
+    .welcome-action-btn i { font-size: 2.2rem; color: var(--primary); }
 
     .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 1rem 2rem; border-radius: 999px; font-weight: 600; box-shadow: 0 10px 30px rgba(16,185,129,0.4); display: none; align-items: center; gap: 12px; z-index: 5000; }
 
@@ -140,7 +147,7 @@
   </div>
 </section>
 
-<!-- TESTIMONIALS - DELETE OWN -->
+<!-- TESTIMONIALS -->
 <section class="member-section section" id="testimonials">
   <h2>What Members Are Saying</h2>
   <div class="testimonials-grid" id="testimonials-grid"></div>
@@ -151,7 +158,7 @@
   </div>
 </section>
 
-<!-- ROADMAP - ONLY 2026 EXPANDABLE -->
+<!-- ROADMAP -->
 <section class="member-section section" id="vision">
   <h2 style="color:#065f46;">Our 2026–2030 Roadmap</h2>
   <div class="roadmap-container">
@@ -181,7 +188,6 @@
         <div><strong>Post an Opportunity</strong><br><small>Share what you need or what you can offer</small></div>
       </div>
 
-      <!-- YOUR CURRENT GOAL -->
       <div id="current-goal-box" class="current-goal">
         <strong>Your 30-day goal:</strong><br>
         <span id="display-goal" style="font-style:italic;color:#065f46;"></span>
@@ -217,7 +223,7 @@
   <p>© 2026 Pass It Forward — Building serious opportunity infrastructure</p>
 </footer>
 
-<!-- MODALS -->
+<!-- LOGIN MODAL -->
 <div id="login-modal" class="modal">
   <div class="modal-content">
     <h2>Member Login</h2>
@@ -229,6 +235,7 @@
   </div>
 </div>
 
+<!-- POST MODAL -->
 <div id="post-modal" class="modal">
   <div class="modal-content">
     <h2>Post New Opportunity</h2>
@@ -242,12 +249,49 @@
   </div>
 </div>
 
+<!-- GOAL MODAL -->
 <div id="goal-modal" class="modal">
   <div class="modal-content">
     <h2>Set Your 30-Day Goal</h2>
     <textarea id="goal-text" placeholder="e.g. Close my first $10k deal inside Pass It Forward" style="width:100%;height:120px;padding:1rem;margin:1rem 0;border:2px solid #e2e8f0;border-radius:12px;"></textarea>
     <button onclick="saveGoal()" class="btn" style="width:100%;">Save Goal</button>
     <button onclick="closeGoalModal()" style="margin-top:1rem;background:none;border:none;color:#64748b;cursor:pointer;">Cancel</button>
+  </div>
+</div>
+
+<!-- ONE-TIME WELCOME MODAL -->
+<div id="welcome-modal" class="modal">
+  <div class="modal-content welcome-modal-content">
+    <h2>Welcome to the Founding Circle! 🎉</h2>
+    <p>You’re now one of the first 150 builders shaping real opportunity infrastructure.</p>
+    
+    <div class="welcome-actions">
+      <div onclick="welcomeAction('testimonial')" class="welcome-action-btn">
+        <i class="fas fa-comment-dots"></i>
+        <div style="flex:1;">
+          <strong>Leave a Testimonial</strong><br>
+          <small>Tell everyone how Pass It Forward already helped you</small>
+        </div>
+      </div>
+      
+      <div onclick="welcomeAction('goal')" class="welcome-action-btn">
+        <i class="fas fa-bullseye"></i>
+        <div style="flex:1;">
+          <strong>Set Your First Goal</strong><br>
+          <small>What do you want to achieve in the next 30 days?</small>
+        </div>
+      </div>
+      
+      <div onclick="welcomeAction('opportunity')" class="welcome-action-btn">
+        <i class="fas fa-bolt"></i>
+        <div style="flex:1;">
+          <strong>Post an Opportunity</strong><br>
+          <small>Share what you need or what you can offer the community</small>
+        </div>
+      </div>
+    </div>
+
+    <button onclick="closeWelcome()" class="btn" style="width:100%;margin-top:2rem;">Got it — let's build the future</button>
   </div>
 </div>
 
@@ -276,7 +320,7 @@ function showToast(msg) {
   setTimeout(() => toast.style.display = 'none', 2800);
 }
 
-/* TESTIMONIALS + DELETE OWN */
+/* TESTIMONIALS */
 function renderTestimonials() {
   const grid = document.getElementById('testimonials-grid');
   grid.innerHTML = '';
@@ -310,39 +354,24 @@ function submitTestimonial() {
   showToast("Testimonial posted — thank you for passing it forward!");
 }
 
-/* ROADMAP - ONLY 2026 EXPANDABLE */
+/* ROADMAP */
 function renderRoadmap() {
   const container = document.getElementById('roadmap-timeline');
   container.innerHTML = `
-    <!-- 2026 - expandable -->
     <div class="roadmap-year active" onclick="toggleYear(this)">
       <div class="roadmap-year-header">2026<div class="status-badge status-progress">IN PROGRESS</div></div>
-      <div class="roadmap-year-content">
-        <ul>
-          <li><i class="fas fa-check"></i> First 150 founding members accepted</li>
-          <li><i class="fas fa-check"></i> Private Discord + Notion live</li>
-          <li><i class="fas fa-check"></i> Weekly calls & workshops</li>
-          <li><i class="fas fa-clock"></i> Internal opportunity marketplace</li>
-        </ul>
-      </div>
+      <div class="roadmap-year-content"><ul><li><i class="fas fa-check"></i> First 150 founding members accepted</li><li><i class="fas fa-check"></i> Private Discord + Notion live</li><li><i class="fas fa-check"></i> Weekly calls & workshops</li><li><i class="fas fa-clock"></i> Internal opportunity marketplace</li></ul></div>
     </div>
-    <!-- FUTURE YEARS - LOCKED, NO TOGGLE -->
-    <div class="roadmap-year">
-      <div class="roadmap-year-header locked">2027<div class="status-badge status-planned">PLANNED</div></div>
-    </div>
-    <div class="roadmap-year">
-      <div class="roadmap-year-header locked">2028<div class="status-badge status-planned">PLANNED</div></div>
-    </div>
-    <div class="roadmap-year">
-      <div class="roadmap-year-header locked">2030<div class="status-badge status-planned">LEGACY</div></div>
-    </div>
+    <div class="roadmap-year"><div class="roadmap-year-header locked">2027<div class="status-badge status-planned">PLANNED</div></div></div>
+    <div class="roadmap-year"><div class="roadmap-year-header locked">2028<div class="status-badge status-planned">PLANNED</div></div></div>
+    <div class="roadmap-year"><div class="roadmap-year-header locked">2030<div class="status-badge status-planned">LEGACY</div></div></div>
   `;
 }
 function toggleYear(el) {
   if (!el.querySelector('.locked')) el.classList.toggle('active');
 }
 
-/* DASHBOARD */
+/* DASHBOARD OPPORTUNITIES */
 function renderOpportunities() {
   const feed = document.getElementById('opportunities-feed');
   feed.innerHTML = '';
@@ -351,10 +380,7 @@ function renderOpportunities() {
     const div = document.createElement('div');
     div.className = 'opp-item';
     div.innerHTML = `
-      <div>
-        <strong>${opp.title}</strong><br>
-        <small style="color:#64748b;">${opp.desc} • by ${opp.poster}</small>
-      </div>
+      <div><strong>${opp.title}</strong><br><small style="color:#64748b;">${opp.desc} • by ${opp.poster}</small></div>
       <div style="display:flex;align-items:center;gap:12px;">
         <button onclick="expressInterest(${opp.id})" class="interest-btn">Interested (${opp.interest})</button>
         ${isMine ? `<button onclick="deleteOpportunity(${opp.id})" class="delete-btn" title="Delete">🗑</button>` : ''}
@@ -402,7 +428,7 @@ function postOpportunity() {
   }
 }
 
-/* GOAL - SHOW + DELETE */
+/* GOAL */
 function showGoalModal() {
   if (!currentUser) return showToast("Login first");
   document.getElementById('goal-modal').style.display = 'flex';
@@ -434,6 +460,23 @@ function renderGoal() {
   }
 }
 
+/* ONE-TIME WELCOME MODAL */
+function showWelcomeModal() {
+  document.getElementById('welcome-modal').style.display = 'flex';
+}
+function closeWelcome() {
+  document.getElementById('welcome-modal').style.display = 'none';
+  localStorage.setItem('pf_welcomeShown', 'true');
+}
+function welcomeAction(type) {
+  closeWelcome();
+  setTimeout(() => {
+    if (type === 'testimonial') switchTab('testimonials');
+    else if (type === 'goal') showGoalModal();
+    else if (type === 'opportunity') showPostModal();
+  }, 400);
+}
+
 /* LOGIN & TABS */
 function showMemberTabs() {
   currentUser = localStorage.getItem('pf_user');
@@ -443,8 +486,14 @@ function showMemberTabs() {
   document.getElementById('profile-name').textContent = currentUser;
   document.getElementById('apply-card').style.display = 'none';
   document.getElementById('add-testimonial-form').style.display = 'block';
+  
   switchTab('dashboard');
   renderGoal();
+
+  // ONE-TIME WELCOME
+  if (!localStorage.getItem('pf_welcomeShown')) {
+    setTimeout(showWelcomeModal, 800);
+  }
 }
 function handleLogin() {
   const handle = document.getElementById('xhandle').value.trim();
@@ -501,7 +550,7 @@ setInterval(() => {
   }
 }, 4500);
 
-console.log('%c✅ PASS IT FORWARD v3.6 FINAL — ROADMAP LOCKED + DELETE TESTIMONIALS + DELETE GOAL 🔥\nEverything you asked for is done. Copy → paste → GO LIVE!', 'color:#10b981;font-weight:700;font-size:15px');
+console.log('%c✅ PASS IT FORWARD v3.7 — ONE-TIME WELCOME MODAL ADDED 🔥\nFirst login now shows beautiful welcome with 3 things to do. Everything else unchanged.', 'color:#10b981;font-weight:700;font-size:15px');
 </script>
 </body>
 </html>
