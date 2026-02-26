@@ -16,6 +16,7 @@
     nav { display: flex; gap: 2.2rem; }
     nav a { color: white; text-decoration: none; font-weight: 500; transition: color 0.2s; cursor: pointer; }
     nav a:hover, nav a.active { color: var(--primary); border-bottom: 3px solid var(--primary); padding-bottom: 4px; }
+    nav a.member-link { display: none; } /* Hidden until login */
 
     .hero { padding: 11rem 5% 9rem; text-align: center; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; }
     .hero h1 { font-size: 4.2rem; font-weight: 800; margin-bottom: 1.4rem; letter-spacing: -1.8px; line-height: 1.05; }
@@ -25,6 +26,8 @@
 
     .section { padding: 8rem 5% 6rem; max-width: 1280px; margin: 0 auto; }
     .section h2 { font-size: 3rem; font-weight: 800; margin-bottom: 1.8rem; text-align: center; line-height: 1.1; }
+
+    .member-section { background: #f8fafc; display: none; padding: 8rem 5% 6rem; } /* STRICTLY HIDDEN UNTIL LOGIN */
 
     /* ROADMAP - ONLY 2026 EXPANDABLE */
     .roadmap-container { overflow-x: auto; padding: 3rem 5% 4rem; scrollbar-width: thin; }
@@ -68,20 +71,6 @@
     .current-goal.show { display: block; }
     .delete-goal { background: none; border: none; color: #ef4444; font-size: 1.3rem; cursor: pointer; float: right; }
 
-    .reset-welcome-btn { 
-      width: 100%; 
-      margin-top: 1.5rem; 
-      padding: 1.1rem; 
-      background: #eab308; 
-      color: #1e2937; 
-      border: none; 
-      border-radius: 999px; 
-      font-size: 1.15rem; 
-      font-weight: 700; 
-      cursor: pointer; 
-    }
-    .reset-welcome-btn:hover { transform: translateY(-3px); }
-
     .opportunities-feed { background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.07); max-height: 620px; overflow-y: auto; }
     .opp-item { padding: 1.4rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
     .opp-item:hover { background: #f8fafc; }
@@ -106,7 +95,6 @@
 
     .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 1rem 2rem; border-radius: 999px; font-weight: 600; box-shadow: 0 10px 30px rgba(16,185,129,0.4); display: none; align-items: center; gap: 12px; z-index: 5000; }
 
-    .member-section { background: #f8fafc; display: none; padding: 8rem 5% 6rem; }
     footer { background: var(--dark); color: #cbd5e1; padding: 6rem 5% 3rem; text-align: center; }
 
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.65; } }
@@ -119,9 +107,9 @@
     <div class="logo"><i class="fas fa-arrow-right"></i> Pass It Forward</div>
     <nav id="main-nav">
       <a onclick="switchTab('hero');return false">Home</a>
-      <a onclick="switchTab('vision');return false">Roadmap</a>
-      <a onclick="switchTab('testimonials');return false">Testimonials</a>
-      <a onclick="switchTab('dashboard');return false">Dashboard</a>
+      <a onclick="switchTab('vision');return false" class="member-link">Roadmap</a>
+      <a onclick="switchTab('testimonials');return false" class="member-link">Testimonials</a>
+      <a onclick="switchTab('dashboard');return false" class="member-link">Dashboard</a>
     </nav>
     <div id="auth-area">
       <button id="login-btn" class="btn">Member Login</button>
@@ -155,7 +143,7 @@
   </div>
 </section>
 
-<!-- TESTIMONIALS -->
+<!-- TESTIMONIALS - MEMBER ONLY -->
 <section class="member-section section" id="testimonials">
   <h2>What Members Are Saying</h2>
   <div class="testimonials-grid" id="testimonials-grid"></div>
@@ -166,7 +154,7 @@
   </div>
 </section>
 
-<!-- ROADMAP -->
+<!-- ROADMAP - MEMBER ONLY -->
 <section class="member-section section" id="vision">
   <h2 style="color:#065f46;">Our 2026–2030 Roadmap</h2>
   <div class="roadmap-container">
@@ -174,7 +162,7 @@
   </div>
 </section>
 
-<!-- DASHBOARD -->
+<!-- DASHBOARD - MEMBER ONLY -->
 <section class="member-section section" id="dashboard">
   <div style="max-width:1280px;margin:0 auto;">
     <div class="welcome-card">
@@ -201,9 +189,6 @@
         <span id="display-goal" style="font-style:italic;color:#065f46;"></span>
         <button onclick="deleteGoal()" class="delete-goal" title="Delete goal">🗑</button>
       </div>
-
-      <!-- RESET BUTTON FOR TESTING WELCOME -->
-      <button onclick="resetWelcome()" class="reset-welcome-btn">🔄 Reset Welcome Message (for testing)</button>
     </div>
 
     <div class="dashboard-grid" style="margin-top:2rem;">
@@ -489,13 +474,7 @@ function welcomeAction(type) {
   }, 400);
 }
 
-/* RESET WELCOME FOR TESTING */
-function resetWelcome() {
-  localStorage.removeItem('pf_welcomeShown');
-  showToast("Welcome message has been reset. Refresh the page and login again to see it.");
-}
-
-/* LOGIN & TABS */
+/* LOGIN & TABS - STRICT MEMBER PROTECTION */
 function showMemberTabs() {
   currentUser = localStorage.getItem('pf_user');
   document.getElementById('login-btn').style.display = 'none';
@@ -504,6 +483,10 @@ function showMemberTabs() {
   document.getElementById('profile-name').textContent = currentUser;
   document.getElementById('apply-card').style.display = 'none';
   document.getElementById('add-testimonial-form').style.display = 'block';
+
+  // SHOW MEMBER NAV LINKS
+  document.querySelectorAll('.member-link').forEach(link => link.style.display = 'block');
+
   switchTab('dashboard');
   renderGoal();
   if (!localStorage.getItem('pf_welcomeShown')) {
@@ -524,12 +507,21 @@ function closeModal() { document.getElementById('login-modal').style.display = '
 function logout() {
   localStorage.removeItem('pf_loggedIn');
   localStorage.removeItem('pf_user');
+  // HIDE MEMBER LINKS
+  document.querySelectorAll('.member-link').forEach(link => link.style.display = 'none');
   location.reload();
 }
 function switchTab(tabId) {
+  if (!currentUser && (tabId === 'vision' || tabId === 'testimonials' || tabId === 'dashboard')) {
+    showToast("Members only — please login first");
+    document.getElementById('login-modal').style.display = 'flex';
+    return;
+  }
+
   document.querySelectorAll('#main-nav a').forEach(a => a.classList.remove('active'));
   const active = Array.from(document.querySelectorAll('#main-nav a')).find(a => a.getAttribute('onclick').includes(tabId));
   if (active) active.classList.add('active');
+
   document.querySelectorAll('.member-section').forEach(s => s.style.display = 'none');
   if (tabId === 'hero') {
     document.getElementById('hero').scrollIntoView({ behavior: 'smooth' });
@@ -547,6 +539,8 @@ if (localStorage.getItem('pf_loggedIn') === 'true') {
   showMemberTabs();
 } else {
   document.getElementById('apply-card').style.display = 'block';
+  // Hide member nav links for non-members
+  document.querySelectorAll('.member-link').forEach(link => link.style.display = 'none');
 }
 
 renderTestimonials();
@@ -565,7 +559,7 @@ setInterval(() => {
   }
 }, 4500);
 
-console.log('%c✅ v4.1 — WELCOME SHOWS ONLY FOR NEW USERS + RESET BUTTON ADDED 🔥\nClick the yellow "Reset Welcome Message" button in dashboard to test it again.', 'color:#10b981;font-weight:700;font-size:16px');
+console.log('%c✅ v4.2 FINAL — DASHBOARD + ROADMAP STRICTLY MEMBER ONLY 🔥\nNon-members cannot see or access them. Upload this file now!', 'color:#10b981;font-weight:700;font-size:16px');
 </script>
 </body>
 </html>
