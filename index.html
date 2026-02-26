@@ -16,7 +16,7 @@
     nav { display: flex; gap: 2.2rem; }
     nav a { color: white; text-decoration: none; font-weight: 500; transition: color 0.2s; cursor: pointer; }
     nav a:hover, nav a.active { color: var(--primary); border-bottom: 3px solid var(--primary); padding-bottom: 4px; }
-    nav a.member-link { display: none; } /* Hidden until login */
+    nav a.member-link { display: none; }
 
     .hero { padding: 11rem 5% 9rem; text-align: center; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; }
     .hero h1 { font-size: 4.2rem; font-weight: 800; margin-bottom: 1.4rem; letter-spacing: -1.8px; line-height: 1.05; }
@@ -27,7 +27,7 @@
     .section { padding: 8rem 5% 6rem; max-width: 1280px; margin: 0 auto; }
     .section h2 { font-size: 3rem; font-weight: 800; margin-bottom: 1.8rem; text-align: center; line-height: 1.1; }
 
-    .member-section { background: #f8fafc; display: none; padding: 8rem 5% 6rem; } /* STRICTLY HIDDEN UNTIL LOGIN */
+    .member-section { background: #f8fafc; display: none; padding: 8rem 5% 6rem; }
 
     /* ROADMAP - ONLY 2026 EXPANDABLE */
     .roadmap-container { overflow-x: auto; padding: 3rem 5% 4rem; scrollbar-width: thin; }
@@ -256,7 +256,7 @@
 <div id="welcome-modal" class="modal">
   <div class="modal-content welcome-modal-content">
     <h2>Welcome to the Founding Circle! 🎉</h2>
-    <p>You’re now one of the first 150 builders shaping real opportunity infrastructure.<br><br>Here’s what to do first:</p>
+    <p><strong>To get started as a founding member, please complete these 3 quick tasks:</strong></p>
     <div class="welcome-actions">
       <div onclick="welcomeAction('testimonial')" class="welcome-action-btn">
         <i class="fas fa-comment-dots"></i>
@@ -484,7 +484,6 @@ function showMemberTabs() {
   document.getElementById('apply-card').style.display = 'none';
   document.getElementById('add-testimonial-form').style.display = 'block';
 
-  // SHOW MEMBER NAV LINKS
   document.querySelectorAll('.member-link').forEach(link => link.style.display = 'block');
 
   switchTab('dashboard');
@@ -507,7 +506,6 @@ function closeModal() { document.getElementById('login-modal').style.display = '
 function logout() {
   localStorage.removeItem('pf_loggedIn');
   localStorage.removeItem('pf_user');
-  // HIDE MEMBER LINKS
   document.querySelectorAll('.member-link').forEach(link => link.style.display = 'none');
   location.reload();
 }
@@ -517,11 +515,9 @@ function switchTab(tabId) {
     document.getElementById('login-modal').style.display = 'flex';
     return;
   }
-
   document.querySelectorAll('#main-nav a').forEach(a => a.classList.remove('active'));
   const active = Array.from(document.querySelectorAll('#main-nav a')).find(a => a.getAttribute('onclick').includes(tabId));
   if (active) active.classList.add('active');
-
   document.querySelectorAll('.member-section').forEach(s => s.style.display = 'none');
   if (tabId === 'hero') {
     document.getElementById('hero').scrollIntoView({ behavior: 'smooth' });
@@ -539,7 +535,6 @@ if (localStorage.getItem('pf_loggedIn') === 'true') {
   showMemberTabs();
 } else {
   document.getElementById('apply-card').style.display = 'block';
-  // Hide member nav links for non-members
   document.querySelectorAll('.member-link').forEach(link => link.style.display = 'none');
 }
 
@@ -559,7 +554,7 @@ setInterval(() => {
   }
 }, 4500);
 
-console.log('%c✅ v4.2 FINAL — DASHBOARD + ROADMAP STRICTLY MEMBER ONLY 🔥\nNon-members cannot see or access them. Upload this file now!', 'color:#10b981;font-weight:700;font-size:16px');
+console.log('%c✅ PASS IT FORWARD v4.4 — FINAL LIVE READY 🔥\nWelcome now clearly tells new users to complete the 3 tasks.', 'color:#10b981;font-weight:700;font-size:16px');
 </script>
 </body>
 </html>
