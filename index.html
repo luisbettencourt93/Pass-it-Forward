@@ -71,6 +71,21 @@
     .current-goal.show { display: block; }
     .delete-goal { background: none; border: none; color: #ef4444; font-size: 1.3rem; cursor: pointer; float: right; }
 
+    .test-welcome-btn {
+      width: 100%;
+      margin-top: 1.5rem;
+      padding: 1.1rem;
+      background: #eab308;
+      color: #1e2937;
+      border: none;
+      border-radius: 999px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(234,179,8,0.3);
+    }
+    .test-welcome-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(234,179,8,0.4); }
+
     .opportunities-feed { background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.07); max-height: 620px; overflow-y: auto; }
     .opp-item { padding: 1.4rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
     .opp-item:hover { background: #f8fafc; }
@@ -194,10 +209,10 @@
         <button onclick="deleteGoal()" class="delete-goal" title="Delete goal">🗑</button>
       </div>
 
-      <!-- RESET WELCOME FOR TESTING -->
-      <small onclick="resetWelcome()" style="color:#64748b;cursor:pointer;display:block;margin-top:1.5rem;text-align:center;">
-        (Reset welcome modal for testing)
-      </small>
+      <!-- BIG TEST BUTTON - SO YOU CAN TEST THE WELCOME ANYTIME -->
+      <button onclick="forceShowWelcome()" class="test-welcome-btn">
+        🎉 Test Welcome Message (click anytime to test)
+      </button>
     </div>
 
     <div class="dashboard-grid" style="margin-top:2rem;">
@@ -264,7 +279,7 @@
   </div>
 </div>
 
-<!-- ONE-TIME WELCOME MODAL -->
+<!-- WELCOME MODAL -->
 <div id="welcome-modal" class="modal">
   <div class="modal-content welcome-modal-content">
     <h2>Welcome to the Founding Circle! 🎉</h2>
@@ -465,8 +480,8 @@ function renderGoal() {
   }
 }
 
-/* ONE-TIME WELCOME MODAL */
-function showWelcomeModal() {
+/* WELCOME MODAL */
+function forceShowWelcome() {
   document.getElementById('welcome-modal').style.display = 'flex';
 }
 function closeWelcome() {
@@ -482,12 +497,6 @@ function welcomeAction(type) {
   }, 400);
 }
 
-/* RESET WELCOME FOR TESTING */
-function resetWelcome() {
-  localStorage.removeItem('pf_welcomeShown');
-  showToast("Welcome modal has been reset. Refresh the page to see it again.");
-}
-
 /* LOGIN & TABS */
 function showMemberTabs() {
   currentUser = localStorage.getItem('pf_user');
@@ -501,9 +510,9 @@ function showMemberTabs() {
   switchTab('dashboard');
   renderGoal();
 
-  // ONE-TIME WELCOME - ONLY SHOWS THE FIRST TIME YOU EVER LOGIN
+  // ONE-TIME WELCOME (still works normally)
   if (!localStorage.getItem('pf_welcomeShown')) {
-    setTimeout(showWelcomeModal, 900);
+    setTimeout(forceShowWelcome, 900);
   }
 }
 function handleLogin() {
@@ -561,7 +570,7 @@ setInterval(() => {
   }
 }, 4500);
 
-console.log('%c✅ PASS IT FORWARD v3.8 LIVE READY — ONE-TIME WELCOME + RESET BUTTON ADDED 🔥\nWelcome modal now shows ONLY ONCE (as you wanted). Use the small reset link in dashboard to test it again. Copy this file and upload — we are DONE!', 'color:#10b981;font-weight:700;font-size:16px');
+console.log('%c✅ v3.9 — BIG TEST BUTTON ADDED 🔥\nClick the big yellow button on dashboard to test the welcome message anytime.', 'color:#10b981;font-weight:700;font-size:16px');
 </script>
 </body>
 </html>
