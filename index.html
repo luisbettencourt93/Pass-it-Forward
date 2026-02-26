@@ -177,9 +177,9 @@
 <div id="login-modal" class="modal">
   <div class="modal-content">
     <h2>Member Login</h2>
-    <p style="margin:1.5rem 0;color:#64748b;">Sign in with magic link (no password)</p>
     <input type="email" id="login-email" placeholder="you@email.com" style="width:100%;padding:1rem;margin-bottom:1rem;border:2px solid #e2e8f0;border-radius:12px;">
-    <button onclick="sendMagicLink()" class="btn" style="width:100%;">Send Magic Link</button>
+    <input type="password" id="login-password" placeholder="Password (min 6 chars)" style="width:100%;padding:1rem;margin-bottom:1rem;border:2px solid #e2e8f0;border-radius:12px;">
+    <button onclick="handleLogin()" class="btn" style="width:100%;">Login</button>
     <button onclick="closeModal()" style="margin-top:1rem;background:none;border:none;color:#64748b;cursor:pointer;">Cancel</button>
   </div>
 </div>
@@ -187,8 +187,8 @@
 <div id="toast" class="toast"><i class="fas fa-check-circle"></i><span id="toast-text"></span></div>
 
 <script>
-cconst SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJ...';   // ← your anon key
+const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';   // ← REPLACE WITH YOUR URL
+const SUPABASE_ANON_KEY = 'eyJ...';                       // ← REPLACE WITH YOUR ANON KEY
 const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
@@ -205,7 +205,7 @@ function getLevelInfo(points) {
   for (let i = 0; i < levelThresholds.length; i++) {
     if (points <= levelThresholds[i].max) {
       const current = levelThresholds[i];
-      const next = levelThresholds[i+1];
+      const next = levelThresholds[i + 1];
       const progress = next ? Math.round(((points - current.min) / (next.min - current.min)) * 100) : 100;
       return {name: current.name, progress, nextLevel: next ? next.name : null, nextPoints: next ? next.min : null};
     }
@@ -234,40 +234,53 @@ function updateLevelUI() {
     : 'Legendary status achieved';
 }
 
-async function awardUserPoints(amount, reason) {
+async function awardUserPoints(amount) {
   if (!currentUser) return;
-  await supabase.rpc('award_points', { p_amount: amount, p_reason: reason });
+  await supabase.rpc('award_points', { p_amount: amount });
   await loadProfile();
 }
 
 async function submitTestimonial() {
   const text = document.getElementById('new-testimonial').value.trim();
   if (!text || !currentUser) return showToast("Login first");
-  await awardUserPoints(10, 'Shared testimonial');
+  await awardUserPoints(10);
   document.getElementById('new-testimonial').value = '';
   showToast("Testimonial posted +10 points");
 }
 
-async function postOpportunity() {
-  await awardUserPoints(15, 'Posted opportunity');
+async function showPostModal() {
+  await awardUserPoints(15);
   showToast("Opportunity posted +15 points");
 }
 
-async function saveGoal() {
-  await awardUserPoints(5, 'Set 30-day goal');
-  showToast("Goal saved +5 points");
+function showGoalModal() {
+  showToast("Goal saved +5 points (demo)");
+}
+
+function deleteGoal() {
+  showToast("Goal deleted");
 }
 
 function showLoginModal() { document.getElementById('login-modal').style.display = 'flex'; }
 function closeModal() { document.getElementById('login-modal').style.display = 'none'; }
 
-async function sendMagicLink() {
+async function handleLogin() {
   const email = document.getElementById('login-email').value.trim();
-  if (!email) return showToast("Enter email");
-  const { error } = await supabase.auth.signInWithOtp({ email });
-  if (error) return showToast(error.message);
-  showToast("Magic link sent! Check your email.");
+  const password = document.getElementById('login-password').value.trim();
+  if (!email || !password) return showToast("Enter email and password");
+
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) return showToast("Login failed. Try again or use a new email/password.");
+
+  currentUser = data.user;
   closeModal();
+  document.getElementById('login-btn').style.display = 'none';
+  document.getElementById('user-area').style.display = 'flex';
+  document.getElementById('display-name').textContent = email.split('@')[0];
+  document.getElementById('profile-name').textContent = email.split('@')[0];
+  document.querySelectorAll('.member-link').forEach(l => l.style.display = 'inline-block');
+  await loadProfile();
+  switchTab('dashboard');
 }
 
 function showToast(msg) {
@@ -291,7 +304,12 @@ function switchTab(tabId) {
   if (activeLink) activeLink.classList.add('active');
 }
 
-supabase.auth.onAuthStateChange(async (event, session) => {
+function renderRoadmap() {
+  document.getElementById('roadmap-timeline').innerHTML = `<div class="roadmap-year active"><div class="year-circle">26</div></div>`;
+}
+
+async function init() {
+  const { data: { session } } = await supabase.auth.getSession();
   if (session) {
     currentUser = session.user;
     document.getElementById('login-btn').style.display = 'none';
@@ -301,30 +319,7 @@ supabase.auth.onAuthStateChange(async (event, session) => {
     document.querySelectorAll('.member-link').forEach(l => l.style.display = 'inline-block');
     await loadProfile();
   }
-});
-
-}
-
-async function init() {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session) {
-    currentUser = session.user;
-    await loadProfile();
-  }
-}
-
-window.onload = init;
-</script>
-</body>
-</html>
-async function init() {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session) {
-    currentUser = session.user;
-    await loadProfile();
-  }
-  // placeholder renders
-  document.getElementById('roadmap-timeline').innerHTML = `<div class="roadmap-year active"><div class="year-circle">26</div></div>`;
+  renderRoadmap();
 }
 
 window.onload = init;
