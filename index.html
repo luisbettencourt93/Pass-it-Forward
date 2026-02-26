@@ -302,7 +302,22 @@ supabase.auth.onAuthStateChange(async (event, session) => {
     await loadProfile();
   }
 });
+function showLoginModal() {
+  document.getElementById('login-modal').style.display = 'flex';
+}
 
+async function init() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    await loadProfile();
+  }
+}
+
+window.onload = init;
+</script>
+</body>
+</html>
 async function init() {
   const { data: { session } } = await supabase.auth.getSession();
   if (session) {
