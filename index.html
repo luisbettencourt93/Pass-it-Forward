@@ -177,6 +177,66 @@
 
     footer { background: #060a14; border-top: 1px solid var(--border); color: #334155; padding: 3rem 5% 2rem; text-align: center; font-size: 0.88rem; }
 
+    /* FUNDS */
+    .funds-hero { background: linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(5,150,105,0.04) 100%); border: 1px solid rgba(16,185,129,0.15); border-radius: 24px; padding: 3rem; margin-bottom: 2.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem; }
+    .funds-hero-left h3 { font-family: 'Syne', sans-serif; font-size: 1.8rem; color: white; margin-bottom: 0.4rem; }
+    .funds-hero-left p { color: #64748b; font-size: 0.97rem; max-width: 480px; }
+    .funds-total { text-align: right; }
+    .funds-total .big-num { font-family: 'Syne', sans-serif; font-size: 3.2rem; font-weight: 800; color: var(--primary); line-height: 1; }
+    .funds-total small { color: #64748b; font-size: 0.82rem; display: block; margin-top: 4px; }
+    .funds-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem; margin-bottom: 2rem; }
+    .fund-stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 1.6rem 1.8rem; }
+    .fund-stat-card .label { color: #64748b; font-size: 0.82rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 0.5rem; }
+    .fund-stat-card .value { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: white; }
+    .fund-stat-card .sub { color: #64748b; font-size: 0.82rem; margin-top: 4px; }
+    .fund-stat-card .change-up { color: var(--primary); font-size: 0.82rem; font-weight: 600; }
+    .funds-section-title { font-family: 'Syne', sans-serif; font-size: 1.4rem; color: white; font-weight: 700; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 10px; }
+    .funds-section-title span { font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 500; color: #64748b; background: #0a0f1e; border: 1px solid var(--border); padding: 2px 10px; border-radius: 999px; }
+    .fund-raise-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 1.6rem 1.8rem; margin-bottom: 1rem; transition: all 0.25s; }
+    .fund-raise-card:hover { border-color: rgba(16,185,129,0.3); transform: translateY(-2px); }
+    .fund-raise-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; }
+    .fund-raise-title { font-weight: 700; color: white; font-size: 1rem; margin-bottom: 4px; }
+    .fund-raise-meta { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; font-size: 0.8rem; color: #64748b; margin-top: 6px; }
+    .fund-stage { background: rgba(16,185,129,0.12); color: var(--primary); padding: 2px 9px; border-radius: 999px; font-size: 0.74rem; font-weight: 700; }
+    .fund-stage.seed { background: rgba(245,158,11,0.12); color: #f59e0b; }
+    .fund-stage.series-a { background: rgba(59,130,246,0.12); color: #3b82f6; }
+    .fund-stage.angel { background: rgba(168,85,247,0.12); color: #a855f7; }
+    .fund-progress-bar { margin-top: 1rem; }
+    .fund-progress-track { background: #0a0f1e; border-radius: 999px; height: 6px; overflow: hidden; margin: 6px 0; }
+    .fund-progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(to right, var(--primary), #059669); transition: width 0.6s ease; }
+    .fund-progress-labels { display: flex; justify-content: space-between; font-size: 0.78rem; color: #64748b; }
+    .fund-progress-labels strong { color: var(--primary); }
+    .fund-actions-row { display: flex; gap: 0.6rem; margin-top: 1.1rem; flex-wrap: wrap; }
+    .fund-pledge-btn { background: var(--primary); color: #0a0f1e; border: none; padding: 0.5rem 1.2rem; border-radius: 999px; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+    .fund-pledge-btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .fund-watch-btn { background: transparent; color: #94a3b8; border: 1.5px solid var(--border); padding: 0.5rem 1.1rem; border-radius: 999px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+    .fund-watch-btn:hover { border-color: #94a3b8; color: white; }
+    .fund-raise-amount { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800; color: var(--primary); white-space: nowrap; }
+    .fund-raise-amount small { font-family: 'DM Sans', sans-serif; font-size: 0.75rem; color: #64748b; font-weight: 400; display: block; text-align: right; }
+    .post-raise-btn { width: 100%; margin-top: 1.5rem; background: rgba(16,185,129,0.08); border: 1.5px dashed rgba(16,185,129,0.3); color: var(--primary); padding: 1.1rem; border-radius: 16px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .post-raise-btn:hover { background: rgba(16,185,129,0.14); border-color: var(--primary); }
+    .pledge-modal-content { text-align: left; }
+    .pledge-modal-content h2 { text-align: center; }
+    .pledge-modal-content > p { text-align: center; }
+    .pledge-amounts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; margin: 1rem 0; }
+    .pledge-amount-btn { background: #0a0f1e; border: 1.5px solid var(--border); color: #94a3b8; padding: 0.7rem; border-radius: 12px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; text-align: center; }
+    .pledge-amount-btn:hover, .pledge-amount-btn.selected { background: rgba(16,185,129,0.12); border-color: var(--primary); color: var(--primary); }
+    .funds-two-col { display: grid; grid-template-columns: 1fr 320px; gap: 2rem; align-items: start; }
+    @media (max-width: 968px) { .funds-two-col { grid-template-columns: 1fr; } .funds-hero { flex-direction: column; } .funds-total { text-align: left; } }
+    .fund-sidebar-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 1.5rem; margin-bottom: 1.2rem; }
+    .fund-sidebar-card h4 { font-family: 'Syne', sans-serif; color: white; font-size: 1rem; margin-bottom: 1rem; }
+    .investor-row { display: flex; align-items: center; gap: 10px; padding: 0.55rem 0; border-bottom: 1px solid var(--border); font-size: 0.87rem; }
+    .investor-row:last-child { border-bottom: none; }
+    .investor-avatar { width: 32px; height: 32px; background: rgba(16,185,129,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: var(--primary); font-weight: 700; flex-shrink: 0; }
+    .investor-name { color: #cbd5e1; flex: 1; }
+    .investor-amount { color: var(--primary); font-weight: 700; font-size: 0.82rem; }
+    .activity-item { display: flex; gap: 10px; padding: 0.6rem 0; border-bottom: 1px solid var(--border); font-size: 0.83rem; }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-dot { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+    .activity-text { color: #94a3b8; line-height: 1.5; }
+    .activity-text strong { color: white; }
+    .activity-time { color: #4b5563; font-size: 0.75rem; display: block; margin-top: 2px; }
+
     @keyframes pulse { 0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16,185,129,0.4); } 50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(16,185,129,0); } }
   </style>
 </head>
@@ -190,6 +250,7 @@
       <a onclick="switchTab('vision');return false" class="member-link">Roadmap</a>
       <a onclick="switchTab('testimonials');return false" class="member-link">Testimonials</a>
       <a onclick="switchTab('dashboard');return false" class="member-link">Dashboard</a>
+      <a onclick="switchTab('funds');return false" class="member-link">Funds</a>
     </nav>
     <div id="auth-area">
       <button id="login-btn" class="btn btn-sm">Member Login</button>
@@ -273,7 +334,6 @@
         <div class="stat-panel" style="margin-top:1rem;">
           <h3><span class="live-dot"></span><span id="online-count">183</span></h3>
           <p>Members online right now</p>
-          <div class="demo-badge">DEMO</div>
         </div>
       </div>
 
@@ -282,6 +342,23 @@
         <div class="welcome-card">
           <h3>Welcome back, <span id="profile-name" style="color:var(--primary);"></span> 👋</h3>
           <p>You're a verified founding member. Here's what you can do:</p>
+
+          <!-- Task progress inline -->
+          <div id="dash-task-progress" style="background:#0a0f1e;border:1px solid var(--border);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.2rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <span style="font-size:0.8rem;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;">Getting started</span>
+              <span id="dash-task-text" style="font-size:0.8rem;color:var(--primary);font-weight:700;">0 / 3 done</span>
+            </div>
+            <div style="background:var(--border);border-radius:999px;height:5px;overflow:hidden;">
+              <div id="dash-task-bar" style="height:100%;background:var(--primary);border-radius:999px;width:0%;transition:width 0.4s;"></div>
+            </div>
+            <div style="display:flex;gap:0.5rem;margin-top:0.8rem;flex-wrap:wrap;">
+              <span id="dash-t1" onclick="welcomeTask(1)" style="cursor:pointer;font-size:0.78rem;padding:3px 10px;border-radius:999px;border:1px solid var(--border);color:#64748b;transition:all 0.2s;">✦ Testimonial</span>
+              <span id="dash-t2" onclick="welcomeTask(2)" style="cursor:pointer;font-size:0.78rem;padding:3px 10px;border-radius:999px;border:1px solid var(--border);color:#64748b;transition:all 0.2s;">✦ Set Goal</span>
+              <span id="dash-t3" onclick="welcomeTask(3)" style="cursor:pointer;font-size:0.78rem;padding:3px 10px;border-radius:999px;border:1px solid var(--border);color:#64748b;transition:all 0.2s;">✦ Post Opportunity</span>
+            </div>
+          </div>
+
           <div onclick="switchTab('testimonials')" class="quick-action">
             <i class="fas fa-comment-dots" style="font-size:1.3rem;color:var(--primary);"></i>
             <div><strong>Leave a Testimonial</strong><small>Tell the community how Pass It Forward helped you</small></div>
@@ -293,6 +370,10 @@
           <div onclick="showPostModal()" class="quick-action">
             <i class="fas fa-bolt" style="font-size:1.3rem;color:var(--primary);"></i>
             <div><strong>Post an Opportunity</strong><small>Share what you need or what you can offer</small></div>
+          </div>
+          <div onclick="showWelcomeModal()" class="quick-action" style="border-style:dashed;">
+            <i class="fas fa-list-check" style="font-size:1.3rem;color:#64748b;"></i>
+            <div><strong style="color:#94a3b8;">View Getting Started Tasks</strong><small>See your onboarding checklist</small></div>
           </div>
           <div id="current-goal-box" class="current-goal">
             <strong>Your 30-day goal:</strong>
@@ -314,6 +395,102 @@
     </div>
   </div>
 </section>
+
+<!-- FUNDS -->
+<section class="member-section" id="funds">
+  <div style="max-width:1280px;margin:0 auto;padding:0 5%;">
+    <h2 style="font-family:'Syne',sans-serif;font-size:2.8rem;font-weight:800;text-align:center;color:white;margin-bottom:2rem;">Community Funds</h2>
+
+    <!-- Hero bar -->
+    <div class="funds-hero">
+      <div class="funds-hero-left">
+        <h3>🚀 Raise. Invest. Build Together.</h3>
+        <p>Members can raise capital from inside the network or back fellow builders. Every deal is community-vetted. Every dollar stays in the ecosystem.</p>
+      </div>
+      <div class="funds-total">
+        <div class="big-num" id="funds-total-display">$0</div>
+        <small>Total pledged across all raises</small>
+      </div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="funds-grid">
+      <div class="fund-stat-card">
+        <div class="label">Active Raises</div>
+        <div class="value" id="active-raises-count">—</div>
+        <div class="sub">Open for pledges now</div>
+      </div>
+      <div class="fund-stat-card">
+        <div class="label">Total Pledged</div>
+        <div class="value" id="total-pledged-stat">$0</div>
+        <div class="change-up">↑ From community members</div>
+      </div>
+      <div class="fund-stat-card">
+        <div class="label">Avg. Ticket Size</div>
+        <div class="value" id="avg-ticket-stat">—</div>
+        <div class="sub">Per pledge commitment</div>
+      </div>
+      <div class="fund-stat-card">
+        <div class="label">Funded Projects</div>
+        <div class="value" id="funded-count">2</div>
+        <div class="sub change-up">✓ Successfully closed</div>
+      </div>
+    </div>
+
+    <!-- Two column layout -->
+    <div class="funds-two-col">
+      <div>
+        <div class="funds-section-title">Active Raises <span id="raise-count-badge">0</span></div>
+        <div id="raises-feed"></div>
+        <button onclick="showRaiseModal()" class="post-raise-btn"><i class="fas fa-plus"></i> List Your Raise</button>
+      </div>
+
+      <!-- Sidebar -->
+      <div>
+        <div class="fund-sidebar-card">
+          <h4>🏆 Top Backers</h4>
+          <div id="top-backers-list"></div>
+        </div>
+        <div class="fund-sidebar-card">
+          <h4>⚡ Recent Activity</h4>
+          <div id="fund-activity-feed"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RAISE MODAL -->
+<div id="raise-modal" class="modal">
+  <div class="modal-content" style="max-width:540px;text-align:left;">
+    <h2 style="text-align:center;">List Your Raise</h2>
+    <p style="text-align:center;color:#64748b;margin-bottom:1.5rem;">Share your fundraise with the Pass It Forward community.</p>
+    <input id="raise-title" type="text" placeholder="Company / Project name" class="form-input" style="margin-bottom:0.8rem;"/>
+    <textarea id="raise-desc" placeholder="What are you building? Why now? What's the opportunity?" class="form-input" style="height:90px;resize:vertical;margin-bottom:0.8rem;"></textarea>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:0.8rem;">
+      <input id="raise-target" type="number" placeholder="Target ($)" class="form-input" style="margin:0;"/>
+      <select id="raise-stage" class="form-input form-select" style="margin:0;">
+        <option value="">Stage</option>
+        <option>Angel</option><option>Pre-Seed</option><option>Seed</option><option>Series A</option>
+      </select>
+    </div>
+    <input id="raise-min" type="number" placeholder="Minimum ticket size ($)" class="form-input" style="margin-bottom:1.2rem;"/>
+    <button onclick="postRaise()" class="btn" style="width:100%;">Submit Raise</button>
+    <button onclick="closeModal('raise-modal')" class="modal-cancel" style="display:block;width:100%;margin-top:0.6rem;">Cancel</button>
+  </div>
+</div>
+
+<!-- PLEDGE MODAL -->
+<div id="pledge-modal" class="modal">
+  <div class="modal-content pledge-modal-content" style="max-width:460px;">
+    <h2>Make a Pledge</h2>
+    <p id="pledge-modal-subtitle" style="color:#64748b;margin-bottom:1rem;text-align:center;"></p>
+    <div class="pledge-amounts" id="pledge-amounts-grid"></div>
+    <input id="pledge-custom" type="number" placeholder="Or enter custom amount ($)" class="form-input" style="margin-bottom:1rem;"/>
+    <button onclick="confirmPledge()" class="btn" style="width:100%;">Confirm Pledge</button>
+    <button onclick="closeModal('pledge-modal')" class="modal-cancel" style="display:block;width:100%;margin-top:0.6rem;">Cancel</button>
+  </div>
+</div>
 
 <footer>
   <p>© 2026 Pass It Forward — Building serious opportunity infrastructure</p>
@@ -342,9 +519,6 @@
       <option>Design</option><option>Investing</option><option>Operations</option><option>Other</option>
     </select>
     <textarea id="opp-desc" placeholder="Description & details" class="form-input" style="height:110px; resize:vertical;"></textarea>
-    <label style="display:flex;align-items:center;gap:10px;margin:1rem 0;color:#94a3b8;cursor:pointer;font-size:0.92rem;">
-      <input type="checkbox" id="post-to-x" checked style="accent-color:var(--primary);width:15px;height:15px;"> Also post to X (Twitter)
-    </label>
     <button onclick="postOpportunity()" class="btn" style="width:100%;">Post Now</button>
     <button onclick="closeModal('post-modal')" class="modal-cancel">Cancel</button>
   </div>
@@ -386,24 +560,36 @@
 </div>
 
 <div id="welcome-modal" class="modal">
-  <div class="modal-content welcome-modal-content">
-    <h2>Welcome to the Founding Circle! 🎉</h2>
-    <p>You're in. Complete these 3 tasks to get started:</p>
-    <div class="welcome-actions">
-      <div onclick="welcomeAction('testimonial')" class="welcome-action-btn">
-        <i class="fas fa-comment-dots"></i>
-        <div><strong>Leave a Testimonial</strong><small>Tell the community how Pass It Forward helped you</small></div>
+  <div class="modal-content welcome-modal-content" style="max-width:560px;">
+    <div style="font-size:2.5rem;margin-bottom:0.5rem;">👋</div>
+    <h2 id="welcome-headline" style="font-size:1.7rem;margin-bottom:0.4rem;">Welcome to Pass It Forward!</h2>
+    <p id="welcome-subtext" style="color:#64748b;font-size:0.95rem;margin-bottom:1.6rem;">You're now a verified founding member. Here are 3 quick tasks to get you started:</p>
+    <div style="background:#0a0f1e;border:1px solid var(--border);border-radius:16px;padding:1.2rem;margin-bottom:1.4rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;">
+        <span style="color:#64748b;font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;">Getting Started</span>
+        <span id="task-progress-text" style="color:var(--primary);font-size:0.8rem;font-weight:700;">0 / 3 done</span>
       </div>
-      <div onclick="welcomeAction('goal')" class="welcome-action-btn">
-        <i class="fas fa-bullseye"></i>
-        <div><strong>Set Your First Goal</strong><small>What do you want to achieve in the next 30 days?</small></div>
+      <div style="background:var(--border);border-radius:999px;height:4px;margin-bottom:1.2rem;overflow:hidden;">
+        <div id="task-progress-bar" style="height:100%;background:var(--primary);border-radius:999px;width:0%;transition:width 0.4s ease;"></div>
       </div>
-      <div onclick="welcomeAction('opportunity')" class="welcome-action-btn">
-        <i class="fas fa-bolt"></i>
-        <div><strong>Post an Opportunity</strong><small>Share what you need or what you can offer</small></div>
+      <div id="welcome-task-1" onclick="welcomeTask(1)" class="welcome-action-btn" style="margin-bottom:0.6rem;">
+        <div id="task-check-1" style="width:22px;height:22px;border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;"></div>
+        <i class="fas fa-comment-dots" style="color:var(--primary);font-size:1.2rem;"></i>
+        <div><strong style="color:white;display:block;font-size:0.95rem;">Leave a Testimonial</strong><small style="color:#64748b;">Tell the community how Pass It Forward helped you</small></div>
+      </div>
+      <div id="welcome-task-2" onclick="welcomeTask(2)" class="welcome-action-btn" style="margin-bottom:0.6rem;">
+        <div id="task-check-2" style="width:22px;height:22px;border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;"></div>
+        <i class="fas fa-bullseye" style="color:var(--primary);font-size:1.2rem;"></i>
+        <div><strong style="color:white;display:block;font-size:0.95rem;">Set Your First 30-Day Goal</strong><small style="color:#64748b;">What do you want to achieve this month?</small></div>
+      </div>
+      <div id="welcome-task-3" onclick="welcomeTask(3)" class="welcome-action-btn">
+        <div id="task-check-3" style="width:22px;height:22px;border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;"></div>
+        <i class="fas fa-bolt" style="color:var(--primary);font-size:1.2rem;"></i>
+        <div><strong style="color:white;display:block;font-size:0.95rem;">Post an Opportunity</strong><small style="color:#64748b;">Share what you need or what you can offer</small></div>
       </div>
     </div>
-    <button onclick="closeWelcome()" class="btn" style="width:100%;margin-top:1.8rem;">Let's build the future</button>
+    <button onclick="closeWelcome()" class="btn" style="width:100%;">Let's build the future 🚀</button>
+    <button onclick="closeModal('welcome-modal')" class="modal-cancel">Skip for now</button>
   </div>
 </div>
 
@@ -455,15 +641,69 @@ function showToast(msg) {
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 function closeWelcome() {
   closeModal('welcome-modal');
-  localStorage.setItem('pf_welcomeShown', 'true');
+  localStorage.setItem('pf_welcomeShown_' + currentUser, 'true');
 }
-function welcomeAction(type) {
-  closeWelcome();
+
+// ── WELCOME TASK TRACKER ───────────────────────────────────────────────────
+function getCompletedTasks() {
+  return JSON.parse(localStorage.getItem('pf_tasks_' + currentUser) || '[]');
+}
+function markTaskDone(num) {
+  const done = getCompletedTasks();
+  if (!done.includes(num)) { done.push(num); localStorage.setItem('pf_tasks_' + currentUser, JSON.stringify(done)); }
+  refreshTaskUI();
+}
+function refreshTaskUI() {
+  const done = getCompletedTasks();
+  const pct = Math.round((done.length / 3) * 100);
+  // Welcome modal bars
+  const bar = document.getElementById('task-progress-bar');
+  const txt = document.getElementById('task-progress-text');
+  if (bar) bar.style.width = pct + '%';
+  if (txt) txt.textContent = done.length + ' / 3 done';
+  [1,2,3].forEach(n => {
+    const check = document.getElementById('task-check-' + n);
+    const row = document.getElementById('welcome-task-' + n);
+    if (check && done.includes(n)) {
+      check.style.background = 'var(--primary)';
+      check.style.borderColor = 'var(--primary)';
+      check.innerHTML = '<i class="fas fa-check" style="color:#0a0f1e;font-size:0.65rem;"></i>';
+      if (row) row.style.opacity = '0.6';
+    }
+  });
+  // Dashboard inline task bar
+  const dbar = document.getElementById('dash-task-bar');
+  const dtxt = document.getElementById('dash-task-text');
+  if (dbar) dbar.style.width = pct + '%';
+  if (dtxt) dtxt.textContent = done.length + ' / 3 done';
+  [1,2,3].forEach(n => {
+    const pill = document.getElementById('dash-t' + n);
+    if (pill && done.includes(n)) {
+      pill.style.background = 'rgba(16,185,129,0.12)';
+      pill.style.borderColor = 'rgba(16,185,129,0.4)';
+      pill.style.color = 'var(--primary)';
+      pill.innerHTML = pill.innerHTML.replace('✦','✓');
+    }
+  });
+}
+function welcomeTask(num) {
+  markTaskDone(num);
   setTimeout(() => {
-    if (type === 'testimonial') switchTab('testimonials');
-    else if (type === 'goal') showGoalModal();
-    else if (type === 'opportunity') showPostModal();
-  }, 400);
+    closeModal('welcome-modal');
+    setTimeout(() => {
+      if (num === 1) switchTab('testimonials');
+      else if (num === 2) showGoalModal();
+      else if (num === 3) showPostModal();
+    }, 300);
+  }, 350);
+}
+function showWelcomeModal() {
+  const headline = document.getElementById('welcome-headline');
+  const subtext = document.getElementById('welcome-subtext');
+  if (headline) headline.textContent = `Welcome, ${currentUser}! 🎉`;
+  if (subtext) subtext.textContent = `You're now a verified founding member of Pass It Forward. Complete these 3 tasks to get started:`;
+  refreshTaskUI();
+  document.getElementById('welcome-modal').style.display = 'flex';
 }
 
 // ── TESTIMONIALS ───────────────────────────────────────────────────────────
@@ -497,6 +737,7 @@ function submitTestimonial() {
   localStorage.setItem('pf_testimonials', JSON.stringify(testimonials));
   renderTestimonials();
   document.getElementById('new-testimonial').value = '';
+  markTaskDone(1);
   showToast("Testimonial posted — thank you for passing it forward!");
 }
 
@@ -605,7 +846,6 @@ function postOpportunity() {
   const title = document.getElementById('opp-title').value.trim();
   const desc = document.getElementById('opp-desc').value.trim();
   const category = document.getElementById('opp-category').value;
-  const postToX = document.getElementById('post-to-x').checked;
   if (!title) return showToast("Please add a title");
   if (!category) return showToast("Please select a category");
   opportunities.unshift({ id: Date.now(), title, desc: desc || "No description provided", category, interest: 1, poster: currentUser });
@@ -616,11 +856,8 @@ function postOpportunity() {
   document.getElementById('opp-title').value = '';
   document.getElementById('opp-desc').value = '';
   document.getElementById('opp-category').value = '';
+  markTaskDone(3);
   showToast("Opportunity posted!");
-  if (postToX) {
-    const tweet = `Just posted on Pass It Forward 🔥\n\n${title}\n${desc}\n\nJoin real builders → passitforward.xyz`;
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}`, '_blank');
-  }
 }
 
 // ── DM BUTTON ──────────────────────────────────────────────────────────────
@@ -645,6 +882,7 @@ function saveGoal() {
   if (!goal) return;
   localStorage.setItem('pf_goal', goal);
   closeModal('goal-modal');
+  markTaskDone(2);
   showToast("Goal saved!");
   renderGoal();
 }
@@ -737,8 +975,9 @@ function showMemberTabs() {
   renderProfile();
   switchTab('dashboard');
   renderGoal();
-  if (!localStorage.getItem('pf_welcomeShown')) {
-    setTimeout(() => document.getElementById('welcome-modal').style.display = 'flex', 900);
+  refreshTaskUI();
+  if (!localStorage.getItem('pf_welcomeShown_' + currentUser)) {
+    setTimeout(() => showWelcomeModal(), 900);
   }
 }
 function handleLogin() {
@@ -760,7 +999,7 @@ function logout() {
 
 // ── TABS ──────────────────────────────────────────────────────────────────
 function switchTab(tabId) {
-  const memberTabs = ['vision','testimonials','dashboard'];
+  const memberTabs = ['vision','testimonials','dashboard','funds'];
   if (!currentUser && memberTabs.includes(tabId)) {
     showToast("Members only — please login first");
     document.getElementById('login-modal').style.display = 'flex';
@@ -774,7 +1013,7 @@ function switchTab(tabId) {
     window.scrollTo({ top:0, behavior:'smooth' });
   } else {
     const sec = document.getElementById(tabId);
-    if (sec) { sec.style.display = 'block'; window.scrollTo({ top:0, behavior:'smooth' }); }
+    if (sec) { sec.style.display = 'block'; window.scrollTo({ top:0, behavior:'smooth' }); if (tabId === 'funds') renderFunds(); }
   }
 }
 
@@ -812,6 +1051,210 @@ document.getElementById('apply-form').addEventListener('submit', e => {
   e.target.reset();
   showToast("✅ Application received! We'll DM you on X within 48 hours.");
 });
+
+
+// ── FUNDS ────────────────────────────────────────────────────────────────
+let raises = JSON.parse(localStorage.getItem('pf_raises')) || [
+  { id:1, title:"NexusAI — Workflow Automation SaaS", desc:"B2B automation for ops teams. $180k ARR, growing 22% MoM. Raising to hire GTM.", stage:"Seed", target:250000, pledged:147500, minTicket:5000, poster:"@BuilderMindset", backers:12 },
+  { id:2, title:"Stackr — No-Code App Builder", desc:"Visual dev platform for non-technical founders. 3k waitlist. Pre-launch raise.", stage:"Pre-Seed", target:80000, pledged:38000, minTicket:2500, poster:"@GrowthHustle", backers:7 },
+  { id:3, title:"FundFlow — LP Management Tool", desc:"Streamlining fund admin for micro VCs. First 8 paying customers. Raising angel round.", stage:"Angel", target:150000, pledged:150000, minTicket:10000, poster:"@CapitalBuilder", backers:9 }
+];
+
+let pledgeActivity = JSON.parse(localStorage.getItem('pf_pledge_activity')) || [
+  { text: "<strong>@CapitalBuilder</strong> pledged $25,000 to NexusAI", time: "2h ago" },
+  { text: "<strong>@BuilderMindset</strong> listed Stackr raise", time: "5h ago" },
+  { text: "<strong>@GrowthHustle</strong> pledged $10,000 to FundFlow", time: "1d ago" },
+  { text: "FundFlow raise <strong>fully funded</strong> 🎉", time: "2d ago" }
+];
+
+let activePledgeId = null;
+let selectedPledgeAmount = 0;
+
+function saveRaises() { localStorage.setItem('pf_raises', JSON.stringify(raises)); }
+function savePledgeActivity() { localStorage.setItem('pf_pledge_activity', JSON.stringify(pledgeActivity)); }
+
+function formatMoney(n) {
+  if (n >= 1000000) return '$' + (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return '$' + (n/1000).toFixed(0) + 'k';
+  return '$' + n.toLocaleString();
+}
+
+function renderFunds() {
+  renderRaises();
+  renderFundStats();
+  renderTopBackers();
+  renderFundActivity();
+}
+
+function renderFundStats() {
+  const active = raises.filter(r => r.pledged < r.target);
+  const totalPledged = raises.reduce((s,r) => s + r.pledged, 0);
+  const allPledges = raises.reduce((s,r) => s + r.backers, 0);
+  const avg = allPledges > 0 ? Math.round(totalPledged / allPledges) : 0;
+  const funded = raises.filter(r => r.pledged >= r.target).length;
+
+  const el = id => document.getElementById(id);
+  if (el('active-raises-count')) el('active-raises-count').textContent = active.length;
+  if (el('total-pledged-stat')) el('total-pledged-stat').textContent = formatMoney(totalPledged);
+  if (el('avg-ticket-stat')) el('avg-ticket-stat').textContent = formatMoney(avg);
+  if (el('funded-count')) el('funded-count').textContent = funded;
+  if (el('funds-total-display')) el('funds-total-display').textContent = formatMoney(totalPledged);
+  if (el('raise-count-badge')) el('raise-count-badge').textContent = raises.length;
+}
+
+function stageClass(stage) {
+  if (!stage) return '';
+  const s = stage.toLowerCase();
+  if (s.includes('angel')) return 'angel';
+  if (s.includes('seed') && !s.includes('pre')) return 'seed';
+  if (s.includes('series')) return 'series-a';
+  return '';
+}
+
+function renderRaises() {
+  const feed = document.getElementById('raises-feed');
+  if (!feed) return;
+  if (raises.length === 0) {
+    feed.innerHTML = `<div style="padding:2.5rem;text-align:center;color:#4b5563;">No active raises yet. Be the first!</div>`;
+    return;
+  }
+  feed.innerHTML = '';
+  raises.forEach(r => {
+    const pct = Math.min(100, Math.round((r.pledged / r.target) * 100));
+    const isFunded = r.pledged >= r.target;
+    const isMine = currentUser && r.poster === currentUser;
+    const div = document.createElement('div');
+    div.className = 'fund-raise-card';
+    div.innerHTML = `
+      <div class="fund-raise-top">
+        <div style="flex:1;">
+          <div class="fund-raise-title">${sanitize(r.title)}</div>
+          <div style="color:#94a3b8;font-size:0.85rem;margin:4px 0 0;">${sanitize(r.desc)}</div>
+          <div class="fund-raise-meta">
+            <span class="fund-stage ${stageClass(r.stage)}">${sanitize(r.stage || '')}</span>
+            <span>Min. ${formatMoney(r.minTicket)}</span>
+            <span>• ${r.backers} backers</span>
+            <span>• by ${sanitize(r.poster)}</span>
+          </div>
+        </div>
+        <div>
+          <div class="fund-raise-amount">${formatMoney(r.pledged)}<small>of ${formatMoney(r.target)}</small></div>
+        </div>
+      </div>
+      <div class="fund-progress-bar">
+        <div class="fund-progress-track"><div class="fund-progress-fill" style="width:${pct}%"></div></div>
+        <div class="fund-progress-labels"><strong>${pct}% funded</strong><span>${isFunded ? '✅ Fully Funded' : formatMoney(r.target - r.pledged) + ' remaining'}</span></div>
+      </div>
+      <div class="fund-actions-row">
+        ${!isFunded ? `<button onclick="openPledgeModal(${r.id})" class="fund-pledge-btn"><i class="fas fa-hand-holding-dollar" style="margin-right:5px;font-size:0.8rem;"></i>Pledge</button>` : `<span style="color:var(--primary);font-size:0.85rem;font-weight:700;">🎉 Funded!</span>`}
+        <button onclick="showToast('Added to watchlist!')" class="fund-watch-btn"><i class="fas fa-bookmark" style="margin-right:4px;font-size:0.75rem;"></i>Watch</button>
+        ${isMine ? `<button onclick="deleteRaise(${r.id})" class="delete-btn" title="Delete">🗑</button>` : ''}
+      </div>
+    `;
+    feed.appendChild(div);
+  });
+}
+
+function renderTopBackers() {
+  const list = document.getElementById('top-backers-list');
+  if (!list) return;
+  const backers = [
+    { handle:'@CapitalBuilder', amount: 35000, initials:'CB' },
+    { handle:'@BuilderMindset', amount: 25000, initials:'BM' },
+    { handle:'@GrowthHustle',   amount: 10000, initials:'GH' },
+    { handle:'@InvestorPro',    amount: 7500,  initials:'IP' },
+  ];
+  list.innerHTML = backers.map(b => `
+    <div class="investor-row">
+      <div class="investor-avatar">${b.initials}</div>
+      <div class="investor-name">${sanitize(b.handle)}</div>
+      <div class="investor-amount">${formatMoney(b.amount)}</div>
+    </div>
+  `).join('');
+}
+
+function renderFundActivity() {
+  const feed = document.getElementById('fund-activity-feed');
+  if (!feed) return;
+  feed.innerHTML = pledgeActivity.slice(0,6).map(a => `
+    <div class="activity-item">
+      <div class="activity-dot"></div>
+      <div class="activity-text">${a.text}<span class="activity-time">${sanitize(a.time)}</span></div>
+    </div>
+  `).join('');
+}
+
+function openPledgeModal(raiseId) {
+  if (!currentUser) return showToast("Login first");
+  const raise = raises.find(r => r.id === raiseId);
+  if (!raise) return;
+  activePledgeId = raiseId;
+  selectedPledgeAmount = 0;
+  document.getElementById('pledge-modal-subtitle').textContent = `Backing: ${raise.title}`;
+  document.getElementById('pledge-custom').value = '';
+  const amounts = [raise.minTicket, raise.minTicket*2, raise.minTicket*5];
+  document.getElementById('pledge-amounts-grid').innerHTML = amounts.map(a =>
+    `<button class="pledge-amount-btn" onclick="selectPledgeAmount(${a},this)">${formatMoney(a)}</button>`
+  ).join('');
+  document.getElementById('pledge-modal').style.display = 'flex';
+}
+
+function selectPledgeAmount(amount, btn) {
+  document.querySelectorAll('.pledge-amount-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedPledgeAmount = amount;
+  document.getElementById('pledge-custom').value = '';
+}
+
+function confirmPledge() {
+  const custom = parseInt(document.getElementById('pledge-custom').value) || 0;
+  const amount = custom || selectedPledgeAmount;
+  if (!amount || amount <= 0) return showToast("Please select or enter an amount");
+  const raise = raises.find(r => r.id === activePledgeId);
+  if (!raise) return;
+  raise.pledged = Math.min(raise.target, raise.pledged + amount);
+  raise.backers++;
+  saveRaises();
+  pledgeActivity.unshift({ text: `<strong>${sanitize(currentUser)}</strong> pledged ${formatMoney(amount)} to ${sanitize(raise.title)}`, time: 'just now' });
+  savePledgeActivity();
+  closeModal('pledge-modal');
+  renderFunds();
+  showToast(`Pledge of ${formatMoney(amount)} registered! 🎉`);
+}
+
+function showRaiseModal() {
+  if (!currentUser) return showToast("Login first");
+  document.getElementById('raise-modal').style.display = 'flex';
+}
+
+function postRaise() {
+  const title = document.getElementById('raise-title').value.trim();
+  const desc = document.getElementById('raise-desc').value.trim();
+  const target = parseInt(document.getElementById('raise-target').value) || 0;
+  const stage = document.getElementById('raise-stage').value;
+  const minTicket = parseInt(document.getElementById('raise-min').value) || 0;
+  if (!title) return showToast("Please add a project name");
+  if (!target || target <= 0) return showToast("Please enter a target amount");
+  if (!stage) return showToast("Please select a stage");
+  if (!minTicket || minTicket <= 0) return showToast("Please enter a minimum ticket");
+  raises.unshift({ id: Date.now(), title, desc: desc || "No description provided", stage, target, pledged: 0, minTicket, poster: currentUser, backers: 0 });
+  saveRaises();
+  pledgeActivity.unshift({ text: `<strong>${sanitize(currentUser)}</strong> listed a new raise: ${sanitize(title)}`, time: 'just now' });
+  savePledgeActivity();
+  closeModal('raise-modal');
+  ['raise-title','raise-desc','raise-target','raise-min'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('raise-stage').value = '';
+  renderFunds();
+  showToast("Raise listed! 🚀");
+}
+
+function deleteRaise(id) {
+  if (!confirm("Delete this raise?")) return;
+  raises = raises.filter(r => r.id !== id);
+  saveRaises();
+  renderFunds();
+  showToast("Raise deleted");
+}
 
 console.log('%c✅ PASS IT FORWARD v5.0 LIVE 🔥', 'color:#10b981;font-weight:700;font-size:14px');
 </script>
