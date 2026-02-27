@@ -1,7 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8" /> 
+  <head>
   <meta charset="UTF-8" />
+
+  <!-- Supabase library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
+
+  <!-- Supabase initialization -->
+  <script>
+    const supabaseUrl = 'https://ozrfxuamkfkhovxbpke.supabase.co';
+    const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96cmZ4dWFta2ZraG92dnhicGtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxOTk2OTEsImV4cCI6MjA4Nzc3NTY5MX0.BO1nyEPUe7r7jAi5UfA-2gVmaxEh3O12LVrBr4YFSXc'; // replace with your anon key
+
+    const supabase = supabaseJs.createClient(supabaseUrl, supabaseAnonKey);
+  </script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pass It Forward Opportunity Infrastructure</title>
+  <!-- your CSS and other links -->
+</head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pass It Forward Opportunity Infrastructure</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
