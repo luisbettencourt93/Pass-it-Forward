@@ -3,99 +3,122 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pass It Forward — Opportunity Infrastructure</title>
+  <title>Pass It Forward</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
-    :root { --primary: #10b981; --primary-dark: #059669; --dark: #0f172a; --gray: #64748b; --light: #f8fafc; --border: #e2e8f0; }
+    :root { --primary: #10b981; --dark: #0f172a; --light: #f8fafc; }
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family: 'Inter', system-ui, sans-serif; background: var(--light); color: var(--dark); line-height: 1.7; scroll-behavior: smooth; }
-    header { background: var(--dark); color: white; padding: 1.25rem 5%; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
-    .header-inner { max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-    .logo { font-size: 1.65rem; font-weight: 700; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
-    nav { display: flex; gap: 2.2rem; }
-    nav a { color: white; text-decoration: none; font-weight: 500; transition: color 0.2s; cursor: pointer; }
-    nav a:hover, nav a.active { color: var(--primary); border-bottom: 3px solid var(--primary); padding-bottom: 4px; }
-    .section, .member-section { padding: 8rem 5% 6rem; max-width: 1280px; margin: 0 auto; display: none; }
-    .section.active, .member-section.active { display: block; }
-    .fund-balance { font-size: 4.8rem; font-weight: 800; color: var(--primary); text-align: center; margin: 2rem 0; }
-    .fund-change { font-size: 1.3rem; text-align: center; margin-bottom: 2rem; font-weight: 600; }
+    body { font-family: 'Inter', sans-serif; background: var(--light); color: var(--dark); }
+    header { background: var(--dark); color: white; padding: 1rem 5%; position: sticky; top:0; }
+    .btn { padding: 1rem 2.5rem; background: var(--primary); color: white; border: none; border-radius: 999px; font-weight: 600; cursor: pointer; }
+    .modal { display: none; position: fixed; z-index: 4000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); align-items: center; justify-content: center; }
+    .modal-content { background: white; padding: 3rem; border-radius: 24px; width: 100%; max-width: 420px; }
+    .fund-balance { font-size: 4.5rem; font-weight: 800; color: var(--primary); text-align: center; margin: 2rem 0; }
+    .fund-change { font-size: 1.3rem; text-align: center; font-weight: 600; }
   </style>
 </head>
 <body>
 <header>
-  <div class="header-inner">
-    <div class="logo"><i class="fas fa-arrow-right"></i> Pass It Forward</div>
-    <nav id="main-nav">
-      <a onclick="switchTab('hero');return false" class="nav-link active">Home</a>
-      <a onclick="switchTab('vision');return false" class="nav-link member-link" style="display:none;">Roadmap</a>
-      <a onclick="switchTab('testimonials');return false" class="nav-link member-link" style="display:none;">Testimonials</a>
-      <a onclick="switchTab('dashboard');return false" class="nav-link member-link" style="display:none;">Dashboard</a>
-      <a onclick="switchTab('funds');return false" class="nav-link member-link" style="display:none;">Funds</a>
+  <div style="max-width:1280px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;">
+    <div style="font-size:1.65rem;font-weight:700;">Pass It Forward</div>
+    <nav>
+      <a onclick="switchTab('dashboard')">Dashboard</a>
+      <a onclick="switchTab('funds')">Funds</a>
     </nav>
-    <div id="auth-area">
-      <button id="login-btn" class="btn" onclick="showLoginModal()">Member Login</button>
-      <div id="user-area" style="display:none;align-items:center;gap:1rem;">
-        <span style="color:#94a3b8;">Welcome, <strong id="display-name"></strong></span>
-        <button onclick="logout()" class="btn" style="background:#64748b;padding:0.9rem 1.8rem;">Logout</button>
-      </div>
+    <button id="login-btn" class="btn" onclick="showLoginModal()">Member Login</button>
+    <div id="user-area" style="display:none;align-items:center;gap:1rem;">
+      <span id="display-name"></span>
+      <button onclick="logout()" class="btn" style="background:#64748b;">Logout</button>
     </div>
   </div>
 </header>
 
-<!-- Your original sections (hero, apply, testimonials, vision, dashboard) are here unchanged -->
+<section id="dashboard" style="padding:6rem 5%;max-width:1280px;margin:0 auto;">
+  <h2>Welcome back, <span id="profile-name"></span></h2>
+</section>
 
-<section id="funds" class="member-section">
-  <div style="max-width:900px;margin:0 auto;text-align:center;">
-    <h2 style="color:#065f46;">Community Fund</h2>
-    <div style="background:white;padding:4rem;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,0.1);">
-      <div id="fund-balance" style="font-size:5rem;font-weight:800;color:var(--primary);margin-bottom:1rem;">$1,247.50</div>
-      <div id="fund-change" style="font-size:1.3rem;font-weight:600;margin-bottom:2rem;">Live updates for everyone</div>
-      <button onclick="simulateDonation()" class="btn" style="margin:0.5rem;">+ $500 Donation</button>
-      <button onclick="simulateSpend()" class="btn" style="background:#ef4444;margin:0.5rem;">- $200 Spend</button>
-    </div>
+<section id="funds" style="padding:6rem 5%;max-width:1280px;margin:0 auto;display:none;">
+  <h2 style="text-align:center;">Community Fund</h2>
+  <div style="background:white;padding:4rem;border-radius:24px;box-shadow:0 10px 40px rgba(0,0,0,0.1);max-width:600px;margin:0 auto;">
+    <div id="fund-balance" style="font-size:5rem;font-weight:800;color:#10b981;text-align:center;">$1,247.50</div>
+    <div id="fund-change" style="text-align:center;font-size:1.3rem;margin-top:1rem;">Live updates</div>
+    <button onclick="simulateDonation()" class="btn" style="margin:1rem;">+ $500 Donation</button>
+    <button onclick="simulateSpend()" class="btn" style="background:#ef4444;margin:1rem;">- $200 Spend</button>
   </div>
 </section>
 
-<!-- Your existing modals and toast -->
+<div id="login-modal" class="modal">
+  <div class="modal-content">
+    <h2>Member Login</h2>
+    <input id="login-email" value="luis_b@hotmail.co.uk" style="width:100%;padding:1rem;margin:1rem 0;border:2px solid #e2e8f0;border-radius:12px;">
+    <input id="login-password" type="password" placeholder="Password" style="width:100%;padding:1rem;margin:1rem 0;border:2px solid #e2e8f0;border-radius:12px;">
+    <button onclick="handleLogin()" class="btn" style="width:100%;">Login</button>
+    <button onclick="closeModal()" style="margin-top:1rem;background:none;border:none;color:#64748b;cursor:pointer;">Cancel</button>
+  </div>
+</div>
+
+<div id="toast" class="toast"><i class="fas fa-check-circle"></i><span id="toast-text"></span></div>
 
 <script>
-const SUPABASE_URL = 'https://mdnpnkqjhymxaonssewt.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_1sg7iImUiQ98nPYs9eyDRA_aJM8_sJj';
+const SUPABASE_URL = 'https://ozrfxuamkfkhovxbpke.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96cmZ4dWFta2ZraG92dnhicGtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxOTk2OTEsImV4cCI6MjA4Nzc3NTY5MX0.BO1nyEPUe7r7jAi5UfA-2gVmaxEh3O12LVrBr4YFSXc';
 const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
-let fundBalance = 1247.50;
 
-// Realtime fund listener
-supabase.channel('fund-channel')
-  .on('postgres_changes', { event: '*', schema: 'public', table: 'community_fund' }, (payload) => {
-    fundBalance = parseFloat(payload.new.total_balance);
-    document.getElementById('fund-balance').textContent = '$' + fundBalance.toLocaleString();
-  })
-  .subscribe();
+function showLoginModal() { document.getElementById('login-modal').style.display = 'flex'; }
+function closeModal() { document.getElementById('login-modal').style.display = 'none'; }
+
+async function handleLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value.trim();
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) return showToast("Login failed");
+  currentUser = data.user;
+  closeModal();
+  document.getElementById('login-btn').style.display = 'none';
+  document.getElementById('user-area').style.display = 'flex';
+  document.getElementById('display-name').textContent = email.split('@')[0];
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = msg;
+  toast.style.display = 'flex';
+  setTimeout(() => toast.style.display = 'none', 2800);
+}
+
+async function logout() {
+  await supabase.auth.signOut();
+  location.reload();
+}
+
+function switchTab(tab) {
+  document.getElementById('dashboard').style.display = tab === 'dashboard' ? 'block' : 'none';
+  document.getElementById('funds').style.display = tab === 'funds' ? 'block' : 'none';
+}
 
 async function simulateDonation() {
   await supabase.rpc('update_fund', { amount: 500 });
+  showToast("+ $500 added");
 }
 
 async function simulateSpend() {
   await supabase.rpc('update_fund', { amount: -200 });
+  showToast("- $200 spent");
 }
 
-// Your existing code (login, tabs, leveling, etc.) goes here...
-// (the rest of your script from previous versions)
-
-async function init() {
+window.onload = async () => {
   const { data: { session } } = await supabase.auth.getSession();
   if (session) {
     currentUser = session.user;
-    // your existing login code
+    document.getElementById('login-btn').style.display = 'none';
+    document.getElementById('user-area').style.display = 'flex';
+    document.getElementById('display-name').textContent = session.user.email.split('@')[0];
   }
-}
-
-window.onload = init;
+};
 </script>
 </body>
 </html>
