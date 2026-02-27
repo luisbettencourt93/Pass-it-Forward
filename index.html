@@ -325,7 +325,7 @@
 </div>
 
 <script>
-const ACCESS_CODE = "founder2026";
+
 let currentUser = null;
 
 let opportunities = JSON.parse(localStorage.getItem('pf_opportunities')) || [
@@ -533,13 +533,25 @@ function showMemberTabs() {
     setTimeout(forceShowWelcome, 900);
   }
 }
-function handleLogin() {
-  const handle = document.getElementById('xhandle').value.trim();
-  const code = document.getElementById('accesscode').value.trim();
-  if (!handle || code !== ACCESS_CODE) return showToast("Wrong access code (founder2026)");
-  currentUser = handle.startsWith('@') ? handle : '@' + handle;
-  localStorage.setItem('pf_loggedIn', 'true');
-  localStorage.setItem('pf_user', currentUser);
+async function handleLogin() {
+  const email = document.getElementById('xhandle').value.trim();
+  const password = document.getElementById('accesscode').value.trim();
+
+  if (!email || !password) {
+    return showToast("Enter email and password");
+  }
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    console.error(error);
+    return showToast("Invalid email or password");
+  }
+
+  currentUser = data.user;
   closeModal();
   showMemberTabs();
 }
