@@ -8,55 +8,162 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
-    /* All your original beautiful CSS is here - unchanged */
     :root { --primary: #10b981; --primary-dark: #059669; --dark: #0f172a; --gray: #64748b; --light: #f8fafc; --border: #e2e8f0; }
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family: 'Inter', system-ui, sans-serif; background: var(--light); color: var(--dark); line-height: 1.7; scroll-behavior: smooth; }
-    /* ... (the rest of your CSS is the same) ... */
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--light); color: var(--dark); line-height: 1.7; }
+    header { background: var(--dark); color: white; padding: 1.25rem 5%; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+    .header-inner { max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 1.65rem; font-weight: 700; }
+    nav a { color: white; margin: 0 1.5rem; text-decoration: none; cursor: pointer; }
+    .btn { padding: 1rem 2.5rem; background: var(--primary); color: white; border: none; border-radius: 999px; font-weight: 600; cursor: pointer; }
+    .modal { display: none; position: fixed; z-index: 4000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.95); align-items: center; justify-content: center; }
+    .modal-content { background: white; padding: 3rem; border-radius: 24px; width: 100%; max-width: 420px; }
+    .level-section { margin-top: 1rem; padding: 1.2rem; background: #ecfdf5; border-radius: 14px; }
+    .progress-container { height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin: 10px 0; }
+    .progress-bar { height: 100%; background: linear-gradient(90deg, #10b981, #34d399); transition: width 0.8s; }
+    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 1rem 2rem; border-radius: 999px; font-weight: 600; display: none; }
   </style>
 </head>
 <body>
-  <!-- All your original HTML sections are here unchanged -->
-  <!-- (hero, apply-card, testimonials, vision, dashboard) -->
-
-  <!-- Login modal -->
-  <div id="login-modal" class="modal">
-    <div class="modal-content">
-      <h2>Member Login</h2>
-      <input type="email" id="login-email" placeholder="you@email.com" style="width:100%;padding:1rem;margin-bottom:1rem;border:2px solid #e2e8f0;border-radius:12px;">
-      <input type="password" id="login-password" placeholder="Password (min 6 chars)" style="width:100%;padding:1rem;margin-bottom:1rem;border:2px solid #e2e8f0;border-radius:12px;">
-      <button onclick="handleLogin()" class="btn" style="width:100%;">Login</button>
-      <button onclick="closeModal()" style="margin-top:1rem;background:none;border:none;color:#64748b;cursor:pointer;">Cancel</button>
+<header>
+  <div class="header-inner">
+    <div class="logo"><i class="fas fa-arrow-right"></i> Pass It Forward</div>
+    <nav>
+      <a onclick="switchTab('dashboard')">Dashboard</a>
+    </nav>
+    <button id="login-btn" class="btn" onclick="showLoginModal()">Member Login</button>
+    <div id="user-area" style="display:none; align-items:center; gap:1rem;">
+      <span style="color:#94a3b8;">Welcome, <strong id="display-name"></strong></span>
+      <button onclick="logout()" class="btn" style="background:#64748b;">Logout</button>
     </div>
   </div>
+</header>
 
-  <div id="toast" class="toast"><i class="fas fa-check-circle"></i><span id="toast-text"></span></div>
+<section id="dashboard" style="padding:6rem 5%; max-width:1280px; margin:0 auto;">
+  <div style="background:white; padding:3rem; border-radius:24px; box-shadow:0 10px 40px rgba(0,0,0,0.1);">
+    <h2>Welcome back, <span id="profile-name"></span> 👋</h2>
+    <div class="level-section">
+      <div class="level-badge"><i class="fas fa-crown"></i> <span id="current-level">Founding Member</span></div>
+      <div style="margin:12px 0;font-size:1.1rem;"><span id="points-display" style="font-weight:700;color:var(--primary);">0</span> points</div>
+      <div class="progress-container"><div id="progress-bar" class="progress-bar" style="width:0%"></div></div>
+      <small id="next-level-text" style="color:#065f46;">Next: Active Builder at 11 points</small>
+    </div>
+    <button onclick="awardTestPoints(10)" class="btn" style="width:100%;margin:1rem 0;">+10 Test Points (Testimonial)</button>
+    <button onclick="awardTestPoints(15)" class="btn" style="width:100%;margin:1rem 0;background:#059669;">+15 Test Points (Opportunity)</button>
+  </div>
+</section>
 
-  <script>
-    const SUPABASE_URL = 'https://mdnpnkqjhymxaonssewt.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_1sg7iImUiQ98nPYs9eyDRA_aJM8_sJj';  // ← your key is already here
-    const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+<div id="login-modal" class="modal">
+  <div class="modal-content">
+    <h2>Member Login</h2>
+    <input type="email" id="login-email" placeholder="you@email.com" style="width:100%;padding:1rem;margin-bottom:1rem;border:2px solid #e2e8f0;border-radius:12px;">
+    <input type="password" id="login-password" placeholder="Password (min 6 chars)" style="width:100%;padding:1rem;margin-bottom:1rem;border:2px solid #e2e8f0;border-radius:12px;">
+    <button onclick="handleLogin()" class="btn" style="width:100%;">Login</button>
+    <button onclick="closeModal()" style="margin-top:1rem;background:none;border:none;color:#64748b;cursor:pointer;">Cancel</button>
+  </div>
+</div>
 
-    // The rest of the working leveling code is here (no errors)
-    let currentUser = null;
-    let profile = null;
+<div id="toast" class="toast"><i class="fas fa-check-circle"></i><span id="toast-text"></span></div>
 
-    // ... full level system code (getLevelInfo, loadProfile, awardUserPoints, etc.) ...
+<script>
+const SUPABASE_URL = 'https://mdnpnkqjhymxaonssewt.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_1sg7iImUiQ98nPYs9eyDRA_aJM8_sJj';
+const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    async function init() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        currentUser = session.user;
-        document.getElementById('login-btn').style.display = 'none';
-        document.getElementById('user-area').style.display = 'flex';
-        document.getElementById('display-name').textContent = currentUser.email.split('@')[0];
-        document.getElementById('profile-name').textContent = currentUser.email.split('@')[0];
-        document.querySelectorAll('.member-link').forEach(l => l.style.display = 'inline-block');
-        await loadProfile();
-      }
+let currentUser = null;
+let profile = null;
+
+const levelThresholds = [
+  {name: 'Founding Member', min: 0, max: 10},
+  {name: 'Active Builder', min: 11, max: 30},
+  {name: 'Core Contributor', min: 31, max: 60},
+  {name: 'Community Pillar', min: 61, max: Infinity}
+];
+
+function getLevelInfo(points) {
+  for (let i = 0; i < levelThresholds.length; i++) {
+    if (points <= levelThresholds[i].max) {
+      const current = levelThresholds[i];
+      const next = levelThresholds[i + 1];
+      const progress = next ? Math.round(((points - current.min) / (next.min - current.min)) * 100) : 100;
+      return {name: current.name, progress, nextLevel: next ? next.name : null, nextPoints: next ? next.min : null};
     }
+  }
+}
 
-    window.onload = init;
-  </script>
+async function loadProfile() {
+  if (!currentUser) return;
+  let { data } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+  if (!data) {
+    await supabase.from('profiles').insert({ id: currentUser.id, username: currentUser.email });
+    data = (await supabase.from('profiles').select('*').eq('id', currentUser.id).single()).data;
+  }
+  profile = data;
+  updateLevelUI();
+}
+
+function updateLevelUI() {
+  if (!profile) return;
+  const info = getLevelInfo(profile.points);
+  document.getElementById('current-level').textContent = info.name;
+  document.getElementById('points-display').textContent = profile.points;
+  document.getElementById('progress-bar').style.width = info.progress + '%';
+  document.getElementById('next-level-text').textContent = info.nextLevel 
+    ? `Next: ${info.nextLevel} at ${info.nextPoints} points` 
+    : 'Legendary status achieved';
+}
+
+async function awardTestPoints(amount) {
+  if (!currentUser) return showToast("Login first");
+  await supabase.rpc('award_points', { p_amount: amount });
+  await loadProfile();
+}
+
+function showLoginModal() { document.getElementById('login-modal').style.display = 'flex'; }
+function closeModal() { document.getElementById('login-modal').style.display = 'none'; }
+
+async function handleLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value.trim();
+  if (!email || !password) return showToast("Enter email and password");
+
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) return showToast("Login failed. Try again or use a new email/password.");
+
+  currentUser = data.user;
+  closeModal();
+  document.getElementById('login-btn').style.display = 'none';
+  document.getElementById('user-area').style.display = 'flex';
+  document.getElementById('display-name').textContent = email.split('@')[0];
+  document.getElementById('profile-name').textContent = email.split('@')[0];
+  await loadProfile();
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = msg;
+  toast.style.display = 'flex';
+  setTimeout(() => toast.style.display = 'none', 2800);
+}
+
+async function logout() {
+  await supabase.auth.signOut();
+  location.reload();
+}
+
+async function init() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    document.getElementById('login-btn').style.display = 'none';
+    document.getElementById('user-area').style.display = 'flex';
+    document.getElementById('display-name').textContent = currentUser.email.split('@')[0];
+    document.getElementById('profile-name').textContent = currentUser.email.split('@')[0];
+    await loadProfile();
+  }
+}
+
+window.onload = init;
+</script>
 </body>
 </html>
