@@ -519,7 +519,7 @@ function welcomeAction(type) {
 }
 
 /* LOGIN & TABS */
-ffunction showMemberTabs() {
+function showMemberTabs() {
   document.getElementById('login-btn').style.display = 'none';
   document.getElementById('user-area').style.display = 'flex';
 
@@ -564,13 +564,12 @@ async function handleLogin() {
   showMemberTabs();
 }
 function closeModal() { document.getElementById('login-modal').style.display = 'none'; }
-fasync function logout() {
+  async function logout() {
   await supabase.auth.signOut();
   currentUser = null;
   location.reload();
 }
-}
-function switchTab(tabId) {
+function switchTab(tabId) }
   document.querySelectorAll('#main-nav a').forEach(a => a.classList.remove('active'));
   const active = Array.from(document.querySelectorAll('#main-nav a')).find(a => a.getAttribute('onclick').includes(tabId));
   if (active) active.classList.add('active');
@@ -587,11 +586,7 @@ function switchTab(tabId) {
 document.getElementById('login-btn').addEventListener('click', () => document.getElementById('login-modal').style.display = 'flex');
 document.getElementById('logout-btn').addEventListener('click', logout);
 
-if (localStorage.getItem('pf_loggedIn') === 'true') {
-  showMemberTabs();
-} else {
-  document.getElementById('apply-card').style.display = 'block';
-}
+
 
 renderTestimonials();
 renderRoadmap();
