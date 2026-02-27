@@ -332,6 +332,8 @@
     .fund-history-row:last-child { border-bottom:none; }
     .fund-hist-icon { width:36px; height:36px; background:rgba(16,185,129,0.12); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
     .fund-hist-icon i { color:var(--primary); font-size:0.85rem; }
+    .stripe-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(99,91,255,0.08); border:1px solid rgba(99,91,255,0.2); color:#7c75ff; font-size:0.72rem; font-weight:700; padding:3px 10px; border-radius:999px; letter-spacing:0.3px; }
+    .stripe-badge i { font-size:0.65rem; }
     .fund-hist-info { flex:1; }
     .fund-hist-info strong { color:white; font-size:0.9rem; display:block; }
     .fund-hist-info span { color:#64748b; font-size:0.78rem; }
@@ -500,8 +502,11 @@
 <!-- FUNDS -->
 <section class="member-section" id="funds">
   <div style="max-width:1100px;margin:0 auto;padding:0 5%;">
-    <h2 style="font-family:'Syne',sans-serif;font-size:2.8rem;font-weight:800;text-align:center;color:white;margin-bottom:0.5rem;">Community Fund</h2>
-    <p style="text-align:center;color:#64748b;margin-bottom:2.5rem;">Every member can add money. The whole community watches it grow. 100% transparent.</p>
+
+    <div style="text-align:center;margin-bottom:2.5rem;">
+      <h2 style="font-family:'Syne',sans-serif;font-size:2.8rem;font-weight:800;color:white;margin-bottom:0.6rem;">Community Fund</h2>
+      <p style="color:#64748b;font-size:1rem;max-width:560px;margin:0 auto;">Every dollar added is visible to every member. Payments powered by Stripe — we never store your card details.</p>
+    </div>
 
     <!-- Big pot display -->
     <div class="fund-pot-hero">
@@ -512,31 +517,96 @@
       </div>
       <div class="fund-pot-goal-text">Goal: <strong id="pot-goal-display">$10,000</strong> — <span id="pot-pct">0%</span> there</div>
       <div class="fund-contributors" id="pot-contributors"></div>
-      <button onclick="showAddFundsModal()" class="add-funds-btn"><i class="fas fa-plus" style="margin-right:8px;"></i>Add to the Fund</button>
+      <button onclick="showAddFundsModal()" class="add-funds-btn">
+        <i class="fas fa-plus" style="margin-right:8px;"></i>Add to the Fund
+      </button>
+      <div style="margin-top:1rem;font-size:0.78rem;color:#4b5563;position:relative;">
+        <i class="fas fa-lock" style="margin-right:5px;"></i>Secured by Stripe &nbsp;·&nbsp; We never store payment info
+      </div>
     </div>
 
     <!-- Stats row -->
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem;">
-      <div class="fund-stat-card"><div class="label">Total Raised</div><div class="value" id="pot-total-stat">$0</div><div class="sub">From community members</div></div>
-      <div class="fund-stat-card"><div class="label">Contributors</div><div class="value" id="pot-contrib-count">0</div><div class="sub change-up">Members who added funds</div></div>
-      <div class="fund-stat-card"><div class="label">Goal</div><div class="value">$10k</div><div class="sub">Community milestone</div></div>
-      <div class="fund-stat-card"><div class="label">Top Contribution</div><div class="value" id="pot-top-contrib">—</div><div class="sub">Single largest add</div></div>
+      <div class="fund-stat-card">
+        <div class="label">Total Raised</div>
+        <div class="value" id="pot-total-stat">$0</div>
+        <div class="sub">From community members</div>
+      </div>
+      <div class="fund-stat-card">
+        <div class="label">Contributors</div>
+        <div class="value" id="pot-contrib-count">0</div>
+        <div class="sub change-up">Members who gave</div>
+      </div>
+      <div class="fund-stat-card">
+        <div class="label">Current Goal</div>
+        <div class="value">$10k</div>
+        <div class="sub">Phase 1 milestone</div>
+      </div>
+      <div class="fund-stat-card">
+        <div class="label">Top Contribution</div>
+        <div class="value" id="pot-top-contrib">—</div>
+        <div class="sub">Single largest add</div>
+      </div>
     </div>
 
     <!-- Recent contributors -->
     <div style="margin-bottom:2rem;">
-      <div class="funds-section-title" style="font-family:'Syne',sans-serif;font-size:1.3rem;color:white;font-weight:700;margin-bottom:1rem;">Recent Contributors</div>
+      <div style="font-family:'Syne',sans-serif;font-size:1.2rem;color:white;font-weight:700;margin-bottom:1rem;">Recent Contributors</div>
       <div class="fund-contrib-grid" id="contrib-cards"></div>
     </div>
 
     <!-- Full history -->
-    <div class="fund-history">
+    <div class="fund-history" style="margin-bottom:2rem;">
       <div class="fund-history-header">
         <h3>📋 Full Transaction History</h3>
         <span style="color:#64748b;font-size:0.82rem;" id="history-count">0 transactions</span>
       </div>
       <div id="fund-history-list"></div>
     </div>
+
+    <!-- Transparency block -->
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:2rem;">
+      <h3 style="font-family:'Syne',sans-serif;color:white;font-size:1.2rem;font-weight:700;margin-bottom:1.4rem;">🔒 How Funds Work</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.2rem;">
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="width:36px;height:36px;background:rgba(16,185,129,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="fas fa-shield-alt" style="color:var(--primary);font-size:0.9rem;"></i>
+          </div>
+          <div>
+            <div style="color:white;font-weight:700;font-size:0.9rem;margin-bottom:3px;">Secure Payments via Stripe</div>
+            <div style="color:#64748b;font-size:0.82rem;line-height:1.5;">All contributions are processed directly through Stripe. We never store card details on this site.</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="width:36px;height:36px;background:rgba(16,185,129,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="fas fa-eye" style="color:var(--primary);font-size:0.9rem;"></i>
+          </div>
+          <div>
+            <div style="color:white;font-weight:700;font-size:0.9rem;margin-bottom:3px;">Full Transparency</div>
+            <div style="color:#64748b;font-size:0.82rem;line-height:1.5;">Every contribution is publicly visible to all verified members. No hidden fees, no surprises.</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="width:36px;height:36px;background:rgba(16,185,129,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="fas fa-rotate" style="color:var(--primary);font-size:0.9rem;"></i>
+          </div>
+          <div>
+            <div style="color:white;font-weight:700;font-size:0.9rem;margin-bottom:3px;">Reinvested into the Community</div>
+            <div style="color:#64748b;font-size:0.82rem;line-height:1.5;">Funds go toward platform growth, member rewards, events, and community initiatives.</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="width:36px;height:36px;background:rgba(16,185,129,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="fas fa-users" style="color:var(--primary);font-size:0.9rem;"></i>
+          </div>
+          <div>
+            <div style="color:white;font-weight:700;font-size:0.9rem;margin-bottom:3px;">Community Governed</div>
+            <div style="color:#64748b;font-size:0.82rem;line-height:1.5;">As the platform scales, verified members will vote on how funds are allocated.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -598,10 +668,15 @@
 
 <!-- ADD FUNDS MODAL -->
 <div id="add-funds-modal" class="modal">
-  <div class="modal-content" style="max-width:460px;">
-    <div style="font-size:2rem;margin-bottom:0.5rem;">💰</div>
-    <h2>Add to the Community Fund</h2>
-    <p style="color:#64748b;margin-bottom:1.2rem;">Your contribution is visible to the entire community.</p>
+  <div class="modal-content" style="max-width:480px;">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;">
+      <div>
+        <div style="font-size:1.8rem;line-height:1;margin-bottom:6px;">💰</div>
+        <h2 style="font-size:1.6rem;margin-bottom:0;">Add to the Fund</h2>
+      </div>
+      <span class="stripe-badge"><i class="fas fa-lock"></i> Secured by Stripe</span>
+    </div>
+    <p style="color:#64748b;margin-bottom:1.4rem;font-size:0.9rem;">Your contribution is visible to every verified member. Select an amount — you'll complete payment securely via Stripe.</p>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;margin-bottom:1rem;">
       <button class="pledge-amount-btn" onclick="selectFundAmount(10,this)">$10</button>
       <button class="pledge-amount-btn" onclick="selectFundAmount(25,this)">$25</button>
@@ -611,8 +686,13 @@
       <button class="pledge-amount-btn" onclick="selectFundAmount(500,this)">$500</button>
     </div>
     <input id="fund-custom-amount" type="number" placeholder="Or enter custom amount ($)" class="form-input" style="margin-bottom:0.8rem;"/>
-    <input id="fund-note" type="text" placeholder="Add a note (optional) — e.g. 'For the community 🙌'" class="form-input" style="margin-bottom:1.2rem;"/>
-    <button onclick="confirmAddFunds()" class="btn" style="width:100%;">Contribute Now 🚀</button>
+    <input id="fund-note" type="text" placeholder="Optional note — e.g. 'For the community 🙌'" class="form-input" style="margin-bottom:1.2rem;"/>
+    <button onclick="confirmAddFunds()" class="btn" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <i class="fas fa-credit-card"></i> Contribute Now
+    </button>
+    <p style="text-align:center;color:#4b5563;font-size:0.73rem;margin-top:0.8rem;">
+      <i class="fas fa-shield-alt" style="margin-right:4px;"></i>Payment processed by Stripe. We never store card details.
+    </p>
     <button onclick="closeModal('add-funds-modal')" class="modal-cancel">Cancel</button>
   </div>
 </div>
@@ -730,8 +810,12 @@
 <script>
 // ── CONFIG ─────────────────────────────────────────────────────────────────
 // ⚠️ SECURITY NOTE: Move access code validation server-side before going to production.
-// Anyone who views page source can see this code. Use a backend auth endpoint instead.
 const ACCESS_CODE = "founder2026";
+// ── STRIPE CONFIG ──────────────────────────────────────────────────────────
+// Paste your Stripe Payment Link URL here when ready.
+// Get it from: dashboard.stripe.com → Payment Links → Create
+// Example: "https://buy.stripe.com/test_xxxxxxxxxxxx"
+const STRIPE_PAYMENT_LINK = ""; // ← Add your Stripe link here
 const CATEGORIES = ["All","Tech","Marketing","Sales","Design","Investing","Operations","Other"];
 
 // ── STATE ──────────────────────────────────────────────────────────────────
@@ -1282,6 +1366,10 @@ function confirmAddFunds() {
   closeModal('add-funds-modal');
   renderFunds();
   showToast(`$${amount} added to the community fund! 🎉`);
+  // Open Stripe Payment Link if configured
+  if (STRIPE_PAYMENT_LINK) {
+    window.open(STRIPE_PAYMENT_LINK, '_blank');
+  }
 }
 
 // ── COMMUNITY FEED ─────────────────────────────────────────────────────────
