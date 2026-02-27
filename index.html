@@ -5,100 +5,244 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pass It Forward</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
-    body { font-family: Arial; text-align: center; padding: 50px; background: #f8fafc; }
-    .btn { padding: 15px 30px; background: #10b981; color: white; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; margin: 10px; }
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; }
-    .modal-content { background: white; padding: 40px; border-radius: 12px; width: 400px; }
-    .level { font-size: 24px; font-weight: bold; margin: 20px 0; color: #10b981; }
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+      background: #f8fafc;
+      margin: 0;
+    }
+
+    .btn {
+      padding: 15px 30px;
+      background: #10b981;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      cursor: pointer;
+      margin: 10px;
+      transition: 0.3s ease;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      width: 400px;
+      max-width: 90%;
+    }
+
+    .level {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 20px 0;
+      color: #10b981;
+    }
+
+    #dashboard {
+      display: none;
+      margin-top: 40px;
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #10b981;
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 999px;
+      display: none;
+    }
   </style>
 </head>
+
 <body>
+
   <h1>Pass It Forward</h1>
   <button class="btn" onclick="showLoginModal()">Member Login</button>
 
+  <!-- LOGIN MODAL -->
   <div id="login-modal" class="modal">
     <div class="modal-content">
       <h2>Member Login</h2>
-      <input id="email" type="email" value="luis_b@hotmail.co.uk" style="width:100%;padding:10px;margin:10px 0;">
+      <input id="email" type="email" placeholder="Email" style="width:100%;padding:10px;margin:10px 0;">
       <input id="password" type="password" placeholder="Password" style="width:100%;padding:10px;margin:10px 0;">
       <button class="btn" onclick="handleLogin()" style="width:100%;margin-top:10px;">Login</button>
       <button onclick="closeModal()" style="margin-top:10px;background:none;border:none;color:#64748b;cursor:pointer;">Cancel</button>
     </div>
   </div>
 
-  <div id="dashboard" style="display:none;">
+  <!-- DASHBOARD -->
+  <div id="dashboard">
     <h2>Welcome back, <span id="display-name"></span> 👋</h2>
+
     <div class="level" id="current-level">Founding Member</div>
-    <div>Points: <span id="points-display" style="font-weight:700;color:#10b981;">0</span></div>
-    <div style="height:10px;background:#e2e8f0;margin:20px auto;width:200px;border-radius:5px;overflow:hidden;">
-      <div id="progress-bar" style="height:100%;background:#10b981;width:0%;"></div>
+
+    <div>
+      Points:
+      <span id="points-display" style="font-weight:700;color:#10b981;">0</span>
     </div>
+
+    <div style="height:10px;background:#e2e8f0;margin:20px auto;width:200px;border-radius:5px;overflow:hidden;">
+      <div id="progress-bar" style="height:100%;background:#10b981;width:0%;transition:0.4s;"></div>
+    </div>
+
     <button onclick="awardTestPoints(10)" class="btn">+10 Test Points</button>
     <button onclick="awardTestPoints(15)" class="btn" style="background:#059669;">+15 Test Points</button>
   </div>
 
-  <div id="toast" style="position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#10b981;color:white;padding:1rem 2rem;border-radius:999px;display:none;"></div>
+  <div id="toast"></div>
 
-  <script>
+<script>
 const SUPABASE_URL = 'https://mdnpnkqjhymxaonssewt.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_1sg7iImUiQ98nPYs9eyDRA_aJM8_sJj';
-const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_ANON_KEY = 'sb_publishable_XXXXXXXX'; // Replace with real key
+
+// ✅ FIXED CLIENT INITIALIZATION
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
 let profile = null;
 
 const levelThresholds = [
-  {name: 'Founding Member', min: 0, max: 10},
-  {name: 'Active Builder', min: 11, max: 30},
-  {name: 'Core Contributor', min: 31, max: 60},
-  {name: 'Community Pillar', min: 61, max: Infinity}
+  { name: 'Founding Member', min: 0, max: 10 },
+  { name: 'Active Builder', min: 11, max: 30 },
+  { name: 'Core Contributor', min: 31, max: 60 },
+  { name: 'Community Pillar', min: 61, max: Infinity }
 ];
 
 function getLevelInfo(points) {
   for (let i = 0; i < levelThresholds.length; i++) {
-    if (points <= levelThresholds[i].max) {
+    const level = levelThresholds[i];
+    if (points >= level.min && points <= level.max) {
+
       const next = levelThresholds[i + 1];
-      const progress = next ? Math.round(((points - levelThresholds[i].min) / (next.min - levelThresholds[i].min)) * 100) : 100;
-      return {name: levelThresholds[i].name, progress, nextLevel: next ? next.name : null, nextPoints: next ? next.min : null};
+      let progress = 100;
+
+      if (next) {
+        const range = next.min - level.min;
+        progress = Math.min(
+          100,
+          Math.round(((points - level.min) / range) * 100)
+        );
+      }
+
+      return {
+        name: level.name,
+        progress,
+        nextLevel: next ? next.name : null
+      };
     }
   }
 }
 
 async function loadProfile() {
   if (!currentUser) return;
-  let { data } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
-  if (!data) {
-    await supabase.from('profiles').insert({ id: currentUser.id, username: currentUser.email });
-    data = (await supabase.from('profiles').select('*').eq('id', currentUser.id).single()).data;
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', currentUser.id)
+    .single();
+
+  if (error && error.code !== "PGRST116") {
+    console.error(error);
+    showToast("Error loading profile");
+    return;
   }
+
+  if (!data) {
+    const { error: insertError } = await supabase
+      .from('profiles')
+      .insert({
+        id: currentUser.id,
+        username: currentUser.email,
+        points: 0
+      });
+
+    if (insertError) {
+      console.error(insertError);
+      return;
+    }
+
+    return loadProfile();
+  }
+
   profile = data;
   updateLevelUI();
 }
 
 function updateLevelUI() {
   if (!profile) return;
+
   const info = getLevelInfo(profile.points);
+
+  document.getElementById('display-name').textContent =
+    profile.username || currentUser.email;
+
   document.getElementById('current-level').textContent = info.name;
   document.getElementById('points-display').textContent = profile.points;
   document.getElementById('progress-bar').style.width = info.progress + '%';
+
   document.getElementById('dashboard').style.display = 'block';
 }
 
 async function awardTestPoints(amount) {
-  if (!currentUser) return showToast("Login first");
-  await supabase.rpc('award_points', { p_amount: amount });
+  if (!currentUser) {
+    showToast("Login first");
+    return;
+  }
+
+  const { error } = await supabase.rpc('award_points', {
+    p_amount: amount
+  });
+
+  if (error) {
+    console.error(error);
+    showToast("Error awarding points");
+    return;
+  }
+
   await loadProfile();
 }
 
-function showLoginModal() { document.getElementById('login-modal').style.display = 'flex'; }
-function closeModal() { document.getElementById('login-modal').style.display = 'none'; }
+function showLoginModal() {
+  document.getElementById('login-modal').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('login-modal').style.display = 'none';
+}
 
 async function handleLogin() {
   const email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value.trim();
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) return showToast("Login failed. Try again or use a new email/password.");
+
+  const { data, error } =
+    await supabase.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    showToast("Login failed.");
+    return;
+  }
+
   currentUser = data.user;
   closeModal();
   await loadProfile();
@@ -108,11 +252,15 @@ function showToast(msg) {
   const toast = document.getElementById('toast');
   toast.textContent = msg;
   toast.style.display = 'block';
-  setTimeout(() => toast.style.display = 'none', 2800);
+
+  setTimeout(() => {
+    toast.style.display = 'none';
+  }, 2800);
 }
 
 async function init() {
   const { data: { session } } = await supabase.auth.getSession();
+
   if (session) {
     currentUser = session.user;
     await loadProfile();
@@ -121,5 +269,6 @@ async function init() {
 
 window.onload = init;
 </script>
+
 </body>
 </html>
