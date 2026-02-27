@@ -28,25 +28,22 @@
 <header>
   <div class="header-inner">
     <div class="logo"><i class="fas fa-arrow-right"></i> Pass It Forward</div>
-    <nav>
-      <a onclick="switchTab('dashboard')">Dashboard</a>
-    </nav>
     <button id="login-btn" class="btn" onclick="showLoginModal()">Member Login</button>
-    <div id="user-area" style="display:none; align-items:center; gap:1rem;">
+    <div id="user-area" style="display:none;align-items:center;gap:1rem;">
       <span style="color:#94a3b8;">Welcome, <strong id="display-name"></strong></span>
       <button onclick="logout()" class="btn" style="background:#64748b;">Logout</button>
     </div>
   </div>
 </header>
 
-<section id="dashboard" style="padding:6rem 5%; max-width:1280px; margin:0 auto;">
-  <div style="background:white; padding:3rem; border-radius:24px; box-shadow:0 10px 40px rgba(0,0,0,0.1);">
+<section id="dashboard" style="padding:6rem 5%;max-width:1280px;margin:0 auto;">
+  <div style="background:white;padding:3rem;border-radius:24px;box-shadow:0 10px 40px rgba(0,0,0,0.1);">
     <h2>Welcome back, <span id="profile-name"></span> 👋</h2>
     <div class="level-section">
       <div class="level-badge"><i class="fas fa-crown"></i> <span id="current-level">Founding Member</span></div>
       <div style="margin:12px 0;font-size:1.1rem;"><span id="points-display" style="font-weight:700;color:var(--primary);">0</span> points</div>
       <div class="progress-container"><div id="progress-bar" class="progress-bar" style="width:0%"></div></div>
-      <small id="next-level-text" style="color:#065f46;">Next: Active Builder at 11 points</small>
+      <small id="next-level-text">Next: Active Builder at 11 points</small>
     </div>
     <button onclick="awardTestPoints(10)" class="btn" style="width:100%;margin:1rem 0;">+10 Test Points (Testimonial)</button>
     <button onclick="awardTestPoints(15)" class="btn" style="width:100%;margin:1rem 0;background:#059669;">+15 Test Points (Opportunity)</button>
@@ -83,10 +80,9 @@ const levelThresholds = [
 function getLevelInfo(points) {
   for (let i = 0; i < levelThresholds.length; i++) {
     if (points <= levelThresholds[i].max) {
-      const current = levelThresholds[i];
       const next = levelThresholds[i + 1];
-      const progress = next ? Math.round(((points - current.min) / (next.min - current.min)) * 100) : 100;
-      return {name: current.name, progress, nextLevel: next ? next.name : null, nextPoints: next ? next.min : null};
+      const progress = next ? Math.round(((points - levelThresholds[i].min) / (next.min - levelThresholds[i].min)) * 100) : 100;
+      return {name: levelThresholds[i].name, progress, nextLevel: next ? next.name : null, nextPoints: next ? next.min : null};
     }
   }
 }
