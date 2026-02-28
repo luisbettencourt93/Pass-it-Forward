@@ -1595,15 +1595,21 @@ function showMemberTabs() {
   currentUser = localStorage.getItem('pf_user');
   document.getElementById('login-btn').style.display = 'none';
   document.getElementById('user-area').style.display = 'flex';
-  document.getElementById('display-name').textContent = currentUser;
-  document.getElementById('profile-name').textContent = currentUser;
+  const dn = document.getElementById('display-name');
+  if (dn) { dn.textContent = currentUser; dn.style.display = 'inline'; }
+  const pn = document.getElementById('profile-name');
+  if (pn) pn.textContent = currentUser;
   document.getElementById('apply-card').style.display = 'none';
-  document.getElementById('add-testimonial-form').style.display = 'block';
+  const atf = document.getElementById('add-testimonial-form');
+  if (atf) atf.style.display = 'block';
   document.querySelectorAll('.member-link').forEach(l => l.style.display = 'block');
+  const nw = document.getElementById('notif-wrap');
+  if (nw) nw.style.display = 'block';
   renderProfile();
   switchTab('dashboard');
   renderGoal();
   refreshTaskUI();
+  renderNotifBell();
   if (!localStorage.getItem('pf_welcomeShown_' + currentUser)) {
     setTimeout(() => showWelcomeModal(), 900);
   }
@@ -1627,7 +1633,7 @@ function logout() {
 
 // ── TABS ──────────────────────────────────────────────────────────────────
 function switchTab(tabId) {
-  const memberTabs = ['vision','testimonials','dashboard','funds','community'];
+  const memberTabs = ['vision','testimonials','dashboard','funds','community','leaderboard','challenges','events','directory','messages','mystats'];
   if (!currentUser && memberTabs.includes(tabId)) {
     showToast("Members only — please login first");
     document.getElementById('login-modal').style.display = 'flex';
@@ -1646,6 +1652,12 @@ function switchTab(tabId) {
       window.scrollTo({ top:0, behavior:'smooth' });
       if (tabId === 'funds') renderFunds();
       if (tabId === 'community') renderCommunity();
+      if (tabId === 'leaderboard') renderLeaderboard();
+      if (tabId === 'challenges') renderChallenges();
+      if (tabId === 'events') renderEvents();
+      if (tabId === 'directory') renderDirectory();
+      if (tabId === 'messages') renderDmSidebar();
+      if (tabId === 'mystats') renderMyStats();
     }
   }
 }
@@ -2629,45 +2641,6 @@ function logXP(type, icon, label, pts) {
   const time = new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
   log.push({ type, icon, label, pts, time });
   localStorage.setItem('pf_xplog_'+currentUser, JSON.stringify(log));
-}
-
-// ── UPDATE switchTab ─────────────────────────────────────────────────────────
-const _baseSwitchTab = switchTab;
-function switchTab(tabId) {
-  const memberTabs = ['vision','testimonials','dashboard','funds','community','leaderboard','challenges','events','directory','messages','mystats'];
-  if (!currentUser && memberTabs.includes(tabId)) {
-    showToast("Members only — please login first");
-    document.getElementById('login-modal').style.display = 'flex';
-    return;
-  }
-  document.querySelectorAll('#main-nav a').forEach(a => a.classList.remove('active'));
-  const active = Array.from(document.querySelectorAll('#main-nav a')).find(a => a.getAttribute('onclick')?.includes("'"+tabId+"'"));
-  if (active) active.classList.add('active');
-  document.querySelectorAll('.member-section').forEach(s => s.style.display = 'none');
-  if (tabId === 'hero') { window.scrollTo({ top:0, behavior:'smooth' }); return; }
-  const sec = document.getElementById(tabId);
-  if (sec) {
-    sec.style.display = 'block';
-    window.scrollTo({ top:0, behavior:'smooth' });
-    if (tabId === 'funds') renderFunds();
-    if (tabId === 'community') renderCommunity();
-    if (tabId === 'leaderboard') renderLeaderboard();
-    if (tabId === 'challenges') renderChallenges();
-    if (tabId === 'events') renderEvents();
-    if (tabId === 'directory') renderDirectory();
-    if (tabId === 'messages') { const t = getDmThreads(); if(Object.keys(t).length) renderDmSidebar(); else renderDmSidebar(); }
-    if (tabId === 'mystats') renderMyStats();
-  }
-}
-
-// Patch showMemberTabs to init new features
-const _baseSMT = showMemberTabs;
-function showMemberTabs() {
-  _baseSMT();
-  document.getElementById('notif-wrap').style.display = 'block';
-  renderNotifBell();
-  // Re-init dm threads for new user
-  dmThreads = getDmThreads();
 }
 
 console.log('%c✅ PASS IT FORWARD v12.0 LIVE 🔥', 'color:#10b981;font-weight:700;font-size:14px');
