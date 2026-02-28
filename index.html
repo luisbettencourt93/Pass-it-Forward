@@ -385,6 +385,194 @@
     .admin-only-note strong { color:white; }
 
     @keyframes pulse { 0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16,185,129,0.4); } 50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(16,185,129,0); } }
+
+    /* ── LIGHT MODE ── */
+    body.light-mode { background:#f0f4f8; color:#1e2d3d; }
+    body.light-mode header { background:rgba(240,244,248,0.95); border-bottom-color:#dde4ee; }
+    body.light-mode nav a { color:#4a6280; }
+    body.light-mode nav a:hover,body.light-mode nav a.active { color:#1e2d3d; }
+    body.light-mode .hero { background:radial-gradient(ellipse at 50% 0%,rgba(16,185,129,0.09),transparent 70%),#f0f4f8; }
+    body.light-mode .hero h1 { color:#1e2d3d; }
+    body.light-mode .hero .lead { color:#4a6280; }
+    body.light-mode .card,body.light-mode .stat-panel,body.light-mode .welcome-card,body.light-mode .profile-panel,
+    body.light-mode .testimonial-card,body.light-mode .add-testimonial,body.light-mode .opportunities-feed,
+    body.light-mode .fund-stat-card,body.light-mode .fund-contrib-card,body.light-mode .fund-history,
+    body.light-mode .fund-pot-hero,body.light-mode .raise-card,body.light-mode .project-fund-card,
+    body.light-mode .modal-content,body.light-mode .comm-post-card,body.light-mode .community-post-box,
+    body.light-mode .roadmap-year-content { background:#ffffff; border-color:#dde4ee; }
+    body.light-mode .form-input { background:#f8fbff; color:#1e2d3d; border-color:#c8d8ea; }
+    body.light-mode .quick-action { background:#f4f8ff; border-color:#dde4ee; }
+    body.light-mode .opp-item strong,body.light-mode .profile-handle,body.light-mode .welcome-card h3,
+    body.light-mode .stat-panel h3,body.light-mode .feed-header h3 { color:#1e2d3d; }
+    body.light-mode .profile-bio { color:#4a6280; }
+    body.light-mode .comm-post-body { color:#334155; }
+    body.light-mode .community-post-box textarea { background:#f4f8ff; color:#1e2d3d; }
+    body.light-mode .add-testimonial textarea { background:#f4f8ff; color:#1e2d3d; }
+    .theme-toggle-btn { background:none; border:1px solid var(--border); color:#64748b; width:32px; height:32px; border-radius:8px; cursor:pointer; font-size:0.82rem; transition:all 0.2s; display:flex; align-items:center; justify-content:center; }
+    .theme-toggle-btn:hover { border-color:var(--primary); color:var(--primary); }
+
+    /* ── NOTIFICATIONS ── */
+    .notif-wrap { position:relative; }
+    .notif-bell { background:none; border:1px solid var(--border); color:#64748b; width:32px; height:32px; border-radius:8px; cursor:pointer; font-size:0.82rem; display:flex; align-items:center; justify-content:center; transition:all 0.2s; position:relative; }
+    .notif-bell:hover { border-color:var(--primary); color:var(--primary); }
+    .notif-pip { position:absolute; top:-4px; right:-4px; width:14px; height:14px; background:#ef4444; border-radius:50%; font-size:0.5rem; font-weight:900; color:white; display:none; align-items:center; justify-content:center; }
+    .notif-pip.on { display:flex; }
+    .notif-dropdown { position:absolute; top:calc(100%+10px); right:0; width:300px; background:var(--card-bg); border:1px solid var(--border); border-radius:16px; box-shadow:0 24px 60px rgba(0,0,0,0.5); z-index:500; display:none; overflow:hidden; animation:fadeDown 0.15s ease; }
+    .notif-dropdown.show { display:block; }
+    .notif-dd-head { padding:0.8rem 1rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+    .notif-dd-head strong { font-family:'Syne',sans-serif; color:white; font-size:0.88rem; }
+    .notif-dd-head button { background:none; border:none; color:#64748b; font-size:0.72rem; cursor:pointer; font-family:'DM Sans',sans-serif; transition:color 0.2s; }
+    .notif-dd-head button:hover { color:var(--primary); }
+    .notif-scroll { max-height:280px; overflow-y:auto; scrollbar-width:thin; }
+    .notif-item { padding:0.75rem 1rem; border-bottom:1px solid var(--border); display:flex; gap:8px; cursor:pointer; transition:background 0.15s; }
+    .notif-item:last-child { border-bottom:none; }
+    .notif-item.unread { background:rgba(16,185,129,0.04); }
+    .notif-item:hover { background:rgba(16,185,129,0.06); }
+    .ni-dot { width:7px; height:7px; border-radius:50%; background:var(--primary); flex-shrink:0; margin-top:5px; }
+    .ni-dot.read { background:var(--border); }
+    .ni-body { flex:1; color:#94a3b8; font-size:0.78rem; line-height:1.5; }
+    .ni-body strong { color:white; }
+    .ni-time { color:#4b5563; font-size:0.68rem; display:block; margin-top:2px; }
+    .notif-empty-msg { padding:1.5rem; text-align:center; color:#4b5563; font-size:0.82rem; }
+
+    /* ── LEADERBOARD ── */
+    .lb-layout { display:grid; grid-template-columns:1fr 220px; gap:1.5rem; align-items:start; }
+    @media(max-width:768px){.lb-layout{grid-template-columns:1fr;}}
+    .lb-tabs { display:flex; gap:0.4rem; margin-bottom:1rem; flex-wrap:wrap; }
+    .lb-tab { background:none; border:1px solid var(--border); color:#64748b; padding:0.28rem 0.8rem; border-radius:8px; font-size:0.75rem; font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
+    .lb-tab.active,.lb-tab:hover { background:rgba(16,185,129,0.1); border-color:var(--primary); color:var(--primary); }
+    .lb-board { background:var(--card-bg); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+    .lb-row { display:flex; align-items:center; gap:10px; padding:0.8rem 1.1rem; border-bottom:1px solid var(--border); }
+    .lb-row:last-child { border-bottom:none; }
+    .lb-rank { font-family:'Syne',sans-serif; font-size:0.9rem; font-weight:800; width:22px; text-align:center; flex-shrink:0; }
+    .lb-rank.g{color:#f59e0b;}.lb-rank.s{color:#94a3b8;}.lb-rank.b{color:#b45309;}.lb-rank.n{color:#4b5563;}
+    .lb-av { width:30px; height:30px; background:rgba(16,185,129,0.15); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:800; color:var(--primary); flex-shrink:0; }
+    .lb-info { flex:1; }
+    .lb-handle { color:white; font-weight:700; font-size:0.84rem; }
+    .lb-detail { color:#64748b; font-size:0.7rem; margin-top:1px; }
+    .lb-score { font-family:'Syne',sans-serif; font-weight:800; color:var(--primary); font-size:0.88rem; }
+    .lb-side { }
+    .lb-side-box { background:var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:1.1rem; margin-bottom:1rem; }
+    .lb-side-box h4 { font-family:'Syne',sans-serif; color:white; font-size:0.85rem; font-weight:700; margin-bottom:0.7rem; }
+    .lb-side-row { display:flex; justify-content:space-between; align-items:center; padding:0.35rem 0; border-bottom:1px solid var(--border); font-size:0.78rem; }
+    .lb-side-row:last-child { border-bottom:none; }
+    .lb-side-row span:first-child { color:#64748b; }
+    .lb-side-row span:last-child { color:white; font-weight:700; font-family:'Syne',sans-serif; }
+
+    /* ── WEEKLY CHALLENGES ── */
+    .ch-countdown { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:0.8rem 1.2rem; display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:0.5rem; }
+    .ch-countdown .cc-label { color:#64748b; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
+    .ch-countdown .cc-time { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:800; color:white; }
+    .ch-card { background:var(--card-bg); border:1px solid var(--border); border-radius:16px; padding:1.3rem; margin-bottom:0.8rem; transition:border-color 0.2s; }
+    .ch-card:hover { border-color:rgba(16,185,129,0.2); }
+    .ch-card.done { border-color:rgba(16,185,129,0.35); background:rgba(16,185,129,0.04); }
+    .ch-head { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; margin-bottom:0.7rem; }
+    .ch-title { font-family:'Syne',sans-serif; color:white; font-size:0.9rem; font-weight:700; margin-bottom:3px; }
+    .ch-desc { color:#64748b; font-size:0.8rem; line-height:1.5; }
+    .ch-xp { background:rgba(245,158,11,0.1); color:#f59e0b; border:1px solid rgba(245,158,11,0.2); padding:2px 8px; border-radius:999px; font-size:0.67rem; font-weight:800; white-space:nowrap; }
+    .ch-done-tag { background:rgba(16,185,129,0.1); color:var(--primary); border:1px solid rgba(16,185,129,0.25); padding:2px 8px; border-radius:999px; font-size:0.67rem; font-weight:800; }
+    .ch-prog { margin-top:0.8rem; }
+    .ch-prog-bar { height:5px; background:#0a0f1e; border-radius:999px; overflow:hidden; border:1px solid var(--border); margin-bottom:4px; }
+    .ch-prog-fill { height:100%; background:linear-gradient(to right,var(--primary),#34d399); border-radius:999px; transition:width 0.4s; }
+    .ch-prog-labels { font-size:0.7rem; color:#64748b; display:flex; justify-content:space-between; }
+
+    /* ── EVENTS ── */
+    .ev-card { background:var(--card-bg); border:1px solid var(--border); border-radius:16px; padding:1.3rem; margin-bottom:0.8rem; transition:border-color 0.2s; }
+    .ev-card:hover { border-color:rgba(16,185,129,0.2); }
+    .ev-top { display:flex; gap:1rem; align-items:flex-start; margin-bottom:0.9rem; }
+    .ev-datebox { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); border-radius:10px; padding:0.45rem 0.75rem; text-align:center; flex-shrink:0; min-width:48px; }
+    .ev-datebox .ev-day { font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:800; color:var(--primary); line-height:1; }
+    .ev-datebox .ev-mon { color:#64748b; font-size:0.6rem; text-transform:uppercase; letter-spacing:1px; }
+    .ev-title { font-family:'Syne',sans-serif; color:white; font-size:0.92rem; font-weight:700; margin-bottom:3px; }
+    .ev-desc { color:#64748b; font-size:0.8rem; line-height:1.5; }
+    .ev-meta { display:flex; gap:0.8rem; font-size:0.74rem; color:#64748b; flex-wrap:wrap; margin-top:0.5rem; }
+    .ev-meta i { color:var(--primary); font-size:0.68rem; }
+    .ev-footer { display:flex; gap:0.6rem; align-items:center; }
+    .ev-rsvp { background:var(--primary); color:#0a0f1e; border:none; padding:0.38rem 1rem; border-radius:999px; font-weight:700; font-size:0.78rem; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
+    .ev-rsvp:hover { background:var(--primary-dark); }
+    .ev-rsvp.going { background:rgba(16,185,129,0.12); color:var(--primary); border:1px solid rgba(16,185,129,0.3); }
+    .ev-rsvp-count { color:#64748b; font-size:0.75rem; }
+    .ev-post-btn { background:rgba(16,185,129,0.05); border:1.5px dashed rgba(16,185,129,0.25); color:var(--primary); border-radius:14px; padding:1.2rem; width:100%; text-align:center; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:0.85rem; font-weight:600; transition:all 0.2s; display:block; margin-top:0.5rem; }
+    .ev-post-btn:hover { background:rgba(16,185,129,0.1); }
+
+    /* ── MEMBER DIRECTORY ── */
+    .dir-search { width:100%; padding:0.8rem 1rem; background:var(--card-bg); border:1.5px solid var(--border); border-radius:12px; color:white; font-size:0.9rem; font-family:'DM Sans',sans-serif; margin-bottom:1rem; transition:border-color 0.2s; }
+    .dir-search:focus { outline:none; border-color:var(--primary); }
+    .dir-search::placeholder { color:#4b5563; }
+    .dir-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:1rem; }
+    .dir-card { background:var(--card-bg); border:1px solid var(--border); border-radius:16px; padding:1.3rem; transition:border-color 0.2s; }
+    .dir-card:hover { border-color:rgba(16,185,129,0.25); transform:translateY(-2px); }
+    .dir-av { width:40px; height:40px; background:rgba(16,185,129,0.15); border:1.5px solid rgba(16,185,129,0.3); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:0.85rem; font-weight:800; color:var(--primary); margin-bottom:0.75rem; }
+    .dir-name { font-family:'Syne',sans-serif; font-size:0.9rem; font-weight:700; color:white; margin-bottom:3px; }
+    .dir-bio { color:#64748b; font-size:0.77rem; line-height:1.5; margin:0.4rem 0 0.6rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:2.2em; }
+    .dir-tags { display:flex; flex-wrap:wrap; gap:0.3rem; margin-bottom:0.75rem; }
+    .dir-tag { background:#0a0f1e; border:1px solid var(--border); color:#94a3b8; padding:1px 6px; border-radius:4px; font-size:0.67rem; }
+    .dir-foot { display:flex; justify-content:space-between; align-items:center; padding-top:0.7rem; border-top:1px solid var(--border); }
+    .dir-xl { color:var(--primary); font-size:0.72rem; text-decoration:none; display:flex; align-items:center; gap:4px; }
+    .dir-xl:hover { opacity:0.7; }
+    .dir-dm-btn { background:none; border:1px solid var(--border); color:#64748b; padding:0.2rem 0.6rem; border-radius:6px; font-size:0.68rem; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
+    .dir-dm-btn:hover { border-color:var(--primary); color:var(--primary); }
+
+    /* ── DM INBOX ── */
+    .dm-shell { display:grid; grid-template-columns:220px 1fr; gap:0; border:1px solid var(--border); border-radius:18px; overflow:hidden; }
+    @media(max-width:768px){.dm-shell{grid-template-columns:1fr;}}
+    .dm-left { border-right:1px solid var(--border); background:var(--card-bg); }
+    .dm-left-head { padding:0.85rem 1rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+    .dm-left-head strong { font-family:'Syne',sans-serif; color:white; font-size:0.85rem; font-weight:700; }
+    .dm-new-btn { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); color:var(--primary); padding:0.2rem 0.6rem; border-radius:7px; font-size:0.68rem; font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
+    .dm-new-btn:hover { background:rgba(16,185,129,0.2); }
+    .dm-thread-list { max-height:420px; overflow-y:auto; scrollbar-width:thin; }
+    .dm-thread { display:flex; gap:8px; align-items:center; padding:0.7rem 0.9rem; border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.15s; }
+    .dm-thread:hover,.dm-thread.active { background:rgba(16,185,129,0.05); }
+    .dm-thread-av { width:30px; height:30px; background:rgba(16,185,129,0.15); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:0.62rem; font-weight:800; color:var(--primary); flex-shrink:0; }
+    .dm-thread-info { flex:1; min-width:0; }
+    .dm-thread-handle { color:white; font-weight:700; font-size:0.78rem; }
+    .dm-thread-preview { color:#64748b; font-size:0.68rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .dm-unread-pip { width:6px; height:6px; background:var(--primary); border-radius:50%; flex-shrink:0; }
+    .dm-right { background:var(--dark); display:flex; flex-direction:column; min-height:460px; }
+    .dm-right-head { padding:0.8rem 1.1rem; border-bottom:1px solid var(--border); background:var(--card-bg); }
+    .dm-right-head strong { color:white; font-family:'Syne',sans-serif; font-size:0.88rem; }
+    .dm-msgs { flex:1; overflow-y:auto; padding:0.9rem; display:flex; flex-direction:column; gap:0.6rem; scrollbar-width:thin; min-height:280px; max-height:310px; }
+    .dm-bubble-wrap { max-width:75%; display:flex; flex-direction:column; }
+    .dm-bubble-wrap.me { align-self:flex-end; align-items:flex-end; }
+    .dm-bubble-wrap.them { align-self:flex-start; }
+    .dm-bubble { padding:0.55rem 0.85rem; border-radius:14px; font-size:0.82rem; line-height:1.5; }
+    .dm-bubble-wrap.them .dm-bubble { background:var(--card-bg); border:1px solid var(--border); color:#cbd5e1; border-radius:14px 14px 14px 4px; }
+    .dm-bubble-wrap.me .dm-bubble { background:var(--primary); color:#0a0f1e; border-radius:14px 14px 4px 14px; font-weight:500; }
+    .dm-msg-time { font-size:0.62rem; color:#4b5563; margin-top:2px; }
+    .dm-no-thread { flex:1; display:flex; align-items:center; justify-content:center; color:#4b5563; font-size:0.85rem; text-align:center; flex-direction:column; gap:0.4rem; padding:2rem; }
+    .dm-compose { padding:0.75rem 0.9rem; border-top:1px solid var(--border); background:var(--card-bg); display:flex; gap:0.5rem; }
+    .dm-compose-input { flex:1; background:var(--dark); border:1px solid var(--border); border-radius:9px; color:white; font-family:'DM Sans',sans-serif; font-size:0.8rem; padding:0.5rem 0.8rem; transition:border-color 0.2s; }
+    .dm-compose-input:focus { outline:none; border-color:var(--primary); }
+    .dm-compose-input::placeholder { color:#4b5563; }
+    .dm-compose-send { background:var(--primary); color:#0a0f1e; border:none; border-radius:9px; padding:0.5rem 0.85rem; font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:0.78rem; transition:all 0.2s; }
+    .dm-compose-send:hover { background:var(--primary-dark); }
+
+    /* ── PERSONAL STATS ── */
+    .stats-hero-card { background:linear-gradient(135deg,rgba(16,185,129,0.08),transparent),var(--card-bg); border:1px solid rgba(16,185,129,0.2); border-radius:20px; padding:2rem; margin-bottom:1.5rem; display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap; }
+    .stats-big-av { width:64px; height:64px; background:rgba(16,185,129,0.15); border:2px solid rgba(16,185,129,0.3); border-radius:14px; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; color:var(--primary); flex-shrink:0; }
+    .stats-hero-text h2 { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; color:white; margin-bottom:3px; }
+    .stats-hero-text p { color:#64748b; font-size:0.83rem; }
+    .stats-nums { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:1rem; margin-bottom:1.5rem; }
+    .snum-box { background:var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:1.1rem; text-align:center; }
+    .snum-box .sv { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; color:var(--primary); line-height:1; }
+    .snum-box .sl { color:#64748b; font-size:0.68rem; margin-top:4px; text-transform:uppercase; letter-spacing:0.8px; }
+    .xp-log { background:var(--card-bg); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+    .xp-log-head { padding:0.9rem 1.3rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+    .xp-log-head h3 { font-family:'Syne',sans-serif; color:white; font-size:0.9rem; font-weight:700; }
+    .xp-log-row { display:flex; align-items:center; gap:10px; padding:0.75rem 1.3rem; border-bottom:1px solid var(--border); }
+    .xp-log-row:last-child { border-bottom:none; }
+    .xp-log-icon { width:28px; height:28px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:0.7rem; flex-shrink:0; }
+    .xp-log-icon.opp{background:rgba(16,185,129,0.12);color:var(--primary);}
+    .xp-log-icon.post{background:rgba(59,130,246,0.12);color:#60a5fa;}
+    .xp-log-icon.test{background:rgba(245,158,11,0.12);color:#f59e0b;}
+    .xp-log-icon.goal{background:rgba(168,85,247,0.12);color:#a78bfa;}
+    .xp-log-body { flex:1; }
+    .xp-log-body strong { color:white; font-size:0.82rem; display:block; }
+    .xp-log-body span { color:#64748b; font-size:0.7rem; }
+    .xp-log-pts { font-family:'Syne',sans-serif; color:var(--primary); font-weight:800; font-size:0.82rem; white-space:nowrap; }
+
+    @keyframes fadeDown { from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);} }
   </style>
 </head>
 <body>
@@ -394,16 +582,36 @@
     <div class="logo"><i class="fas fa-arrow-right-arrow-left"></i> Pass It Forward</div>
     <nav id="main-nav">
       <a onclick="switchTab('hero');return false">Home</a>
-      <a onclick="switchTab('vision');return false" class="member-link">Roadmap</a>
-      <a onclick="switchTab('testimonials');return false" class="member-link">Testimonials</a>
       <a onclick="switchTab('dashboard');return false" class="member-link">Dashboard</a>
-      <a onclick="switchTab('funds');return false" class="member-link">Funds</a>
       <a onclick="switchTab('community');return false" class="member-link">Community</a>
+      <a onclick="switchTab('events');return false" class="member-link">Events</a>
+      <a onclick="switchTab('leaderboard');return false" class="member-link">Leaderboard</a>
+      <a onclick="switchTab('directory');return false" class="member-link">Directory</a>
+      <a onclick="switchTab('messages');return false" class="member-link">Messages</a>
+      <a onclick="switchTab('funds');return false" class="member-link">Funds</a>
+      <a onclick="switchTab('mystats');return false" class="member-link">My Stats</a>
+      <a onclick="switchTab('vision');return false" class="member-link">Roadmap</a>
     </nav>
-    <div id="auth-area">
+    <div id="auth-area" style="display:flex;align-items:center;gap:0.5rem;">
+      <button class="theme-toggle-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle light/dark mode">
+        <i class="fas fa-moon" id="theme-icon"></i>
+      </button>
+      <div class="notif-wrap" id="notif-wrap" style="display:none;">
+        <button class="notif-bell" onclick="toggleNotifPanel(event)" title="Notifications">
+          <i class="fas fa-bell"></i>
+          <div class="notif-pip" id="notif-pip"></div>
+        </button>
+        <div class="notif-dropdown" id="notif-dropdown">
+          <div class="notif-dd-head">
+            <strong>Notifications</strong>
+            <button onclick="markAllNotifsRead()">Mark all read</button>
+          </div>
+          <div class="notif-scroll" id="notif-list"></div>
+        </div>
+      </div>
       <button id="login-btn" class="btn btn-sm">Member Login</button>
-      <div id="user-area" style="display:none; align-items:center; gap:1rem;">
-        <span style="color:#64748b; font-size:0.9rem;">Welcome, <strong id="display-name" style="color:white;"></strong></span>
+      <div id="user-area" style="display:none; align-items:center; gap:0.5rem;">
+        <strong id="display-name" style="color:white;font-size:0.88rem;display:none;" class="member-link"></strong>
         <button id="logout-btn" class="btn btn-sm" style="background:#1e2a3a; color:#94a3b8;">Logout</button>
       </div>
     </div>
@@ -765,6 +973,123 @@
   </div>
 </div>
 
+<!-- LEADERBOARD -->
+<section class="member-section" id="leaderboard">
+  <div style="max-width:1000px;margin:0 auto;padding:0 5%;">
+    <h2 style="font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;color:white;text-align:center;margin-bottom:0.5rem;">Leaderboard</h2>
+    <p style="text-align:center;color:#64748b;margin-bottom:2rem;">The community's top builders, ranked by activity and contribution.</p>
+    <div class="lb-layout">
+      <div>
+        <div class="lb-tabs" id="lb-tabs">
+          <button class="lb-tab active" onclick="setLbTab('xp',this)">⭐ XP</button>
+          <button class="lb-tab" onclick="setLbTab('opps',this)">🔥 Opportunities</button>
+          <button class="lb-tab" onclick="setLbTab('posts',this)">💬 Community Posts</button>
+          <button class="lb-tab" onclick="setLbTab('fund',this)">💰 Fund Contributions</button>
+        </div>
+        <div class="lb-board" id="lb-board"></div>
+      </div>
+      <div class="lb-side">
+        <div class="lb-side-box">
+          <h4>🏆 This Week's MVP</h4>
+          <div id="lb-mvp" style="text-align:center;padding:0.5rem 0;">
+            <div style="font-size:2rem;margin-bottom:4px;">👑</div>
+            <div style="font-family:'Syne',sans-serif;color:white;font-weight:700;" id="lb-mvp-handle">—</div>
+            <div style="color:#64748b;font-size:0.75rem;margin-top:3px;">Most active this week</div>
+          </div>
+        </div>
+        <div class="lb-side-box">
+          <h4>📊 Community Stats</h4>
+          <div class="lb-side-row"><span>Total Members</span><span id="lb-total-members">—</span></div>
+          <div class="lb-side-row"><span>Opps Posted</span><span id="lb-total-opps">—</span></div>
+          <div class="lb-side-row"><span>Community Posts</span><span id="lb-total-posts">—</span></div>
+          <div class="lb-side-row"><span>Total XP Earned</span><span id="lb-total-xp">—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WEEKLY CHALLENGES -->
+<section class="member-section" id="challenges">
+  <div style="max-width:800px;margin:0 auto;padding:0 5%;">
+    <h2 style="font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;color:white;text-align:center;margin-bottom:0.5rem;">Weekly Challenges</h2>
+    <p style="text-align:center;color:#64748b;margin-bottom:2rem;">Complete challenges to earn bonus XP. Resets every Monday.</p>
+    <div class="ch-countdown">
+      <div><div class="cc-label">Resets in</div><div class="cc-time" id="ch-countdown">—</div></div>
+      <div style="text-align:right;"><div class="cc-label">Your progress</div><div class="cc-time" id="ch-progress-text">—</div></div>
+    </div>
+    <div id="challenges-list"></div>
+  </div>
+</section>
+
+<!-- EVENTS BOARD -->
+<section class="member-section" id="events">
+  <div style="max-width:900px;margin:0 auto;padding:0 5%;">
+    <h2 style="font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;color:white;text-align:center;margin-bottom:0.5rem;">Events Board</h2>
+    <p style="text-align:center;color:#64748b;margin-bottom:2rem;">Calls, workshops, and collabs — posted by members, open to all.</p>
+    <div id="events-list"></div>
+    <button class="ev-post-btn" onclick="showEventModal()">
+      <i class="fas fa-plus" style="margin-right:8px;"></i>Post an Event or Call
+    </button>
+  </div>
+</section>
+
+<!-- MEMBER DIRECTORY -->
+<section class="member-section" id="directory">
+  <div style="max-width:1100px;margin:0 auto;padding:0 5%;">
+    <h2 style="font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;color:white;text-align:center;margin-bottom:0.5rem;">Member Directory</h2>
+    <p style="text-align:center;color:#64748b;margin-bottom:1.5rem;">Find the right people. Search by name or skill.</p>
+    <input type="text" class="dir-search" id="dir-search" placeholder="Search by handle or skill..." oninput="renderDirectory()"/>
+    <div class="dir-grid" id="dir-grid"></div>
+  </div>
+</section>
+
+<!-- DIRECT MESSAGES -->
+<section class="member-section" id="messages">
+  <div style="max-width:900px;margin:0 auto;padding:0 5%;">
+    <h2 style="font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;color:white;text-align:center;margin-bottom:0.5rem;">Messages</h2>
+    <p style="text-align:center;color:#64748b;margin-bottom:2rem;">Private conversations with other members.</p>
+    <div class="dm-shell">
+      <div class="dm-left">
+        <div class="dm-left-head">
+          <strong>Conversations</strong>
+          <button class="dm-new-btn" onclick="showNewDmModal()">+ New</button>
+        </div>
+        <div class="dm-thread-list" id="dm-thread-list"></div>
+      </div>
+      <div class="dm-right" id="dm-right">
+        <div class="dm-no-thread">
+          <div style="font-size:2rem;">💬</div>
+          <div>Select a conversation or start a new one</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PERSONAL STATS -->
+<section class="member-section" id="mystats">
+  <div style="max-width:900px;margin:0 auto;padding:0 5%;">
+    <h2 style="font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;color:white;text-align:center;margin-bottom:0.5rem;">My Stats</h2>
+    <p style="text-align:center;color:#64748b;margin-bottom:2rem;">Your full history and impact on the community.</p>
+    <div class="stats-hero-card">
+      <div class="stats-big-av" id="stats-av">?</div>
+      <div class="stats-hero-text">
+        <h2 id="stats-handle">—</h2>
+        <p id="stats-level-text">Founding Member · 0 XP</p>
+      </div>
+    </div>
+    <div class="stats-nums" id="stats-nums"></div>
+    <div class="xp-log">
+      <div class="xp-log-head">
+        <h3>XP Activity Log</h3>
+        <span style="color:#64748b;font-size:0.75rem;" id="xp-log-count">0 events</span>
+      </div>
+      <div id="xp-log-body"></div>
+    </div>
+  </div>
+</section>
+
 <footer>
   <p>© 2026 Pass It Forward — Building serious opportunity infrastructure</p>
 </footer>
@@ -867,6 +1192,45 @@
     </div>
     <button onclick="closeWelcome()" class="btn" style="width:100%;">Let's build the future 🚀</button>
     <button onclick="closeModal('welcome-modal')" class="modal-cancel">Skip for now</button>
+  </div>
+</div>
+
+<!-- POST EVENT MODAL -->
+<div id="event-modal" class="modal">
+  <div class="modal-content" style="max-width:500px;text-align:left;">
+    <h2 style="text-align:center;">Post an Event 📅</h2>
+    <p style="text-align:center;color:#64748b;margin-bottom:1.5rem;font-size:0.88rem;">Calls, workshops, collabs, AMAs — anything the community should know about.</p>
+    <input id="ev-title" type="text" placeholder="Event title" class="form-input" style="margin-bottom:0.8rem;"/>
+    <textarea id="ev-desc" placeholder="What's it about? Who should come?" class="form-input" style="height:80px;resize:vertical;margin-bottom:0.8rem;"></textarea>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:0.8rem;">
+      <input id="ev-day" type="number" placeholder="Day (1-31)" class="form-input" style="margin:0;" min="1" max="31"/>
+      <select id="ev-month" class="form-input form-select" style="margin:0;">
+        <option value="">Month</option>
+        <option>Jan</option><option>Feb</option><option>Mar</option><option>Apr</option><option>May</option><option>Jun</option>
+        <option>Jul</option><option>Aug</option><option>Sep</option><option>Oct</option><option>Nov</option><option>Dec</option>
+      </select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:1.2rem;">
+      <input id="ev-time" type="text" placeholder="Time (e.g. 7pm UTC)" class="form-input" style="margin:0;"/>
+      <select id="ev-type" class="form-input form-select" style="margin:0;">
+        <option value="">Type</option>
+        <option>Live Call</option><option>Workshop</option><option>AMA</option><option>Networking</option><option>Other</option>
+      </select>
+    </div>
+    <button onclick="submitEvent()" class="btn" style="width:100%;">Post Event</button>
+    <button onclick="closeModal('event-modal')" class="modal-cancel" style="display:block;width:100%;margin-top:0.5rem;">Cancel</button>
+  </div>
+</div>
+
+<!-- NEW DM MODAL -->
+<div id="new-dm-modal" class="modal">
+  <div class="modal-content" style="max-width:420px;">
+    <h2>New Message 💬</h2>
+    <p style="color:#64748b;margin-bottom:1.2rem;">Start a conversation with any member.</p>
+    <input id="dm-to-handle" type="text" placeholder="X Handle (@member)" class="form-input" style="margin-bottom:0.8rem;"/>
+    <textarea id="dm-first-msg" placeholder="Write your first message..." class="form-input" style="height:90px;resize:vertical;margin-bottom:1rem;"></textarea>
+    <button onclick="sendNewDm()" class="btn" style="width:100%;">Send Message</button>
+    <button onclick="closeModal('new-dm-modal')" class="modal-cancel">Cancel</button>
   </div>
 </div>
 
@@ -1812,7 +2176,501 @@ function postOpportunity() {
   }
 }
 
-console.log('%c✅ PASS IT FORWARD v8.0 LIVE 🔥', 'color:#10b981;font-weight:700;font-size:14px');
+// ── LIGHT/DARK MODE ────────────────────────────────────────────────────────
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light-mode');
+  localStorage.setItem('pf_theme', isLight ? 'light' : 'dark');
+  document.getElementById('theme-icon').className = isLight ? 'fas fa-sun' : 'fas fa-moon';
+}
+if (localStorage.getItem('pf_theme') === 'light') {
+  document.body.classList.add('light-mode');
+  const ti = document.getElementById('theme-icon');
+  if (ti) ti.className = 'fas fa-sun';
+}
+
+// ── NOTIFICATIONS ───────────────────────────────────────────────────────────
+let notifications = JSON.parse(localStorage.getItem('pf_notifs') || '[]');
+function saveNotifs() { localStorage.setItem('pf_notifs', JSON.stringify(notifications)); }
+
+function addNotif(text, tabTarget) {
+  notifications.unshift({ id: Date.now(), text, tab: tabTarget || null, read: false, time: 'Just now' });
+  if (notifications.length > 30) notifications = notifications.slice(0, 30);
+  saveNotifs();
+  renderNotifBell();
+}
+function renderNotifBell() {
+  const pip = document.getElementById('notif-pip');
+  const list = document.getElementById('notif-list');
+  if (!pip || !list) return;
+  const unread = notifications.filter(n => !n.read).length;
+  if (unread > 0) { pip.textContent = unread > 9 ? '9+' : unread; pip.classList.add('on'); }
+  else { pip.textContent = ''; pip.classList.remove('on'); }
+  if (!notifications.length) {
+    list.innerHTML = `<div class="notif-empty-msg">No notifications yet — start participating!</div>`;
+    return;
+  }
+  list.innerHTML = notifications.map(n => `
+    <div class="notif-item ${n.read ? '' : 'unread'}" onclick="readNotif(${n.id})">
+      <div class="ni-dot ${n.read ? 'read' : ''}"></div>
+      <div class="ni-body">${sanitize(n.text)}<span class="ni-time">${sanitize(n.time)}</span></div>
+    </div>`).join('');
+}
+function readNotif(id) {
+  const n = notifications.find(x => x.id === id);
+  if (n) { n.read = true; saveNotifs(); renderNotifBell(); }
+}
+function markAllNotifsRead() {
+  notifications.forEach(n => n.read = true);
+  saveNotifs(); renderNotifBell();
+  document.getElementById('notif-dropdown').classList.remove('show');
+}
+function toggleNotifPanel(e) {
+  e && e.stopPropagation();
+  document.getElementById('notif-dropdown').classList.toggle('show');
+}
+document.addEventListener('click', e => {
+  const w = document.getElementById('notif-wrap');
+  if (w && !w.contains(e.target)) document.getElementById('notif-dropdown')?.classList.remove('show');
+});
+
+// ── LEADERBOARD ─────────────────────────────────────────────────────────────
+let lbTab = 'xp';
+const DEMO_MEMBERS = [
+  { handle:'@BuilderMindset', xp:840, opps:7, posts:23, fund:250 },
+  { handle:'@CapitalBuilder',  xp:720, opps:4, posts:18, fund:500 },
+  { handle:'@GrowthHustle',   xp:610, opps:5, posts:29, fund:100 },
+  { handle:'@DevLaunch',      xp:490, opps:6, posts:12, fund:50  },
+  { handle:'@MarketMaker',    xp:380, opps:3, posts:9,  fund:250 },
+  { handle:'@SaaSFounder',    xp:270, opps:2, posts:7,  fund:0   },
+  { handle:'@DesignPro',      xp:190, opps:1, posts:14, fund:25  },
+  { handle:'@CloserKing',     xp:140, opps:2, posts:5,  fund:100 },
+];
+function getLbData() {
+  const me = currentUser ? { handle: currentUser,
+    xp: getXp(), opps: opportunities.filter(o=>o.poster===currentUser).length,
+    posts: (JSON.parse(localStorage.getItem('pf_community')||'[]')).filter(p=>p.handle===currentUser).length,
+    fund: (JSON.parse(localStorage.getItem('pf_contributions')||'[]')).filter(c=>c.handle===currentUser).reduce((s,c)=>s+c.amount,0)
+  } : null;
+  let all = [...DEMO_MEMBERS];
+  if (me && !all.find(m=>m.handle===me.handle)) all.push(me);
+  else if (me) { const idx = all.findIndex(m=>m.handle===me.handle); if(idx>=0) all[idx] = {...all[idx],...me}; }
+  return all;
+}
+function setLbTab(tab, btn) {
+  lbTab = tab;
+  document.querySelectorAll('.lb-tab').forEach(b=>b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderLeaderboard();
+}
+function renderLeaderboard() {
+  const board = document.getElementById('lb-board');
+  if (!board) return;
+  const data = getLbData().sort((a,b) => b[lbTab] - a[lbTab]);
+  const rankClass = i => i===0?'g':i===1?'s':i===2?'b':'n';
+  const rankEmoji = i => i===0?'🥇':i===1?'🥈':i===2?'🥉':''+(i+1);
+  const scoreLabel = { xp:'XP', opps:'opps', posts:'posts', fund:'contributed' };
+  const fmtScore = (m,t) => t==='fund' ? '$'+m[t].toLocaleString() : m[t].toLocaleString();
+  board.innerHTML = data.map((m,i) => `
+    <div class="lb-row" style="${m.handle===currentUser?'background:rgba(16,185,129,0.05);':''}">
+      <div class="lb-rank ${rankClass(i)}">${rankEmoji(i)}</div>
+      <div class="lb-av">${m.handle.replace('@','').substring(0,2).toUpperCase()}</div>
+      <div class="lb-info">
+        <div class="lb-handle">${sanitize(m.handle)}${m.handle===currentUser?' <span style="color:#64748b;font-size:0.68rem;">(you)</span>':''}</div>
+        <div class="lb-detail">${fmtScore(m,lbTab)} ${scoreLabel[lbTab]}</div>
+      </div>
+      <div class="lb-score">${fmtScore(m,lbTab)}</div>
+    </div>`).join('');
+  // MVP
+  const mvp = getLbData().sort((a,b)=>b.xp-a.xp)[0];
+  const mvpEl = document.getElementById('lb-mvp-handle');
+  if (mvpEl) mvpEl.textContent = mvp.handle;
+  // Stats
+  const all = getLbData();
+  const s = id => document.getElementById(id);
+  if(s('lb-total-members')) s('lb-total-members').textContent = all.length;
+  if(s('lb-total-opps')) s('lb-total-opps').textContent = all.reduce((a,m)=>a+m.opps,0);
+  if(s('lb-total-posts')) s('lb-total-posts').textContent = all.reduce((a,m)=>a+m.posts,0);
+  if(s('lb-total-xp')) s('lb-total-xp').textContent = all.reduce((a,m)=>a+m.xp,0).toLocaleString();
+}
+
+// ── WEEKLY CHALLENGES ────────────────────────────────────────────────────────
+const WEEKLY_CHALLENGES = [
+  { id:'w1', title:'Post an Opportunity', desc:'Share what you need or what you can offer with the community.', xp:20, target:1, key:'opps' },
+  { id:'w2', title:'Leave 3 Community Posts', desc:'Join the conversation — share wins, questions, or resources.', xp:15, target:3, key:'posts' },
+  { id:'w3', title:'Express Interest in 5 Opportunities', desc:'Click the fire button on 5 opportunities that catch your eye.', xp:10, target:5, key:'interests' },
+  { id:'w4', title:'Update Your Profile', desc:'Add or update your bio and skills so others know what you bring.', xp:10, target:1, key:'profile' },
+  { id:'w5', title:'Send a DM', desc:'Reach out to another member directly.', xp:15, target:1, key:'dms' },
+];
+function getWeeklyProgress() {
+  return JSON.parse(localStorage.getItem('pf_weekly_' + currentUser + '_' + getWeekKey()) || '{}');
+}
+function getWeekKey() {
+  const d = new Date(); const day = d.getDay();
+  const monday = new Date(d); monday.setDate(d.getDate() - (day===0?6:day-1));
+  return monday.toISOString().split('T')[0];
+}
+function incrementWeekly(key, amount) {
+  if (!currentUser) return;
+  const prog = getWeeklyProgress();
+  prog[key] = (prog[key] || 0) + (amount || 1);
+  localStorage.setItem('pf_weekly_' + currentUser + '_' + getWeekKey(), JSON.stringify(prog));
+  renderChallenges();
+}
+function renderChallenges() {
+  const list = document.getElementById('challenges-list');
+  if (!list) return;
+  const prog = getWeeklyProgress();
+  const done = WEEKLY_CHALLENGES.filter(c => (prog[c.key]||0) >= c.target).length;
+  const ptxt = document.getElementById('ch-progress-text');
+  if (ptxt) ptxt.textContent = `${done} / ${WEEKLY_CHALLENGES.length} done`;
+  list.innerHTML = WEEKLY_CHALLENGES.map(c => {
+    const cur = Math.min(prog[c.key]||0, c.target);
+    const isDone = cur >= c.target;
+    const pct = Math.round((cur/c.target)*100);
+    return `<div class="ch-card ${isDone?'done':''}">
+      <div class="ch-head">
+        <div>
+          <div class="ch-title">${sanitize(c.title)}</div>
+          <div class="ch-desc">${sanitize(c.desc)}</div>
+        </div>
+        ${isDone ? `<span class="ch-done-tag">✓ Done</span>` : `<span class="ch-xp">+${c.xp} XP</span>`}
+      </div>
+      <div class="ch-prog">
+        <div class="ch-prog-bar"><div class="ch-prog-fill" style="width:${pct}%"></div></div>
+        <div class="ch-prog-labels"><span>${cur} / ${c.target}</span><span>${pct}%</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function startChallengeCountdown() {
+  function update() {
+    const now = new Date();
+    const day = now.getDay();
+    const daysUntilMon = day === 0 ? 1 : 8 - day;
+    const nextMon = new Date(now);
+    nextMon.setDate(now.getDate() + daysUntilMon);
+    nextMon.setHours(0,0,0,0);
+    const diff = nextMon - now;
+    const h = Math.floor(diff/3600000);
+    const m = Math.floor((diff%3600000)/60000);
+    const s = Math.floor((diff%60000)/1000);
+    const el = document.getElementById('ch-countdown');
+    if (el) el.textContent = `${h}h ${m}m ${s}s`;
+  }
+  update(); setInterval(update, 1000);
+}
+startChallengeCountdown();
+
+// ── EVENTS BOARD ─────────────────────────────────────────────────────────────
+let events = JSON.parse(localStorage.getItem('pf_events') || 'null') || [
+  { id:1, title:'Weekly Founders Call', desc:'Open call for all members. Share updates, get feedback, build connections. Happens every Monday.', day:3, month:'Mar', time:'7pm UTC', type:'Live Call', poster:'@BuilderMindset', rsvps:['@GrowthHustle','@CapitalBuilder'] },
+  { id:2, title:'Fundraising Workshop: How to Close Angel Investors', desc:'Practical workshop covering pitch decks, term sheets, and closing your first angel round.', day:10, month:'Mar', time:'6pm UTC', type:'Workshop', poster:'@CapitalBuilder', rsvps:['@BuilderMindset'] },
+  { id:3, title:'Growth Hacking AMA', desc:'Ask me anything about scaling B2B pipelines from 0 to $1M ARR.', day:17, month:'Mar', time:'8pm UTC', type:'AMA', poster:'@GrowthHustle', rsvps:[] },
+];
+function saveEvents() { localStorage.setItem('pf_events', JSON.stringify(events)); }
+function renderEvents() {
+  const list = document.getElementById('events-list');
+  if (!list) return;
+  list.innerHTML = events.map(ev => {
+    const going = currentUser && ev.rsvps.includes(currentUser);
+    return `<div class="ev-card">
+      <div class="ev-top">
+        <div class="ev-datebox"><div class="ev-day">${ev.day}</div><div class="ev-mon">${sanitize(ev.month)}</div></div>
+        <div>
+          <div class="ev-title">${sanitize(ev.title)}</div>
+          <div class="ev-desc">${sanitize(ev.desc)}</div>
+          <div class="ev-meta">
+            <span><i class="fas fa-clock"></i> ${sanitize(ev.time)}</span>
+            <span><i class="fas fa-tag"></i> ${sanitize(ev.type)}</span>
+            <span><i class="fas fa-user"></i> by ${sanitize(ev.poster)}</span>
+          </div>
+        </div>
+      </div>
+      <div class="ev-footer">
+        <button class="ev-rsvp ${going?'going':''}" onclick="rsvpEvent(${ev.id})">
+          ${going ? '✓ Going' : 'RSVP'}
+        </button>
+        <span class="ev-rsvp-count">${ev.rsvps.length} going</span>
+      </div>
+    </div>`;
+  }).join('') || `<div style="text-align:center;color:#4b5563;padding:2rem;">No events yet — be the first to post one!</div>`;
+}
+function rsvpEvent(id) {
+  if (!currentUser) return showToast("Login first");
+  const ev = events.find(e=>e.id===id);
+  if (!ev) return;
+  if (ev.rsvps.includes(currentUser)) ev.rsvps = ev.rsvps.filter(h=>h!==currentUser);
+  else { ev.rsvps.push(currentUser); addNotif(`You RSVP'd to "${ev.title}" 🎉`); incrementWeekly('events'); }
+  saveEvents(); renderEvents();
+}
+function showEventModal() {
+  if (!currentUser) return showToast("Login first");
+  document.getElementById('event-modal').style.display = 'flex';
+}
+function submitEvent() {
+  const title = document.getElementById('ev-title').value.trim();
+  const desc = document.getElementById('ev-desc').value.trim();
+  const day = parseInt(document.getElementById('ev-day').value) || 0;
+  const month = document.getElementById('ev-month').value;
+  const time = document.getElementById('ev-time').value.trim();
+  const type = document.getElementById('ev-type').value;
+  if (!title||!day||!month||!time||!type) return showToast("Please fill in all fields");
+  events.unshift({ id:Date.now(), title, desc:desc||'No description', day, month, time, type, poster:currentUser, rsvps:[] });
+  saveEvents(); closeModal('event-modal'); renderEvents();
+  ['ev-title','ev-desc','ev-day','ev-time'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('ev-month').value=''; document.getElementById('ev-type').value='';
+  addNotif(`Your event "${title}" is now live!`);
+  showToast("Event posted! 📅");
+}
+
+// ── MEMBER DIRECTORY ─────────────────────────────────────────────────────────
+const LEVEL_NAMES = ['Founding Member','Active Builder','Core Contributor','Community Pillar'];
+const LEVEL_COLORS = ['#f59e0b','#10b981','#3b82f6','#a855f7'];
+function getLevelInfo(xp) {
+  if (xp >= 700) return { name:LEVEL_NAMES[3], color:LEVEL_COLORS[3] };
+  if (xp >= 300) return { name:LEVEL_NAMES[2], color:LEVEL_COLORS[2] };
+  if (xp >= 100) return { name:LEVEL_NAMES[1], color:LEVEL_COLORS[1] };
+  return { name:LEVEL_NAMES[0], color:LEVEL_COLORS[0] };
+}
+function getDirectoryMembers() {
+  const demoProfiles = [
+    { handle:'@BuilderMindset', bio:'Building AI-powered tools for operators. Ex-Stripe. Open to co-founders.', skills:['AI/ML','Product','Fundraising'], xp:840 },
+    { handle:'@CapitalBuilder',  bio:'Angel investor & operator. 12 portfolio companies. Here to find the next great team.', skills:['Investing','M&A','Strategy'], xp:720 },
+    { handle:'@GrowthHustle',   bio:'B2B growth specialist. Took 3 SaaS companies from 0 to $1M ARR.', skills:['Growth','Sales','GTM'], xp:610 },
+    { handle:'@DevLaunch',      bio:'Full-stack dev turned founder. Building developer tools.', skills:['React','Node.js','Devtools'], xp:490 },
+    { handle:'@MarketMaker',    bio:'CMO background. Now building a performance marketing agency.', skills:['Marketing','Paid Ads','Brand'], xp:380 },
+    { handle:'@DesignPro',      bio:'Product designer with 10 years experience. UI/UX for startups.', skills:['UI/UX','Figma','Branding'], xp:190 },
+  ];
+  const members = [...demoProfiles];
+  if (currentUser && !members.find(m=>m.handle===currentUser)) {
+    const myProfile = JSON.parse(localStorage.getItem('pf_profile_'+currentUser)||'{}');
+    members.unshift({ handle:currentUser, bio:myProfile.bio||'', skills:myProfile.skills||[], xp:getXp(), xUrl:myProfile.xUrl||'' });
+  }
+  return members;
+}
+function renderDirectory() {
+  const grid = document.getElementById('dir-grid');
+  if (!grid) return;
+  const q = (document.getElementById('dir-search')?.value||'').toLowerCase();
+  const members = getDirectoryMembers().filter(m =>
+    !q || m.handle.toLowerCase().includes(q) || (m.skills||[]).some(s=>s.toLowerCase().includes(q)) || (m.bio||'').toLowerCase().includes(q)
+  );
+  if (!members.length) { grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:#4b5563;padding:2rem;">No members found</div>`; return; }
+  grid.innerHTML = members.map(m => {
+    const initials = m.handle.replace('@','').substring(0,2).toUpperCase();
+    const lvl = getLevelInfo(m.xp);
+    return `<div class="dir-card">
+      <div class="dir-av">${initials}</div>
+      <div class="dir-name">${sanitize(m.handle)}${m.handle===currentUser?' <span style="color:#64748b;font-size:0.65rem;">(you)</span>':''}</div>
+      <div class="dir-bio">${m.bio ? sanitize(m.bio) : 'No bio yet.'}</div>
+      <div class="dir-tags">${(m.skills||[]).map(s=>`<span class="dir-tag">${sanitize(s)}</span>`).join('')}</div>
+      <div class="dir-foot">
+        ${m.xUrl ? `<a href="${sanitize(m.xUrl)}" target="_blank" class="dir-xl"><i class="fab fa-x-twitter"></i> X</a>` : `<span style="color:#4b5563;font-size:0.72rem;">⭐ ${m.xp} XP</span>`}
+        ${m.handle!==currentUser ? `<button class="dir-dm-btn" onclick="openDmWith('${m.handle.replace(/'/g,"\\'")}')">DM</button>` : `<span style="color:#64748b;font-size:0.68rem;padding:0.2rem 0.5rem;border:1px solid var(--border);border-radius:5px;">${sanitize(lvl.name)}</span>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── DIRECT MESSAGES ──────────────────────────────────────────────────────────
+let dmThreads = JSON.parse(localStorage.getItem('pf_dms_'+currentUser)||'null');
+let activeDmThread = null;
+function getDmThreads() { return JSON.parse(localStorage.getItem('pf_dms_'+currentUser)||'{}'); }
+function saveDmThreads(threads) { localStorage.setItem('pf_dms_'+currentUser, JSON.stringify(threads)); }
+function openDmWith(handle) {
+  if (!currentUser) return showToast("Login first");
+  switchTab('messages');
+  setTimeout(() => {
+    const threads = getDmThreads();
+    if (!threads[handle]) threads[handle] = [];
+    saveDmThreads(threads);
+    renderDmSidebar();
+    openThread(handle);
+  }, 100);
+}
+function renderDmSidebar() {
+  const list = document.getElementById('dm-thread-list');
+  if (!list) return;
+  const threads = getDmThreads();
+  const keys = Object.keys(threads);
+  if (!keys.length) {
+    list.innerHTML = `<div style="padding:1.5rem 1rem;text-align:center;color:#4b5563;font-size:0.8rem;">No conversations yet.<br>Start one from the Directory!</div>`;
+    return;
+  }
+  list.innerHTML = keys.map(handle => {
+    const msgs = threads[handle];
+    const last = msgs.length ? msgs[msgs.length-1] : null;
+    const initials = handle.replace('@','').substring(0,2).toUpperCase();
+    const isActive = activeDmThread === handle;
+    return `<div class="dm-thread ${isActive?'active':''}" onclick="openThread('${handle.replace(/'/g,"\\'")}')">
+      <div class="dm-thread-av">${initials}</div>
+      <div class="dm-thread-info">
+        <div class="dm-thread-handle">${sanitize(handle)}</div>
+        <div class="dm-thread-preview">${last ? sanitize(last.text.substring(0,32))+'...' : 'No messages yet'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function openThread(handle) {
+  activeDmThread = handle;
+  const right = document.getElementById('dm-right');
+  if (!right) return;
+  const threads = getDmThreads();
+  const msgs = threads[handle] || [];
+  const initials = handle.replace('@','').substring(0,2).toUpperCase();
+  right.innerHTML = `
+    <div class="dm-right-head"><strong>${sanitize(handle)}</strong></div>
+    <div class="dm-msgs" id="dm-msgs-area">
+      ${msgs.length ? msgs.map(m => `
+        <div class="dm-bubble-wrap ${m.from===currentUser?'me':'them'}">
+          <div class="dm-bubble">${sanitize(m.text)}</div>
+          <div class="dm-msg-time">${sanitize(m.time)}</div>
+        </div>`).join('') : `<div class="dm-no-thread" style="flex:1;">No messages yet. Say hi! 👋</div>`}
+    </div>
+    <div class="dm-compose">
+      <input class="dm-compose-input" id="dm-input-field" placeholder="Type a message..." onkeydown="if(event.key==='Enter'){event.preventDefault();sendDmMsg();}"/>
+      <button class="dm-compose-send" onclick="sendDmMsg()"><i class="fas fa-paper-plane"></i></button>
+    </div>`;
+  const msgsArea = document.getElementById('dm-msgs-area');
+  if (msgsArea) msgsArea.scrollTop = msgsArea.scrollHeight;
+  renderDmSidebar();
+}
+function sendDmMsg() {
+  if (!activeDmThread) return;
+  const input = document.getElementById('dm-input-field');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  const threads = getDmThreads();
+  if (!threads[activeDmThread]) threads[activeDmThread] = [];
+  const now = new Date();
+  const time = now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  threads[activeDmThread].push({ from:currentUser, text, time });
+  saveDmThreads(threads);
+  input.value = '';
+  openThread(activeDmThread);
+  addNotif(`You sent a message to ${activeDmThread}`);
+  incrementWeekly('dms');
+}
+function showNewDmModal() {
+  if (!currentUser) return showToast("Login first");
+  document.getElementById('new-dm-modal').style.display = 'flex';
+}
+function sendNewDm() {
+  let handle = document.getElementById('dm-to-handle').value.trim();
+  const msg = document.getElementById('dm-first-msg').value.trim();
+  if (!handle) return showToast("Enter a handle");
+  if (!msg) return showToast("Write a message");
+  if (!handle.startsWith('@')) handle = '@'+handle;
+  closeModal('new-dm-modal');
+  document.getElementById('dm-to-handle').value = '';
+  document.getElementById('dm-first-msg').value = '';
+  const threads = getDmThreads();
+  if (!threads[handle]) threads[handle] = [];
+  const time = new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  threads[handle].push({ from:currentUser, text:msg, time });
+  saveDmThreads(threads);
+  renderDmSidebar();
+  openThread(handle);
+  showToast(`Message sent to ${handle}!`);
+  incrementWeekly('dms');
+}
+
+// ── PERSONAL STATS PAGE ──────────────────────────────────────────────────────
+function renderMyStats() {
+  if (!currentUser) return;
+  const xp = getXp();
+  const profile = JSON.parse(localStorage.getItem('pf_profile_'+currentUser)||'{}');
+  const myOpps = opportunities.filter(o=>o.poster===currentUser).length;
+  const allPosts = JSON.parse(localStorage.getItem('pf_community')||'[]');
+  const myPosts = allPosts.filter(p=>p.handle===currentUser).length;
+  const myContrib = (JSON.parse(localStorage.getItem('pf_contributions')||'[]')).filter(c=>c.handle===currentUser).reduce((s,c)=>s+c.amount,0);
+  const myTests = (JSON.parse(localStorage.getItem('pf_testimonials')||'[]')).filter(t=>t.author===currentUser).length;
+  const lvl = getLevelInfo(xp);
+  const initials = currentUser.replace('@','').substring(0,2).toUpperCase();
+
+  const av = document.getElementById('stats-av');
+  const hn = document.getElementById('stats-handle');
+  const lt = document.getElementById('stats-level-text');
+  if (av) av.textContent = initials;
+  if (hn) hn.textContent = currentUser;
+  if (lt) lt.textContent = `${lvl.name} · ${xp} XP`;
+
+  const nums = document.getElementById('stats-nums');
+  if (nums) nums.innerHTML = [
+    { v: xp, l:'Total XP' },
+    { v: myOpps, l:'Opps Posted' },
+    { v: myPosts, l:'Community Posts' },
+    { v: myContrib>0 ? '$'+myContrib : '0', l:'Fund Contributed' },
+    { v: myTests, l:'Testimonials' },
+    { v: getCompletedTasks().length + '/3', l:'Tasks Done' },
+  ].map(s=>`<div class="snum-box"><div class="sv">${s.v}</div><div class="sl">${s.l}</div></div>`).join('');
+
+  const xpLog = JSON.parse(localStorage.getItem('pf_xplog_'+currentUser)||'[]');
+  const logBody = document.getElementById('xp-log-body');
+  const logCount = document.getElementById('xp-log-count');
+  if (logCount) logCount.textContent = xpLog.length + ' events';
+  if (logBody) {
+    logBody.innerHTML = xpLog.length ? [...xpLog].reverse().slice(0,20).map(e=>`
+      <div class="xp-log-row">
+        <div class="xp-log-icon ${e.type}"><i class="fas ${e.icon}"></i></div>
+        <div class="xp-log-body"><strong>${sanitize(e.label)}</strong><span>${sanitize(e.time)}</span></div>
+        <div class="xp-log-pts">+${e.pts} XP</div>
+      </div>`).join('')
+    : `<div style="padding:2rem;text-align:center;color:#4b5563;">No XP earned yet — start participating!</div>`;
+  }
+}
+
+// ── ENHANCED addXP with logging ──────────────────────────────────────────────
+const _origAddXP = typeof addXP === 'function' ? addXP : null;
+function logXP(type, icon, label, pts) {
+  if (!currentUser) return;
+  const log = JSON.parse(localStorage.getItem('pf_xplog_'+currentUser)||'[]');
+  const time = new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+  log.push({ type, icon, label, pts, time });
+  localStorage.setItem('pf_xplog_'+currentUser, JSON.stringify(log));
+}
+
+// ── UPDATE switchTab ─────────────────────────────────────────────────────────
+const _baseSwitchTab = switchTab;
+function switchTab(tabId) {
+  const memberTabs = ['vision','testimonials','dashboard','funds','community','leaderboard','challenges','events','directory','messages','mystats'];
+  if (!currentUser && memberTabs.includes(tabId)) {
+    showToast("Members only — please login first");
+    document.getElementById('login-modal').style.display = 'flex';
+    return;
+  }
+  document.querySelectorAll('#main-nav a').forEach(a => a.classList.remove('active'));
+  const active = Array.from(document.querySelectorAll('#main-nav a')).find(a => a.getAttribute('onclick')?.includes("'"+tabId+"'"));
+  if (active) active.classList.add('active');
+  document.querySelectorAll('.member-section').forEach(s => s.style.display = 'none');
+  if (tabId === 'hero') { window.scrollTo({ top:0, behavior:'smooth' }); return; }
+  const sec = document.getElementById(tabId);
+  if (sec) {
+    sec.style.display = 'block';
+    window.scrollTo({ top:0, behavior:'smooth' });
+    if (tabId === 'funds') renderFunds();
+    if (tabId === 'community') renderCommunity();
+    if (tabId === 'leaderboard') renderLeaderboard();
+    if (tabId === 'challenges') renderChallenges();
+    if (tabId === 'events') renderEvents();
+    if (tabId === 'directory') renderDirectory();
+    if (tabId === 'messages') { const t = getDmThreads(); if(Object.keys(t).length) renderDmSidebar(); else renderDmSidebar(); }
+    if (tabId === 'mystats') renderMyStats();
+  }
+}
+
+// Patch showMemberTabs to init new features
+const _baseSMT = showMemberTabs;
+function showMemberTabs() {
+  _baseSMT();
+  document.getElementById('notif-wrap').style.display = 'block';
+  renderNotifBell();
+  // Re-init dm threads for new user
+  dmThreads = getDmThreads();
+}
+
+console.log('%c✅ PASS IT FORWARD v12.0 LIVE 🔥', 'color:#10b981;font-weight:700;font-size:14px');
 </script>
 </body>
 </html>
