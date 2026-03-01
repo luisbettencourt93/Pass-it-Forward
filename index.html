@@ -1414,6 +1414,7 @@ function submitTestimonial() {
   renderTestimonials();
   document.getElementById('new-testimonial').value = '';
   markTaskDone(1);
+  addXp(15, 'test', 'Posted a testimonial');
   showToast("Testimonial posted — thank you for passing it forward!");
 }
 
@@ -1503,6 +1504,7 @@ function expressInterest(id) {
     opp.interest++;
     localStorage.setItem('pf_opportunities', JSON.stringify(opportunities));
     renderOpportunities();
+    bumpWeekly('interests');
     showToast("Interest registered!");
   }
 }
@@ -1542,6 +1544,8 @@ function saveGoal() {
   localStorage.setItem('pf_goal', goal);
   closeModal('goal-modal');
   markTaskDone(2);
+  addXp(10, 'goal', 'Set a 30-day goal');
+  bumpWeekly('goal');
   showToast("Goal saved!");
   renderGoal();
 }
@@ -1567,6 +1571,9 @@ function updatePostedCount() {
   const count = opportunities.filter(o => o.poster === currentUser).length;
   const el = document.getElementById('stat-posted');
   if (el) el.textContent = count;
+  // Also update the total opportunities stat panel
+  const oppCount = document.getElementById('opp-count');
+  if (oppCount) oppCount.textContent = opportunities.length;
 }
 function renderProfile() {
   if (!currentUser) return;
@@ -1631,6 +1638,9 @@ function showMemberTabs() {
   document.getElementById('apply-card').style.display = 'none';
   document.getElementById('add-testimonial-form').style.display = 'block';
   document.querySelectorAll('.member-link').forEach(l => l.style.display = 'block');
+  // Hide "Home" nav item once logged in
+  const homeLink = Array.from(document.querySelectorAll('#main-nav a')).find(a => a.getAttribute('onclick')?.includes("'hero'"));
+  if (homeLink) homeLink.style.display = 'none';
   document.getElementById('notif-wrap').classList.add('visible');
   renderProfile();
   switchTab('dashboard');
@@ -1829,8 +1839,14 @@ function confirmAddFunds() {
   saveContributions();
   closeModal('add-funds-modal');
   renderFunds();
-  showToast(`$${amount} added to the community fund! 🎉`);
-  if (STRIPE_PAYMENT_LINK) window.open(STRIPE_PAYMENT_LINK, '_blank');
+  addXp(25, 'goal', 'Contributed to community fund');
+  showToast(`$${amount} contribution recorded! Thank you 🙏`);
+  if (STRIPE_PAYMENT_LINK) {
+    window.open(STRIPE_PAYMENT_LINK, '_blank');
+  } else {
+    // No Stripe set up — show info toast after short delay
+    setTimeout(() => showToast("To collect real payments, add your Stripe link in the code ✅"), 2500);
+  }
 }
 
 // ── MEMBER RAISES ──────────────────────────────────────────────────────────
@@ -2150,6 +2166,8 @@ function submitCommunityPost() {
   document.getElementById('comm-post-text').value = '';
   renderCommFeed();
   renderCommSidebar();
+  addXp(10, 'post', 'Posted in community');
+  bumpWeekly('comm');
   showToast("Posted to #" + channel + " 🔥");
 }
 
@@ -2195,6 +2213,7 @@ function postOpportunity() {
   const category = document.getElementById('opp-category').value;
   if (!title) return showToast("Please add a title");
   if (!category) return showToast("Please select a category");
+  const shouldPostToX = postToX; // capture BEFORE reset
   opportunities.unshift({ id: Date.now(), title, desc: desc || "No description provided", category, interest: 1, poster: currentUser });
   localStorage.setItem('pf_opportunities', JSON.stringify(opportunities));
   renderOpportunities();
@@ -2203,19 +2222,41 @@ function postOpportunity() {
   document.getElementById('opp-title').value = '';
   document.getElementById('opp-desc').value = '';
   document.getElementById('opp-category').value = '';
-  // Reset toggle
   postToX = false;
   const sw = document.getElementById('x-switch');
   if (sw) sw.classList.remove('on');
   markTaskDone(3);
-  showToast("Opportunity posted!");
-  if (postToX) {
-    const tweet = `Just posted on Pass It Forward 🔥\n\n${title}\n${desc}\n\nJoin real builders → passitforward.xyz`;
+  addXp(20, 'opp', 'Posted an opportunity');
+  bumpWeekly('opps');
+  showToast("Opportunity posted! 🔥");
+  if (shouldPostToX) {
+    const tweet = `Just posted on Pass It Forward 🔥\n\n${title}\n${desc ? desc+'\n' : ''}Join real builders → passitforward.xyz`;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}`, '_blank');
   }
 }
 
 console.log('%c✅ PASS IT FORWARD v13.0 LIVE 🔥', 'color:#10b981;font-weight:700;font-size:14px');
+
+// ══════════════════════════════════════════════════════
+// ── XP SYSTEM (must come first)
+// ══════════════════════════════════════════════════════
+function getXp() { return parseInt(localStorage.getItem('pf_xp_'+currentUser)||'0'); }
+function addXp(pts, type, label) {
+  if (!currentUser) return;
+  const total = getXp() + pts;
+  localStorage.setItem('pf_xp_'+currentUser, total);
+  logXpEvent(type, label, pts);
+  // update stat panel if visible
+  const el = document.getElementById('opp-count');
+  // refresh stats if open
+}
+function logXpEvent(type, label, pts) {
+  if (!currentUser) return;
+  const log = JSON.parse(localStorage.getItem('pf_xplog_'+currentUser)||'[]');
+  const time = new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+  log.push({type, label, pts, time});
+  localStorage.setItem('pf_xplog_'+currentUser, JSON.stringify(log));
+}
 
 // ══════════════════════════════════════════════════════
 // ── LIGHT / DARK MODE
@@ -2234,11 +2275,12 @@ function toggleTheme() {
 })();
 
 // ══════════════════════════════════════════════════════
-// ── NOTIFICATIONS
+// ── NOTIFICATIONS (only for actions by OTHERS on your content)
 // ══════════════════════════════════════════════════════
-function getNotifs() { return JSON.parse(localStorage.getItem('pf_notifs') || '[]'); }
-function saveNotifs(n) { localStorage.setItem('pf_notifs', JSON.stringify(n)); }
+function getNotifs() { return JSON.parse(localStorage.getItem('pf_notifs_'+currentUser) || '[]'); }
+function saveNotifs(n) { localStorage.setItem('pf_notifs_'+currentUser, JSON.stringify(n)); }
 function addNotif(text) {
+  // Only call this for events triggered by others — not self-actions
   if (!currentUser) return;
   const notifs = getNotifs();
   const t = new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
@@ -2255,7 +2297,7 @@ function renderNotifBell() {
   const unread = notifs.filter(n => !n.read).length;
   if (unread > 0) { badge.textContent = unread > 9 ? '9+' : unread; badge.classList.add('on'); }
   else { badge.textContent = ''; badge.classList.remove('on'); }
-  if (!notifs.length) { list.innerHTML = '<div class="notif-empty">No notifications yet</div>'; return; }
+  if (!notifs.length) { list.innerHTML = '<div class="notif-empty">No notifications yet — start participating!</div>'; return; }
   list.innerHTML = notifs.map(n => `
     <div class="notif-row ${n.read?'':'unread'}" onclick="readNotif(${n.id})">
       <div class="nr-dot ${n.read?'read':''}"></div>
@@ -2268,8 +2310,8 @@ function readNotif(id) {
   if (n) { n.read = true; saveNotifs(notifs); renderNotifBell(); }
 }
 function clearAllNotifs() {
-  const notifs = getNotifs().map(n => ({...n, read:true}));
-  saveNotifs(notifs); renderNotifBell();
+  saveNotifs(getNotifs().map(n => ({...n, read:true})));
+  renderNotifBell();
   document.getElementById('notif-panel').classList.remove('open');
 }
 function toggleNotifPanel(e) {
@@ -2299,8 +2341,7 @@ function getMyLbEntry() {
   const myPosts = (JSON.parse(localStorage.getItem('pf_community')||'[]')).filter(p=>p.handle===currentUser).length;
   const myOpps = opportunities.filter(o=>o.poster===currentUser).length;
   const myFund = (JSON.parse(localStorage.getItem('pf_contributions')||'[]')).filter(c=>c.handle===currentUser).reduce((s,c)=>s+c.amount,0);
-  const myXp = parseInt(localStorage.getItem('pf_xp_'+currentUser)||'0');
-  return {handle:currentUser, xp:myXp, opps:myOpps, posts:myPosts, fund:myFund};
+  return {handle:currentUser, xp:getXp(), opps:myOpps, posts:myPosts, fund:myFund};
 }
 function setLbTab(tab, btn) {
   activeLbTab = tab;
@@ -2309,8 +2350,7 @@ function setLbTab(tab, btn) {
   renderLeaderboard();
 }
 function renderLeaderboard() {
-  const board = document.getElementById('lb-board');
-  if (!board) return;
+  const board = document.getElementById('lb-board'); if (!board) return;
   let data = [...DEMO_LB];
   const me = getMyLbEntry();
   if (me && !data.find(d=>d.handle===me.handle)) data.push(me);
@@ -2318,7 +2358,7 @@ function renderLeaderboard() {
   data.sort((a,b)=>b[activeLbTab]-a[activeLbTab]);
   const rc = i => i===0?'g':i===1?'s':i===2?'b':'n';
   const re = i => i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
-  const fmtScore = (m,t) => t==='fund'?'$'+m[t].toLocaleString():m[t].toLocaleString();
+  const fmt = (m,t) => t==='fund'?'$'+m[t].toLocaleString():m[t].toLocaleString();
   const labels = {xp:'XP',opps:'opps',posts:'posts',fund:'contributed'};
   board.innerHTML = data.map((m,i)=>`
     <div class="lb-row" ${m.handle===currentUser?'style="background:rgba(16,185,129,0.05);"':''}>
@@ -2326,9 +2366,9 @@ function renderLeaderboard() {
       <div class="lb-av">${m.handle.replace('@','').substring(0,2).toUpperCase()}</div>
       <div class="lb-info">
         <div class="lb-handle">${sanitize(m.handle)}${m.handle===currentUser?' <span style="color:#64748b;font-size:0.68rem;">(you)</span>':''}</div>
-        <div class="lb-sub">${fmtScore(m,activeLbTab)} ${labels[activeLbTab]}</div>
+        <div class="lb-sub">${fmt(m,activeLbTab)} ${labels[activeLbTab]}</div>
       </div>
-      <div class="lb-score">${fmtScore(m,activeLbTab)}</div>
+      <div class="lb-score">${fmt(m,activeLbTab)}</div>
     </div>`).join('');
   const mvp = [...data].sort((a,b)=>b.xp-a.xp)[0];
   const mvpEl = document.getElementById('lb-mvp'); if(mvpEl) mvpEl.textContent = mvp?.handle||'—';
@@ -2345,9 +2385,9 @@ function renderLeaderboard() {
 const CHALLENGES = [
   {id:'c1',title:'Post an Opportunity',desc:'Share what you need or what you can offer.',xp:20,target:1,key:'opps'},
   {id:'c2',title:'Write 3 Community Posts',desc:'Share a win, question, or resource with the community.',xp:15,target:3,key:'comm'},
-  {id:'c3',title:'Express Interest in 5 Opps',desc:"Click the fire button on 5 opportunities that catch your eye.",xp:10,target:5,key:'interests'},
+  {id:'c3',title:'Express Interest in 5 Opps',desc:'Click the fire button on 5 opportunities.',xp:10,target:5,key:'interests'},
   {id:'c4',title:'Set Your 30-Day Goal',desc:'Define what you want to achieve this month.',xp:10,target:1,key:'goal'},
-  {id:'c5',title:'Send a DM',desc:'Reach out to another member directly.',xp:15,target:1,key:'dms'},
+  {id:'c5',title:'Send a Message',desc:'Reach out to another member directly.',xp:15,target:1,key:'dms'},
 ];
 function getWeekKey() {
   const d = new Date(), day = d.getDay();
@@ -2358,8 +2398,10 @@ function getWeeklyProg() { return JSON.parse(localStorage.getItem('pf_wk_'+curre
 function saveWeeklyProg(p) { localStorage.setItem('pf_wk_'+currentUser+'_'+getWeekKey(), JSON.stringify(p)); }
 function bumpWeekly(key, amount) {
   if (!currentUser) return;
-  const p = getWeeklyProg(); p[key] = (p[key]||0)+(amount||1); saveWeeklyProg(p);
-  renderChallenges();
+  const p = getWeeklyProg();
+  p[key] = (p[key]||0) + (amount||1);
+  saveWeeklyProg(p);
+  renderChallenges(); // always re-render so progress is visible immediately
 }
 function renderChallenges() {
   const list = document.getElementById('challenges-list'); if (!list) return;
@@ -2378,7 +2420,6 @@ function renderChallenges() {
     </div>`;
   }).join('');
 }
-// Countdown
 (function chCountdown() {
   function upd() {
     const now = new Date(), day = now.getDay();
@@ -2390,7 +2431,7 @@ function renderChallenges() {
 })();
 
 // ══════════════════════════════════════════════════════
-// ── EVENTS BOARD
+// ── EVENTS BOARD (with delete own events)
 // ══════════════════════════════════════════════════════
 let eventsData = JSON.parse(localStorage.getItem('pf_events')||'null') || [
   {id:1,title:'Weekly Founders Call',desc:'Open call for all members. Share updates, get feedback, make connections.',day:3,month:'Mar',time:'7pm UTC',type:'Live Call',poster:'@BuilderMindset',rsvps:['@GrowthHustle','@CapitalBuilder']},
@@ -2403,14 +2444,20 @@ function renderEvents() {
   if (!eventsData.length) { list.innerHTML='<div style="text-align:center;color:#4b5563;padding:2rem;">No events yet — post the first one!</div>'; return; }
   list.innerHTML = eventsData.map(ev=>{
     const going = currentUser && ev.rsvps.includes(currentUser);
+    const isMine = currentUser && ev.poster === currentUser;
     return `<div class="ev-card">
       <div class="ev-top">
         <div class="ev-datebox"><div class="ev-day">${ev.day}</div><div class="ev-mon">${sanitize(ev.month)}</div></div>
         <div style="flex:1;">
           <div class="ev-title">${sanitize(ev.title)}</div>
           <div class="ev-desc">${sanitize(ev.desc)}</div>
-          <div class="ev-meta"><span><i class="fas fa-clock"></i> ${sanitize(ev.time)}</span><span><i class="fas fa-tag"></i> ${sanitize(ev.type)}</span><span><i class="fas fa-user"></i> ${sanitize(ev.poster)}</span></div>
+          <div class="ev-meta">
+            <span><i class="fas fa-clock"></i> ${sanitize(ev.time)}</span>
+            <span><i class="fas fa-tag"></i> ${sanitize(ev.type)}</span>
+            <span><i class="fas fa-user"></i> ${sanitize(ev.poster)}</span>
+          </div>
         </div>
+        ${isMine ? `<button onclick="deleteEvent(${ev.id})" title="Delete event" style="background:none;border:none;color:#4b5563;cursor:pointer;font-size:1rem;flex-shrink:0;transition:color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#4b5563'"><i class="fas fa-trash"></i></button>` : ''}
       </div>
       <div class="ev-footer">
         <button class="ev-rsvp-btn ${going?'going':''}" onclick="rsvpEvent(${ev.id})">${going?'✓ Going':'RSVP'}</button>
@@ -2419,11 +2466,23 @@ function renderEvents() {
     </div>`;
   }).join('');
 }
+function deleteEvent(id) {
+  if (!confirm("Delete this event?")) return;
+  eventsData = eventsData.filter(e=>e.id!==id);
+  saveEvents(); renderEvents();
+  showToast("Event deleted");
+}
 function rsvpEvent(id) {
   if (!currentUser) return showToast("Login first");
   const ev = eventsData.find(e=>e.id===id); if(!ev) return;
-  if (ev.rsvps.includes(currentUser)) ev.rsvps=ev.rsvps.filter(h=>h!==currentUser);
-  else { ev.rsvps.push(currentUser); addNotif(`You RSVP'd to "${ev.title}" 📅`); bumpWeekly('rsvps'); }
+  if (ev.rsvps.includes(currentUser)) {
+    ev.rsvps = ev.rsvps.filter(h=>h!==currentUser);
+    showToast("RSVP removed");
+  } else {
+    ev.rsvps.push(currentUser);
+    addXp(5, 'opp', 'RSVP\'d to an event');
+    showToast("You're going! 📅");
+  }
   saveEvents(); renderEvents();
 }
 function showEventModal() { if (!currentUser) return showToast("Login first"); document.getElementById('event-modal').style.display='flex'; }
@@ -2439,7 +2498,7 @@ function submitEvent() {
   saveEvents(); closeModal('event-modal'); renderEvents();
   ['ev-title-inp','ev-desc-inp','ev-day-inp','ev-time-inp'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('ev-month-inp').value=''; document.getElementById('ev-type-inp').value='';
-  addNotif(`Your event "${title}" is now live! 🎉`);
+  addXp(15, 'opp', 'Posted an event');
   showToast("Event posted! 📅");
 }
 
@@ -2460,38 +2519,52 @@ function renderDirectory() {
   let members = [...DEMO_PROFILES];
   if (currentUser) {
     const myP = JSON.parse(localStorage.getItem('pf_profile_'+currentUser)||'{}');
-    const me = {handle:currentUser, bio:myP.bio||'', skills:myP.skills||[], xp:parseInt(localStorage.getItem('pf_xp_'+currentUser)||'0'), xUrl:myP.xUrl||''};
+    const me = {handle:currentUser, bio:myP.bio||'', skills:myP.skills||[], xp:getXp(), xUrl:myP.xUrl||''};
     if (!members.find(m=>m.handle===me.handle)) members.unshift(me);
   }
-  if (q) members = members.filter(m => m.handle.toLowerCase().includes(q) || (m.skills||[]).some(s=>s.toLowerCase().includes(q)) || (m.bio||'').toLowerCase().includes(q));
-  if (!members.length) { grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#4b5563;padding:2rem;">No members found for "'+sanitize(q)+'"</div>'; return; }
+  if (q) members = members.filter(m => m.handle.toLowerCase().includes(q)||(m.skills||[]).some(s=>s.toLowerCase().includes(q))||(m.bio||'').toLowerCase().includes(q));
+  if (!members.length) { grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#4b5563;padding:2rem;">No members found</div>'; return; }
   grid.innerHTML = members.map(m=>{
     const ini = m.handle.replace('@','').substring(0,2).toUpperCase();
     const isMe = m.handle===currentUser;
     return `<div class="dir-card">
       <div class="dir-av">${ini}</div>
       <div class="dir-name">${sanitize(m.handle)}${isMe?' <span style="color:#64748b;font-size:0.65rem;">(you)</span>':''}</div>
-      <div class="dir-bio">${m.bio ? sanitize(m.bio) : '<span style="color:#4b5563;">No bio yet.</span>'}</div>
+      <div class="dir-bio">${m.bio?sanitize(m.bio):'<span style="color:#4b5563;">No bio yet.</span>'}</div>
       <div class="dir-tags">${(m.skills||[]).map(s=>`<span class="dir-tag">${sanitize(s)}</span>`).join('')}</div>
       <div class="dir-foot">
-        ${m.xUrl ? `<a href="${sanitize(m.xUrl)}" target="_blank" class="dir-xl"><i class="fab fa-x-twitter"></i> X Profile</a>` : `<span style="color:#4b5563;font-size:0.72rem;">⭐ ${m.xp} XP</span>`}
-        ${!isMe ? `<button class="dir-dm-btn" onclick="openDmWith('${m.handle.replace(/'/g,"\\'")}')">Message</button>` : ''}
+        ${m.xUrl?`<a href="${sanitize(m.xUrl)}" target="_blank" class="dir-xl"><i class="fab fa-x-twitter"></i> X Profile</a>`:`<span style="color:#4b5563;font-size:0.72rem;">⭐ ${m.xp} XP</span>`}
+        ${!isMe?`<button class="dir-dm-btn" onclick="openDmWith('${m.handle.replace(/'/g,"\\'")}')">Message</button>`:''}
       </div>
     </div>`;
   }).join('');
 }
 
 // ══════════════════════════════════════════════════════
-// ── DIRECT MESSAGES
+// ── DIRECT MESSAGES (simulated — stored locally per user)
+// Demo replies show what the other side would see
 // ══════════════════════════════════════════════════════
 let activeDmHandle = null;
+const DM_AUTO_REPLIES = {
+  '@BuilderMindset': ["Hey! Saw your message. Let's connect 🤝","What are you working on right now?","Happy to jump on a call this week"],
+  '@CapitalBuilder': ["Interesting — tell me more about your traction","What round are you raising?","Send me your deck and I'll take a look"],
+  '@GrowthHustle': ["I've been thinking about this too!","What's your current CAC looking like?","Let's get on a call — I have some ideas"],
+  '@DevLaunch': ["Happy to collab on the tech side","What stack are you using?","I might have someone who can help"],
+  '@MarketMaker': ["Love this! Are you open to a rev-share?","What's your current paid spend?","DM me your X and let's chat properly"],
+  '@DesignPro': ["I can help with the UI — share your brief","What's the timeline?","Happy to do a quick design review for free"],
+};
 function getDmStore() { return JSON.parse(localStorage.getItem('pf_dm_'+currentUser)||'{}'); }
 function saveDmStore(s) { localStorage.setItem('pf_dm_'+currentUser, JSON.stringify(s)); }
 function openDmWith(handle) {
   if (!currentUser) return showToast("Login first");
   const store = getDmStore();
-  if (!store[handle]) store[handle] = [];
-  saveDmStore(store);
+  if (!store[handle]) {
+    // seed with a demo welcome message from the other person
+    const replies = DM_AUTO_REPLIES[handle];
+    const intro = replies ? [{from:handle, text:`Hey ${currentUser}! Good to connect. What's on your mind?`, time:'Earlier'}] : [];
+    store[handle] = intro;
+    saveDmStore(store);
+  }
   switchTab('messages');
   setTimeout(()=>{ renderDmSidebar(); openThread(handle); }, 120);
 }
@@ -2539,9 +2612,24 @@ function sendDmMsg() {
   if (!store[activeDmHandle]) store[activeDmHandle]=[];
   const time = new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
   store[activeDmHandle].push({from:currentUser, text, time});
-  saveDmStore(store); inp.value='';
+  // Simulate a reply after a short delay if it's a demo member
+  const replies = DM_AUTO_REPLIES[activeDmHandle];
+  if (replies) {
+    const reply = replies[Math.floor(Math.random()*replies.length)];
+    const replyTime = new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    setTimeout(()=>{
+      const s2 = getDmStore();
+      if (!s2[activeDmHandle]) s2[activeDmHandle]=[];
+      s2[activeDmHandle].push({from:activeDmHandle, text:reply, time:replyTime});
+      saveDmStore(s2);
+      addNotif(`💬 ${activeDmHandle} replied to your message`);
+      if (activeDmHandle === (document.querySelector('.dm-right-head strong')?.textContent)) openThread(activeDmHandle);
+      else renderDmSidebar();
+    }, 1500 + Math.random()*2000);
+  }
+  saveDmStore(store);
+  inp.value='';
   openThread(activeDmHandle);
-  addNotif(`Message sent to ${activeDmHandle}`);
   bumpWeekly('dms');
 }
 function showNewDmModal() { if(!currentUser) return showToast("Login first"); document.getElementById('new-dm-modal').style.display='flex'; }
@@ -2552,9 +2640,12 @@ function sendNewDm() {
   if (!msg) return showToast("Write a message");
   if (!handle.startsWith('@')) handle='@'+handle;
   const store = getDmStore();
-  if (!store[handle]) store[handle]=[];
+  if (!store[handle]) {
+    const replies = DM_AUTO_REPLIES[handle];
+    store[handle] = replies ? [{from:handle, text:`Hey ${currentUser}! Good to connect. What's on your mind?`, time:'Earlier'}] : [];
+  }
   const time = new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-  store[handle].push({from:currentUser,text:msg,time});
+  store[handle].push({from:currentUser, text:msg, time});
   saveDmStore(store);
   document.getElementById('dm-to-inp').value=''; document.getElementById('dm-msg-inp').value='';
   closeModal('new-dm-modal');
@@ -2562,6 +2653,7 @@ function sendNewDm() {
   renderDmSidebar(); openThread(handle);
   showToast("Message sent to "+handle+"!");
   bumpWeekly('dms');
+  addXp(5, 'post', 'Sent a message');
 }
 
 // ══════════════════════════════════════════════════════
@@ -2569,8 +2661,7 @@ function sendNewDm() {
 // ══════════════════════════════════════════════════════
 function renderMyStats() {
   if (!currentUser) return;
-  const xp = parseInt(localStorage.getItem('pf_xp_'+currentUser)||'0');
-  const myP = JSON.parse(localStorage.getItem('pf_profile_'+currentUser)||'{}');
+  const xp = getXp();
   const myOpps = opportunities.filter(o=>o.poster===currentUser).length;
   const allPosts = JSON.parse(localStorage.getItem('pf_community')||'[]');
   const myPosts = allPosts.filter(p=>p.handle===currentUser).length;
@@ -2584,30 +2675,30 @@ function renderMyStats() {
   set('stats-level-text', lvlName+' · '+xp+' XP');
   const nums = document.getElementById('stats-nums-grid');
   if (nums) nums.innerHTML = [
-    {v:xp,l:'Total XP'},{v:myOpps,l:'Opps Posted'},{v:myPosts,l:'Community Posts'},
-    {v:myFund>0?'$'+myFund:0,l:'Fund Contributed'},{v:myTests,l:'Testimonials'},{v:getCompletedTasks().length+'/3',l:'Tasks Done'},
+    {v:xp, l:'Total XP'},
+    {v:myOpps, l:'Opps Posted'},
+    {v:myPosts, l:'Community Posts'},
+    {v:myFund>0?'$'+myFund.toLocaleString():'$0', l:'Fund Contributed'},
+    {v:myTests, l:'Testimonials'},
+    {v:getCompletedTasks().length+' / 3', l:'Tasks Done'},
   ].map(s=>`<div class="snum-box"><div class="sv">${s.v}</div><div class="sl">${s.l}</div></div>`).join('');
   const xpLog = JSON.parse(localStorage.getItem('pf_xplog_'+currentUser)||'[]');
   set('xp-log-count-txt', xpLog.length+' events');
   const logEl = document.getElementById('xp-log-items');
   const iconMap = {opp:'fa-bolt',post:'fa-comment',test:'fa-star',goal:'fa-bullseye',login:'fa-sign-in-alt'};
-  if (logEl) logEl.innerHTML = xpLog.length ? [...xpLog].reverse().slice(0,20).map(e=>`
-    <div class="xp-log-row">
-      <div class="xp-icon ${e.type||'opp'}"><i class="fas ${iconMap[e.type]||'fa-bolt'}"></i></div>
-      <div class="xp-log-info"><strong>${sanitize(e.label||'XP Earned')}</strong><span>${sanitize(e.time||'')}</span></div>
-      <div class="xp-log-pts">+${e.pts||0} XP</div>
-    </div>`).join('')
-  : '<div style="padding:2rem;text-align:center;color:#4b5563;">No XP earned yet — start participating!</div>';
+  if (logEl) logEl.innerHTML = xpLog.length
+    ? [...xpLog].reverse().slice(0,20).map(e=>`
+        <div class="xp-log-row">
+          <div class="xp-icon ${e.type||'opp'}"><i class="fas ${iconMap[e.type]||'fa-bolt'}"></i></div>
+          <div class="xp-log-info"><strong>${sanitize(e.label||'XP Earned')}</strong><span>${sanitize(e.time||'')}</span></div>
+          <div class="xp-log-pts">+${e.pts||0} XP</div>
+        </div>`).join('')
+    : '<div style="padding:2rem;text-align:center;color:#4b5563;">No XP earned yet — start posting and participating!</div>';
 }
-// Hook XP logging into existing addXp if present
-function logXpEvent(type, label, pts) {
-  if (!currentUser) return;
-  const log = JSON.parse(localStorage.getItem('pf_xplog_'+currentUser)||'[]');
-  const time = new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
-  log.push({type,label,pts,time});
-  localStorage.setItem('pf_xplog_'+currentUser, JSON.stringify(log));
-}
+
+
 
 </script>
 </body>
 </html>
+
