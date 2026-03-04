@@ -6,7 +6,15 @@
   <title>Pass It Forward — Opportunity Infrastructure</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
+    /* ── AUTH TABS ── */
+    .auth-tabs { display:flex; gap:0; margin-bottom:1.5rem; border-radius:12px; overflow:hidden; border:1px solid var(--border); }
+    .auth-tab { flex:1; padding:0.65rem; background:#0a0f1e; color:#64748b; border:none; font-family:'DM Sans',sans-serif; font-weight:700; font-size:0.88rem; cursor:pointer; transition:all 0.2s; }
+    .auth-tab.active { background:var(--primary); color:#0a0f1e; }
+    .auth-setup-box { background:rgba(245,158,11,0.06); border:1px solid rgba(245,158,11,0.2); border-radius:12px; padding:1rem 1.1rem; margin-bottom:1.5rem; font-size:0.78rem; color:#f59e0b; line-height:1.6; }
+    .auth-setup-box strong { display:block; margin-bottom:4px; font-size:0.82rem; }
+    .auth-setup-box a { color:#f59e0b; }
     :root {
       --primary: #10b981;
       --primary-dark: #059669;
@@ -1195,12 +1203,38 @@
 
 <!-- ── MODALS ── -->
 <div id="login-modal" class="modal">
-  <div class="modal-content">
-    <h2>Member Login</h2>
-    <p>Verified founding members only</p>
-    <input type="text" id="xhandle" placeholder="X Handle (@yourname)" class="form-input" style="margin-bottom:0.8rem;"/>
-    <input type="password" id="accesscode" placeholder="Access Code" class="form-input"/>
-    <button onclick="handleLogin()" class="btn" style="width:100%;margin-top:1.2rem;">Login</button>
+  <div class="modal-content" style="max-width:460px;">
+    <div id="auth-no-sb-warning" class="auth-setup-box" style="display:none;">
+      <strong>⚙️ Demo Mode — Supabase not configured yet</strong>
+      You can still log in with any email/password to test the UI. Add your Supabase keys to go fully live.
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="auth-login-tab" onclick="showAuthTab('login')">Login</button>
+      <button class="auth-tab" id="auth-signup-tab" onclick="showAuthTab('signup')">Create Account</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="auth-login-form">
+      <input type="email" id="login-email" placeholder="Email address" class="form-input" style="margin-bottom:0.8rem;"/>
+      <input type="password" id="login-password" placeholder="Password" class="form-input" style="margin-bottom:1.2rem;"/>
+      <button id="login-submit-btn" onclick="handleLogin()" class="btn" style="width:100%;">Login</button>
+      <p style="text-align:center;margin-top:1rem;color:#64748b;font-size:0.85rem;">
+        No account? <span onclick="showAuthTab('signup')" style="color:var(--primary);cursor:pointer;font-weight:600;">Create one free →</span>
+      </p>
+    </div>
+
+    <!-- SIGNUP FORM -->
+    <div id="auth-signup-form" style="display:none;">
+      <input type="email" id="signup-email" placeholder="Email address" class="form-input" style="margin-bottom:0.8rem;"/>
+      <input type="text" id="signup-handle" placeholder="X Handle (@yourname)" class="form-input" style="margin-bottom:0.8rem;"/>
+      <input type="password" id="signup-password" placeholder="Password (6+ characters)" class="form-input" style="margin-bottom:0.8rem;"/>
+      <input type="password" id="signup-confirm" placeholder="Confirm password" class="form-input" style="margin-bottom:1.2rem;"/>
+      <button id="signup-submit-btn" onclick="handleSignup()" class="btn" style="width:100%;">Create Account</button>
+      <p style="text-align:center;margin-top:1rem;color:#64748b;font-size:0.85rem;">
+        Already have an account? <span onclick="showAuthTab('login')" style="color:var(--primary);cursor:pointer;font-weight:600;">Login →</span>
+      </p>
+    </div>
+
     <button onclick="closeModal('login-modal')" class="modal-cancel">Cancel</button>
   </div>
 </div>
@@ -1300,412 +1334,324 @@
 </div>
 
 <script>
-// ── CONFIG ─────────────────────────────────────────────────────────────────
-// ⚠️ SECURITY NOTE: Move access code validation server-side before going to production.
-const ACCESS_CODE = "founder2026";
-// ── STRIPE CONFIG ──────────────────────────────────────────────────────────
-// HOW TO SET UP:
-// 1. Go to dashboard.stripe.com → Payment Links → + Create link
-// 2. Add a product called "Community Fund Contribution"
-// 3. Set pricing to "Customer chooses price" (lets members pick any amount)
-// 4. Copy the link (looks like https://buy.stripe.com/xxxxxxxxxxxx)
-// 5. Paste it below — done. Everything works automatically.
-const STRIPE_PAYMENT_LINK = ""; // ← Paste your Stripe Payment Link here
+// ══════════════════════════════════════════════════════════════════════
+// PASS IT FORWARD v14 — SUPABASE + STRIPE FULLY LIVE
+//
+// ── HOW TO GO LIVE (5 minutes) ────────────────────────────────────────
+//
+// STEP 1 — SUPABASE (free database + auth)
+//   → Go to supabase.com → Sign up → New project
+//   → Settings → API → copy "Project URL" and "anon public" key
+//   → Paste them in SUPABASE_URL and SUPABASE_ANON_KEY below
+//
+// STEP 2 — RUN THIS SQL IN SUPABASE
+//   → Your project → SQL Editor → paste everything below and click Run
+/*
+create table if not exists profiles (
+  id uuid references auth.users on delete cascade primary key,
+  handle text unique not null,
+  bio text default '',
+  skills jsonb default '[]',
+  x_url text default '',
+  created_at timestamptz default now()
+);
+create table if not exists opportunities (
+  id bigserial primary key,
+  title text not null,
+  description text default '',
+  category text default 'Other',
+  interest integer default 1,
+  poster_handle text not null,
+  poster_id uuid references auth.users on delete cascade,
+  created_at timestamptz default now()
+);
+create table if not exists testimonials (
+  id bigserial primary key,
+  author_handle text not null,
+  author_id uuid references auth.users on delete cascade,
+  body text not null,
+  created_at timestamptz default now()
+);
+create table if not exists community_posts (
+  id bigserial primary key,
+  handle text not null,
+  user_id uuid references auth.users on delete cascade,
+  body text not null,
+  category text default 'General',
+  likes integer default 0,
+  created_at timestamptz default now()
+);
+create table if not exists events (
+  id bigserial primary key,
+  title text not null,
+  description text default '',
+  day integer not null,
+  month text not null,
+  event_time text not null,
+  type text not null,
+  poster_handle text not null,
+  poster_id uuid references auth.users on delete cascade,
+  rsvps jsonb default '[]',
+  created_at timestamptz default now()
+);
+create table if not exists fund_contributions (
+  id bigserial primary key,
+  handle text not null,
+  user_id uuid references auth.users on delete cascade,
+  amount integer not null,
+  note text default '',
+  created_at timestamptz default now()
+);
+create table if not exists member_raises (
+  id bigserial primary key,
+  title text not null,
+  description text default '',
+  stage text default 'Pre-Revenue',
+  target integer default 0,
+  poster_handle text not null,
+  poster_id uuid references auth.users on delete cascade,
+  stripe_link text default '',
+  created_at timestamptz default now()
+);
+alter table profiles enable row level security;
+alter table opportunities enable row level security;
+alter table testimonials enable row level security;
+alter table community_posts enable row level security;
+alter table events enable row level security;
+alter table fund_contributions enable row level security;
+alter table member_raises enable row level security;
+create policy "profiles_read" on profiles for select using (true);
+create policy "profiles_insert" on profiles for insert with check (auth.uid() = id);
+create policy "profiles_update" on profiles for update using (auth.uid() = id);
+create policy "opps_read" on opportunities for select using (true);
+create policy "opps_insert" on opportunities for insert with check (auth.uid() = poster_id);
+create policy "opps_delete" on opportunities for delete using (auth.uid() = poster_id);
+create policy "opps_update" on opportunities for update using (true);
+create policy "test_read" on testimonials for select using (true);
+create policy "test_insert" on testimonials for insert with check (auth.uid() = author_id);
+create policy "test_delete" on testimonials for delete using (auth.uid() = author_id);
+create policy "comm_read" on community_posts for select using (true);
+create policy "comm_insert" on community_posts for insert with check (auth.uid() = user_id);
+create policy "comm_delete" on community_posts for delete using (auth.uid() = user_id);
+create policy "comm_update" on community_posts for update using (true);
+create policy "ev_read" on events for select using (true);
+create policy "ev_insert" on events for insert with check (auth.uid() = poster_id);
+create policy "ev_delete" on events for delete using (auth.uid() = poster_id);
+create policy "ev_update" on events for update using (true);
+create policy "fund_read" on fund_contributions for select using (true);
+create policy "fund_insert" on fund_contributions for insert with check (auth.uid() = user_id);
+create policy "raises_read" on member_raises for select using (true);
+create policy "raises_insert" on member_raises for insert with check (auth.uid() = poster_id);
+create policy "raises_delete" on member_raises for delete using (auth.uid() = poster_id);
+*/
+//
+// STEP 3 — STRIPE (free account)
+//   → Go to stripe.com → Dashboard → Payment Links → + Create
+//   → Product: "Community Fund Contribution"
+//   → Pricing: "Customer chooses price"
+//   → Copy the link and paste in STRIPE_PAYMENT_LINK below
+//
+// STEP 4 — HOSTING (free)
+//   → Go to netlify.com → drag and drop this HTML file
+//   → Your site is live instantly — share the URL
+// ══════════════════════════════════════════════════════════════════════
+
+const SUPABASE_URL     = '';  // e.g. https://xxxx.supabase.co
+const SUPABASE_ANON_KEY = ''; // Your anon/public key from Supabase settings
+const STRIPE_PAYMENT_LINK = ''; // https://buy.stripe.com/xxxxxxxxxxxx
+
+// Init Supabase (graceful if keys not set — runs in demo mode)
+const sb = (SUPABASE_URL && SUPABASE_ANON_KEY)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
 const CATEGORIES = ["All","Tech","Marketing","Sales","Design","Investing","Operations","Other"];
+const COMM_CATS = ['All','General','Win','Question','Resource','Collab'];
 
-// ── STATE ──────────────────────────────────────────────────────────────────
-let currentUser = null;
-let activeFilter = "All";
+// ── STATE ─────────────────────────────────────────────────────────
+let currentUser = null; // { id, email, handle }
+let activeFilter = 'All';
+let activeCommCat = 'All';
 let pendingSkills = [];
+let postToX = false;
+let selectedFundAmount = 0;
+let _stripeWindow = null;
+let _pendingContrib = null;
+let activeDmHandle = null;
+let activeLbTab = 'xp';
+let opportunities = [];
+let communityPosts = [];
+let eventsData = [];
+let contributions = [];
+let memberRaises = [];
 
-let opportunities = JSON.parse(localStorage.getItem('pf_opportunities')) || [
-  { id:1, title:"Frontend dev needed for AI SaaS (equity)", desc:"Equity + $8k/mo", category:"Tech", interest:14, poster:"@BuilderMindset" },
-  { id:2, title:"$15k/mo growth strategist retainer", desc:"Remote, 3 months", category:"Marketing", interest:8, poster:"@GrowthHustle" },
-  { id:3, title:"Angel investor open to pre-seed SaaS deals", desc:"$25k–$150k tickets", category:"Investing", interest:21, poster:"@CapitalBuilder" }
-];
-
-let testimonials = JSON.parse(localStorage.getItem('pf_testimonials')) || [
-  { author:"@BuilderMindset", text:"This is the first community that actually feels like a real ecosystem. Already closed my first deal here." },
-  { author:"@GrowthHustle", text:"The quality here is unmatched. Got introduced to a $400k opportunity on my second call." }
-];
-
-// ── XSS PROTECTION ─────────────────────────────────────────────────────────
+// ── UTILITIES ─────────────────────────────────────────────────────
 function sanitize(str) {
-  const div = document.createElement('div');
-  div.appendChild(document.createTextNode(String(str)));
-  return div.innerHTML;
+  const d = document.createElement('div');
+  d.appendChild(document.createTextNode(String(str || '')));
+  return d.innerHTML;
 }
-
-// ── TOAST ──────────────────────────────────────────────────────────────────
 function showToast(msg) {
-  const toast = document.getElementById('toast');
-  document.getElementById('toast-text').textContent = msg;
-  toast.style.display = 'flex';
-  clearTimeout(toast._timer);
-  toast._timer = setTimeout(() => toast.style.display = 'none', 3000);
+  const t = document.getElementById('toast');
+  const ts = document.getElementById('toast-text');
+  if (!t || !ts) return;
+  ts.innerHTML = msg;
+  t.style.display = 'flex';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.style.display = 'none', 3500);
+}
+function closeModal(id) {
+  const m = document.getElementById(id);
+  if (m) m.style.display = 'none';
+}
+function setLoading(id, msg) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = `<div style="padding:2.5rem;text-align:center;color:#64748b;"><i class="fas fa-spinner fa-spin" style="color:var(--primary);font-size:1.4rem;display:block;margin-bottom:10px;"></i>${msg || 'Loading…'}</div>`;
 }
 
-// ── MODALS ─────────────────────────────────────────────────────────────────
-function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-function closeWelcome() {
-  closeModal('welcome-modal');
-  localStorage.setItem('pf_welcomeShown_' + currentUser, 'true');
+// ── AUTH TAB SWITCHING ────────────────────────────────────────────
+function showAuthTab(tab) {
+  document.getElementById('auth-login-tab').classList.toggle('active', tab === 'login');
+  document.getElementById('auth-signup-tab').classList.toggle('active', tab === 'signup');
+  document.getElementById('auth-login-form').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('auth-signup-form').style.display = tab === 'signup' ? 'block' : 'none';
 }
 
-// ── WELCOME TASK TRACKER ───────────────────────────────────────────────────
-function getCompletedTasks() {
-  return JSON.parse(localStorage.getItem('pf_tasks_' + currentUser) || '[]');
-}
-function markTaskDone(num) {
-  const done = getCompletedTasks();
-  if (!done.includes(num)) { done.push(num); localStorage.setItem('pf_tasks_' + currentUser, JSON.stringify(done)); }
-  refreshTaskUI();
-}
-function refreshTaskUI() {
-  const done = getCompletedTasks();
-  const pct = Math.round((done.length / 3) * 100);
-  // Welcome modal bars
-  const bar = document.getElementById('task-progress-bar');
-  const txt = document.getElementById('task-progress-text');
-  if (bar) bar.style.width = pct + '%';
-  if (txt) txt.textContent = done.length + ' / 3 done';
-  [1,2,3].forEach(n => {
-    const check = document.getElementById('task-check-' + n);
-    const row = document.getElementById('welcome-task-' + n);
-    if (check && done.includes(n)) {
-      check.style.background = 'var(--primary)';
-      check.style.borderColor = 'var(--primary)';
-      check.innerHTML = '<i class="fas fa-check" style="color:#0a0f1e;font-size:0.65rem;"></i>';
-      if (row) row.style.opacity = '0.6';
-    }
-  });
-  // Dashboard inline task bar
-  const dbar = document.getElementById('dash-task-bar');
-  const dtxt = document.getElementById('dash-task-text');
-  if (dbar) dbar.style.width = pct + '%';
-  if (dtxt) dtxt.textContent = done.length + ' / 3 done';
-  [1,2,3].forEach(n => {
-    const pill = document.getElementById('dash-t' + n);
-    if (pill && done.includes(n)) {
-      pill.style.background = 'rgba(16,185,129,0.12)';
-      pill.style.borderColor = 'rgba(16,185,129,0.4)';
-      pill.style.color = 'var(--primary)';
-      pill.innerHTML = pill.innerHTML.replace('✦','✓');
-    }
-  });
-}
-function welcomeTask(num) {
-  markTaskDone(num);
-  setTimeout(() => {
-    closeModal('welcome-modal');
-    setTimeout(() => {
-      if (num === 1) switchTab('testimonials');
-      else if (num === 2) showGoalModal();
-      else if (num === 3) showPostModal();
-    }, 300);
-  }, 350);
-}
-function showWelcomeModal() {
-  const headline = document.getElementById('welcome-headline');
-  const subtext = document.getElementById('welcome-subtext');
-  if (headline) headline.textContent = `Welcome, ${currentUser}! 🎉`;
-  if (subtext) subtext.textContent = `You're now a verified founding member of Pass It Forward. Complete these 3 tasks to get started:`;
-  refreshTaskUI();
-  document.getElementById('welcome-modal').style.display = 'flex';
-}
+// ── AUTH FUNCTIONS ────────────────────────────────────────────────
+async function handleLogin() {
+  const email = (document.getElementById('login-email')?.value || '').trim();
+  const password = (document.getElementById('login-password')?.value || '').trim();
+  if (!email) return showToast("Please enter your email");
+  if (!password) return showToast("Please enter your password");
 
-// ── TESTIMONIALS ───────────────────────────────────────────────────────────
-function renderTestimonials() {
-  const grid = document.getElementById('testimonials-grid');
-  grid.innerHTML = '';
-  testimonials.forEach((t, i) => {
-    const isMine = currentUser && t.author === currentUser;
-    const card = document.createElement('div');
-    card.className = 'testimonial-card';
-    card.innerHTML = `
-      <p>"${sanitize(t.text)}"</p>
-      <div class="testimonial-author"><i class="fas fa-user-circle"></i> ${sanitize(t.author)}</div>
-      ${isMine ? `<button onclick="deleteTestimonial(${i})" class="delete-testimonial" title="Delete">🗑</button>` : ''}
-    `;
-    grid.appendChild(card);
-  });
-}
-function deleteTestimonial(i) {
-  if (!confirm("Delete this testimonial?")) return;
-  testimonials.splice(i, 1);
-  localStorage.setItem('pf_testimonials', JSON.stringify(testimonials));
-  renderTestimonials();
-  showToast("Testimonial deleted");
-}
-function submitTestimonial() {
-  const text = document.getElementById('new-testimonial').value.trim();
-  if (!text) return;
-  if (!currentUser) return showToast("Login required");
-  testimonials.unshift({ author: currentUser, text });
-  localStorage.setItem('pf_testimonials', JSON.stringify(testimonials));
-  renderTestimonials();
-  document.getElementById('new-testimonial').value = '';
-  markTaskDone(1);
-  addXp(15, 'test', 'Posted a testimonial');
-  showToast("Testimonial posted — thank you for passing it forward!");
-}
+  const btn = document.getElementById('login-submit-btn');
+  if (btn) { btn.textContent = 'Logging in…'; btn.disabled = true; }
 
-// ── ROADMAP ── FIX: 2026 always stays expanded ─────────────────────────────
-function renderRoadmap() {
-  const container = document.getElementById('roadmap-timeline');
-  const years = [
-    {
-      year:'2026', badge:'IN PROGRESS', active:true,
-      items:[
-        {icon:'fa-check',text:'First 150 founding members accepted'},
-        {icon:'fa-check',text:'Private Discord + Notion live'},
-        {icon:'fa-check',text:'Weekly calls & workshops'},
-        {icon:'fa-clock',text:'Internal opportunity marketplace'}
-      ]
-    },
-    { year:'2027', badge:'PLANNED', active:false },
-    { year:'2028', badge:'PLANNED', active:false },
-    { year:'2030', badge:'LEGACY',  active:false },
-  ];
-
-  container.innerHTML = years.map(y => `
-    <div class="roadmap-year ${y.active ? 'active' : ''}">
-      <div class="planned-badge">${y.badge}</div>
-      <div class="year-circle">${y.year}</div>
-      ${y.items ? `
-      <div class="roadmap-year-content">
-        <ul>${y.items.map(item => `<li><i class="fas ${item.icon}"></i> ${item.text}</li>`).join('')}</ul>
-      </div>` : ''}
-    </div>
-  `).join('');
-  // 2026 is always visible — no toggle, no collapse
-}
-
-// ── FILTERS ────────────────────────────────────────────────────────────────
-function renderFilters() {
-  document.getElementById('filter-bar').innerHTML = CATEGORIES.map(cat =>
-    `<button class="filter-btn ${activeFilter===cat?'active':''}" onclick="setFilter('${cat}')">${cat}</button>`
-  ).join('');
-}
-function setFilter(cat) {
-  activeFilter = cat;
-  renderFilters();
-  renderOpportunities();
-}
-
-// ── OPPORTUNITIES ── FIX: real count, sanitized output ─────────────────────
-function renderOpportunities() {
-  const feed = document.getElementById('opportunities-feed');
-  const filtered = activeFilter === 'All' ? opportunities : opportunities.filter(o => o.category === activeFilter);
-
-  if (filtered.length === 0) {
-    feed.innerHTML = `<div style="padding:2.5rem;text-align:center;color:#4b5563;font-size:0.95rem;">No opportunities in this category yet. Be the first!</div>`;
-  } else {
-    feed.innerHTML = '';
-    filtered.forEach(opp => {
-      const isMine = currentUser && opp.poster === currentUser;
-      const div = document.createElement('div');
-      div.className = 'opp-item';
-      div.innerHTML = `
-        <div class="opp-top">
-          <div>
-            <strong style="color:white;font-size:0.97rem;">${sanitize(opp.title)}</strong>
-            <div class="opp-meta">
-              ${opp.category ? `<span class="opp-category">${sanitize(opp.category)}</span>` : ''}
-              <span>${sanitize(opp.desc)}</span>
-              <span>• by ${sanitize(opp.poster)}</span>
-            </div>
-          </div>
-          <div class="opp-actions">
-            <button onclick="expressInterest(${opp.id})" class="interest-btn"><i class="fas fa-fire" style="font-size:0.72rem;margin-right:3px;"></i>${opp.interest}</button>
-            <button onclick="showDmModal('${opp.poster.replace(/'/g,"\\'")}','${opp.title.replace(/'/g,"\\'")}','${opp.poster.replace(/'/g,"\\'")}',${opp.id})" class="dm-btn"><i class="fas fa-paper-plane" style="font-size:0.75rem;margin-right:3px;"></i>DM</button>
-            ${isMine ? `<button onclick="deleteOpportunity(${opp.id})" class="delete-btn" title="Delete">🗑</button>` : ''}
-          </div>
-        </div>
-      `;
-      feed.appendChild(div);
-    });
-  }
-  // FIX: Real count, not fabricated formula
-  document.getElementById('opp-count').textContent = opportunities.length;
-}
-
-function expressInterest(id) {
-  const opp = opportunities.find(o => o.id === id);
-  if (opp) {
-    opp.interest++;
-    localStorage.setItem('pf_opportunities', JSON.stringify(opportunities));
-    renderOpportunities();
-    bumpWeekly('interests');
-    showToast("Interest registered!");
-  }
-}
-function deleteOpportunity(id) {
-  if (!confirm("Delete this opportunity?")) return;
-  opportunities = opportunities.filter(o => o.id !== id);
-  localStorage.setItem('pf_opportunities', JSON.stringify(opportunities));
-  renderOpportunities();
-  updatePostedCount();
-  showToast("Opportunity deleted");
-}
-function showPostModal() {
-  if (!currentUser) return showToast("Login first");
-  document.getElementById('post-modal').style.display = 'flex';
-}
-
-// ── DM BUTTON ──────────────────────────────────────────────────────────────
-function showDmModal(poster, title, handle) {
-  document.getElementById('dm-modal-title').textContent = `Contact ${sanitize(poster)}`;
-  document.getElementById('dm-modal-body').textContent = `Reach out to ${sanitize(poster)} about: "${sanitize(title)}"`;
-  const cleanHandle = handle.replace('@','');
-  const msg = `Hey ${poster}, saw your opportunity "${title}" on Pass It Forward — interested in connecting!`;
-  document.getElementById('dm-x-link').href = `https://twitter.com/messages/compose?text=${encodeURIComponent(msg)}`;
-  document.getElementById('dm-modal').style.display = 'flex';
-}
-
-// ── GOAL ──────────────────────────────────────────────────────────────────
-function showGoalModal() {
-  if (!currentUser) return showToast("Login first");
-  const existing = localStorage.getItem('pf_goal');
-  if (existing) document.getElementById('goal-text').value = existing;
-  document.getElementById('goal-modal').style.display = 'flex';
-}
-function saveGoal() {
-  const goal = document.getElementById('goal-text').value.trim();
-  if (!goal) return;
-  localStorage.setItem('pf_goal', goal);
-  closeModal('goal-modal');
-  markTaskDone(2);
-  addXp(10, 'goal', 'Set a 30-day goal');
-  bumpWeekly('goal');
-  showToast("Goal saved!");
-  renderGoal();
-}
-function deleteGoal() {
-  if (!confirm("Delete your goal?")) return;
-  localStorage.removeItem('pf_goal');
-  renderGoal();
-  showToast("Goal deleted");
-}
-function renderGoal() {
-  const goal = localStorage.getItem('pf_goal');
-  const box = document.getElementById('current-goal-box');
-  if (goal) {
-    document.getElementById('display-goal').textContent = goal;
-    box.classList.add('show');
-  } else {
-    box.classList.remove('show');
-  }
-}
-
-// ── PROFILE ────────────────────────────────────────────────────────────────
-function updatePostedCount() {
-  const count = opportunities.filter(o => o.poster === currentUser).length;
-  const el = document.getElementById('stat-posted');
-  if (el) el.textContent = count;
-  // Also update the total opportunities stat panel
-  const oppCount = document.getElementById('opp-count');
-  if (oppCount) oppCount.textContent = opportunities.length;
-}
-function renderProfile() {
-  if (!currentUser) return;
-  const profile = JSON.parse(localStorage.getItem('pf_profile_' + currentUser) || '{}');
-  document.getElementById('profile-handle').textContent = currentUser;
-  document.getElementById('profile-bio-display').textContent = profile.bio || 'No bio yet. Click edit to add one.';
-  const skillsEl = document.getElementById('profile-skills-display');
-  skillsEl.innerHTML = (profile.skills || []).map(s => `<span class="skill-tag">${sanitize(s)}</span>`).join('');
-  const xLink = document.getElementById('profile-x-link');
-  if (profile.xUrl) {
-    xLink.href = profile.xUrl;
-    xLink.style.display = 'inline-flex';
-  } else {
-    xLink.style.display = 'none';
-  }
-  updatePostedCount();
-}
-function showProfileModal() {
-  const profile = JSON.parse(localStorage.getItem('pf_profile_' + currentUser) || '{}');
-  document.getElementById('edit-bio').value = profile.bio || '';
-  document.getElementById('edit-x-url').value = profile.xUrl || '';
-  pendingSkills = [...(profile.skills || [])];
-  renderSkillsPreview();
-  document.getElementById('profile-modal').style.display = 'flex';
-}
-function addSkill() {
-  const input = document.getElementById('skill-input');
-  const val = input.value.trim();
-  if (!val || pendingSkills.includes(val) || pendingSkills.length >= 8) {
-    if (pendingSkills.length >= 8) showToast("Max 8 skills");
+  if (!sb) {
+    // DEMO MODE — no Supabase configured
+    const handle = '@' + email.split('@')[0].replace(/[^a-zA-Z0-9_]/g,'');
+    currentUser = { id: 'demo-' + handle, email, handle };
+    localStorage.setItem('pf_demo_user', JSON.stringify(currentUser));
+    if (btn) { btn.textContent = 'Login'; btn.disabled = false; }
+    closeModal('login-modal');
+    showMemberTabs();
+    showToast("Logged in (demo mode)");
     return;
   }
-  pendingSkills.push(val);
-  input.value = '';
-  renderSkillsPreview();
-}
-function renderSkillsPreview() {
-  document.getElementById('skills-preview').innerHTML = pendingSkills.map((s, i) =>
-    `<span class="skill-tag" onclick="removeSkill(${i})" title="Click to remove">${sanitize(s)} ✕</span>`
-  ).join('');
-}
-function removeSkill(i) {
-  pendingSkills.splice(i, 1);
-  renderSkillsPreview();
-}
-function saveProfile() {
-  const bio = document.getElementById('edit-bio').value.trim();
-  const xUrl = document.getElementById('edit-x-url').value.trim();
-  localStorage.setItem('pf_profile_' + currentUser, JSON.stringify({ bio, skills: pendingSkills, xUrl }));
-  closeModal('profile-modal');
-  renderProfile();
-  showToast("Profile updated!");
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if (btn) { btn.textContent = 'Login'; btn.disabled = false; }
+  if (error) return showToast("❌ " + error.message);
+  await loadCurrentUser(data.user);
+  closeModal('login-modal');
+  showMemberTabs();
 }
 
-// ── AUTH ──────────────────────────────────────────────────────────────────
+async function handleSignup() {
+  const email = (document.getElementById('signup-email')?.value || '').trim();
+  const handle = (document.getElementById('signup-handle')?.value || '').trim();
+  const password = (document.getElementById('signup-password')?.value || '').trim();
+  const confirm = (document.getElementById('signup-confirm')?.value || '').trim();
+  if (!email) return showToast("Enter your email");
+  if (!handle) return showToast("Enter your X handle");
+  if (password.length < 6) return showToast("Password needs 6+ characters");
+  if (password !== confirm) return showToast("Passwords don't match");
+  const cleanHandle = handle.startsWith('@') ? handle : '@' + handle;
+
+  const btn = document.getElementById('signup-submit-btn');
+  if (btn) { btn.textContent = 'Creating account…'; btn.disabled = true; }
+
+  if (!sb) {
+    // DEMO MODE
+    currentUser = { id: 'demo-' + cleanHandle, email, handle: cleanHandle };
+    localStorage.setItem('pf_demo_user', JSON.stringify(currentUser));
+    if (btn) { btn.textContent = 'Create Account'; btn.disabled = false; }
+    closeModal('login-modal');
+    showMemberTabs();
+    showToast("Account created (demo mode) 🎉");
+    return;
+  }
+
+  const { data, error } = await sb.auth.signUp({ email, password });
+  if (btn) { btn.textContent = 'Create Account'; btn.disabled = false; }
+  if (error) return showToast("❌ " + error.message);
+
+  if (data.user) {
+    // Create profile row
+    const { error: pErr } = await sb.from('profiles').upsert({
+      id: data.user.id, handle: cleanHandle, bio: '', skills: [], x_url: ''
+    });
+    if (pErr) console.warn('Profile create:', pErr.message);
+    await loadCurrentUser(data.user);
+    closeModal('login-modal');
+    showMemberTabs();
+    showToast("Welcome to Pass It Forward! 🎉");
+  }
+}
+
+async function loadCurrentUser(user) {
+  if (!user) return;
+  let handle = '@' + user.email.split('@')[0];
+  if (sb) {
+    const { data } = await sb.from('profiles').select('handle').eq('id', user.id).maybeSingle();
+    if (data?.handle) handle = data.handle;
+  } else {
+    handle = localStorage.getItem('pf_current_handle') || handle;
+  }
+  currentUser = { id: user.id, email: user.email, handle };
+  localStorage.setItem('pf_current_handle', handle);
+}
+
+async function logout() {
+  if (sb) await sb.auth.signOut();
+  currentUser = null;
+  localStorage.removeItem('pf_demo_user');
+  localStorage.removeItem('pf_current_handle');
+  location.reload();
+}
+
+async function initAuth() {
+  if (!sb) {
+    const demo = localStorage.getItem('pf_demo_user');
+    if (demo) { try { currentUser = JSON.parse(demo); return true; } catch(e) {} }
+    return false;
+  }
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) { await loadCurrentUser(session.user); return true; }
+  return false;
+}
+
+// ── MEMBER UI ─────────────────────────────────────────────────────
 function showMemberTabs() {
-  currentUser = localStorage.getItem('pf_user');
+  if (!currentUser) return;
   document.getElementById('login-btn').style.display = 'none';
   document.getElementById('user-area').style.display = 'flex';
-  document.getElementById('display-name').textContent = currentUser;
-  document.getElementById('profile-name').textContent = currentUser;
+  const dn = document.getElementById('display-name'); if (dn) dn.textContent = currentUser.handle;
+  const pn = document.getElementById('profile-name'); if (pn) pn.textContent = currentUser.handle;
   document.getElementById('apply-card').style.display = 'none';
-  document.getElementById('add-testimonial-form').style.display = 'block';
+  const atf = document.getElementById('add-testimonial-form'); if (atf) atf.style.display = 'block';
   document.querySelectorAll('.member-link').forEach(l => l.style.display = 'block');
-  // Hide "Home" nav item once logged in
-  const homeLink = Array.from(document.querySelectorAll('#main-nav a')).find(a => a.getAttribute('onclick')?.includes("'hero'"));
-  if (homeLink) homeLink.style.display = 'none';
-  document.getElementById('notif-wrap').classList.add('visible');
+  const nw = document.getElementById('notif-wrap'); if (nw) nw.classList.add('visible');
+  if (!sb) {
+    const w = document.getElementById('auth-no-sb-warning'); if (w) w.style.display = 'block';
+  }
   renderProfile();
   switchTab('dashboard');
   renderGoal();
   refreshTaskUI();
   renderNotifBell();
-  if (!localStorage.getItem('pf_welcomeShown_' + currentUser)) {
+  if (!localStorage.getItem('pf_welcomeShown_' + currentUser.handle)) {
     setTimeout(() => showWelcomeModal(), 900);
   }
 }
-function handleLogin() {
-  const handle = document.getElementById('xhandle').value.trim();
-  const code = document.getElementById('accesscode').value.trim();
-  if (!handle) return showToast("Please enter your X handle");
-  if (code !== ACCESS_CODE) return showToast("Incorrect access code");
-  currentUser = handle.startsWith('@') ? handle : '@' + handle;
-  localStorage.setItem('pf_loggedIn', 'true');
-  localStorage.setItem('pf_user', currentUser);
-  closeModal('login-modal');
-  showMemberTabs();
-}
-function logout() {
-  localStorage.removeItem('pf_loggedIn');
-  localStorage.removeItem('pf_user');
-  location.reload();
-}
 
-// ── TABS ──────────────────────────────────────────────────────────────────
+// ── TABS ──────────────────────────────────────────────────────────
 function switchTab(tabId) {
   const memberTabs = ['vision','testimonials','dashboard','funds','community','leaderboard','challenges','events','directory','messages','mystats'];
   if (!currentUser && memberTabs.includes(tabId)) {
     showToast("Members only — please login first");
     document.getElementById('login-modal').style.display = 'flex';
+    showAuthTab('login');
     return;
   }
   document.querySelectorAll('#main-nav a').forEach(a => a.classList.remove('active'));
@@ -1713,1124 +1659,797 @@ function switchTab(tabId) {
   if (active) active.classList.add('active');
   document.querySelectorAll('.member-section').forEach(s => s.style.display = 'none');
   if (tabId === 'hero') {
+    window.scrollTo({ top:0, behavior:'smooth' }); return;
+  }
+  const sec = document.getElementById(tabId);
+  if (sec) {
+    sec.style.display = 'block';
     window.scrollTo({ top:0, behavior:'smooth' });
+    if (tabId === 'dashboard')     loadOpportunitiesAndRender();
+    if (tabId === 'testimonials')  loadAndRenderTestimonials();
+    if (tabId === 'community')     loadAndRenderCommunity();
+    if (tabId === 'funds')         renderFunds();
+    if (tabId === 'events')        loadAndRenderEvents();
+    if (tabId === 'directory')     loadAndRenderDirectory();
+    if (tabId === 'leaderboard')   renderLeaderboard();
+    if (tabId === 'challenges')    renderChallenges();
+    if (tabId === 'messages')      renderDmSidebar();
+    if (tabId === 'mystats')       renderMyStats();
+  }
+}
+
+// ── OPPORTUNITIES ─────────────────────────────────────────────────
+async function loadOpportunitiesAndRender() {
+  renderFilters();
+  setLoading('opportunities-feed', 'Loading opportunities…');
+  if (sb) {
+    const { data, error } = await sb.from('opportunities').select('*').order('created_at', { ascending: false });
+    if (!error && data) {
+      opportunities = data.map(r => ({
+        id: r.id, title: r.title, desc: r.description, category: r.category,
+        interest: r.interest, poster: r.poster_handle, poster_id: r.poster_id
+      }));
+    }
+  }
+  renderOpportunities();
+}
+
+function renderFilters() {
+  const fb = document.getElementById('filter-bar'); if (!fb) return;
+  fb.innerHTML = CATEGORIES.map(c =>
+    `<button class="filter-btn ${activeFilter===c?'active':''}" onclick="setFilter('${c}')">${c}</button>`
+  ).join('');
+}
+function setFilter(cat) { activeFilter = cat; renderFilters(); renderOpportunities(); }
+
+function renderOpportunities() {
+  const feed = document.getElementById('opportunities-feed'); if (!feed) return;
+  const filtered = activeFilter === 'All' ? opportunities : opportunities.filter(o => o.category === activeFilter);
+  if (!filtered.length) {
+    feed.innerHTML = `<div style="padding:2.5rem;text-align:center;color:#4b5563;font-size:0.95rem;">No opportunities${activeFilter!=='All'?' in '+activeFilter:''} yet. Be the first!</div>`;
   } else {
-    const sec = document.getElementById(tabId);
-    if (sec) {
-      sec.style.display = 'block';
-      window.scrollTo({ top:0, behavior:'smooth' });
-      if (tabId === 'funds') renderFunds();
-      if (tabId === 'community') renderCommunity();
-      if (tabId === 'leaderboard') renderLeaderboard();
-      if (tabId === 'challenges') renderChallenges();
-      if (tabId === 'events') renderEvents();
-      if (tabId === 'directory') renderDirectory();
-      if (tabId === 'messages') renderDmSidebar();
-      if (tabId === 'mystats') renderMyStats();
-    }
-  }
-}
-
-// ── LIVE COUNTER FIX: realistic drift, bounded ─────────────────────────────
-let fakeOnline = 183;
-setInterval(() => {
-  fakeOnline = Math.max(150, Math.min(220, fakeOnline + Math.floor(Math.random()*5)-2));
-  const el = document.getElementById('online-count');
-  if (el) el.textContent = fakeOnline;
-}, 4500);
-
-// ── INIT ──────────────────────────────────────────────────────────────────
-document.getElementById('login-btn').addEventListener('click', () => document.getElementById('login-modal').style.display = 'flex');
-document.getElementById('logout-btn').addEventListener('click', logout);
-
-// Close modals by clicking backdrop
-document.querySelectorAll('.modal').forEach(modal => {
-  modal.addEventListener('click', e => { if (e.target === modal) modal.style.display = 'none'; });
-});
-
-if (localStorage.getItem('pf_loggedIn') === 'true') {
-  showMemberTabs();
-} else {
-  document.getElementById('apply-card').style.display = 'block';
-  document.querySelectorAll('.member-link').forEach(l => l.style.display = 'none');
-}
-
-renderTestimonials();
-renderRoadmap();
-renderFilters();
-renderOpportunities();
-
-document.getElementById('apply-form').addEventListener('submit', e => {
-  e.preventDefault();
-  e.target.reset();
-  showToast("✅ Application received! We'll DM you on X within 48 hours.");
-});
-
-
-// ── X TOGGLE ──────────────────────────────────────────────────────────────
-let postToX = false;
-function toggleXPost() {
-  postToX = !postToX;
-  const sw = document.getElementById('x-switch');
-  if (sw) sw.classList.toggle('on', postToX);
-}
-
-// ── FUND TABS ──────────────────────────────────────────────────────────────
-function switchFundTab(tab) {
-  document.querySelectorAll('.fund-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.fund-tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelector(`.fund-tab[onclick="switchFundTab('${tab}')"]`).classList.add('active');
-  document.getElementById('tab-' + tab).classList.add('active');
-  if (tab === 'member-raises') renderMemberRaises();
-  if (tab === 'project-funds') renderProjectFunds();
-}
-
-// ── COMMUNITY POT ──────────────────────────────────────────────────────────
-const FUND_GOAL = 10000;
-let contributions = JSON.parse(localStorage.getItem('pf_contributions')) || [
-  { id:1, handle:'@BuilderMindset', amount:250, note:'For the community 🙌', date:'Jan 15, 2026' },
-  { id:2, handle:'@GrowthHustle', amount:100, note:"Let's get to $10k!", date:'Jan 22, 2026' },
-  { id:3, handle:'@CapitalBuilder', amount:500, note:'Investing in what matters.', date:'Feb 3, 2026' },
-];
-function saveContributions() { localStorage.setItem('pf_contributions', JSON.stringify(contributions)); }
-
-function formatMoney(n) {
-  if (n >= 1000000) return '$' + (n/1000000).toFixed(1) + 'M';
-  if (n >= 1000) return '$' + (n/1000).toFixed(1).replace(/\.0$/, '') + 'k';
-  return '$' + n.toLocaleString();
-}
-
-function renderFunds() {
-  const total = contributions.reduce((s,c) => s + c.amount, 0);
-  const pct = Math.min(100, Math.round((total / FUND_GOAL) * 100));
-  const top = contributions.length ? Math.max(...contributions.map(c => c.amount)) : 0;
-  const set = id => document.getElementById(id);
-  if (set('pot-display')) set('pot-display').textContent = formatMoney(total);
-  if (set('pot-bar')) set('pot-bar').style.width = pct + '%';
-  if (set('pot-pct')) set('pot-pct').textContent = pct + '%';
-  if (set('pot-goal-display')) set('pot-goal-display').textContent = formatMoney(FUND_GOAL);
-  if (set('pot-total-stat')) set('pot-total-stat').textContent = formatMoney(total);
-  if (set('pot-contrib-count')) set('pot-contrib-count').textContent = contributions.length;
-  if (set('pot-top-contrib')) set('pot-top-contrib').textContent = top ? formatMoney(top) : '—';
-  const chips = document.getElementById('pot-contributors');
-  if (chips) {
-    const unique = [...new Set(contributions.map(c => c.handle))].slice(0,8);
-    chips.innerHTML = unique.map(h => `<span class="contrib-chip">${sanitize(h)}</span>`).join('') +
-      (contributions.length > 8 ? `<span class="contrib-chip">+${contributions.length - 8} more</span>` : '');
-  }
-  const cards = document.getElementById('contrib-cards');
-  if (cards) {
-    const recent = [...contributions].reverse().slice(0,6);
-    cards.innerHTML = recent.map(c => `
-      <div class="fund-contrib-card">
-        <div class="contrib-amount">${formatMoney(c.amount)}</div>
-        <div class="contrib-handle">${sanitize(c.handle)}</div>
-        ${c.note ? `<div class="contrib-note">"${sanitize(c.note)}"</div>` : ''}
-        <div class="contrib-date">${sanitize(c.date)}</div>
-      </div>`).join('');
-  }
-  const hist = document.getElementById('fund-history-list');
-  const histCount = document.getElementById('history-count');
-  if (hist) {
-    const sorted = [...contributions].reverse();
-    if (histCount) histCount.textContent = sorted.length + ' transaction' + (sorted.length !== 1 ? 's' : '');
-    hist.innerHTML = sorted.length ? sorted.map(c => `
-      <div class="fund-history-row">
-        <div class="fund-hist-icon"><i class="fas fa-arrow-up"></i></div>
-        <div class="fund-hist-info">
-          <strong>${sanitize(c.handle)}</strong>
-          <span>${c.note ? sanitize(c.note) : 'No note'} · ${sanitize(c.date)}</span>
-        </div>
-        <div class="fund-hist-amount">+${formatMoney(c.amount)}</div>
-      </div>`).join('') : `<div style="padding:2rem;text-align:center;color:#4b5563;">No contributions yet. Be the first!</div>`;
-  }
-}
-
-function showAddFundsModal() {
-  if (!currentUser) return showToast("Login first");
-  document.getElementById('fund-custom-amount').value = '';
-  document.getElementById('fund-note').value = '';
-  document.querySelectorAll('#add-funds-modal .pledge-amount-btn').forEach(b => b.classList.remove('selected'));
-  selectedFundAmount = 0;
-  _pendingContrib = null;
-  // Always start on step 1
-  document.getElementById('fund-step-1').style.display = 'block';
-  document.getElementById('fund-step-2').style.display = 'none';
-  document.getElementById('add-funds-modal').style.display = 'flex';
-}
-let selectedFundAmount = 0;
-let _stripeWindow = null;
-let _pendingContrib = null;
-
-function selectFundAmount(amount, btn) {
-  document.querySelectorAll('#add-funds-modal .pledge-amount-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  selectedFundAmount = amount;
-  document.getElementById('fund-custom-amount').value = '';
-}
-
-function goToStripePayment() {
-  const custom = parseInt(document.getElementById('fund-custom-amount').value) || 0;
-  const amount = custom || selectedFundAmount;
-  if (!amount || amount <= 0) return showToast("Please select or enter an amount");
-  const note = document.getElementById('fund-note').value.trim();
-
-  // Store pending contribution — only recorded AFTER user confirms payment
-  _pendingContrib = {
-    id: Date.now(),
-    handle: currentUser,
-    amount,
-    note,
-    date: new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
-  };
-
-  // Build Stripe URL — append amount and member handle as query params
-  let stripeUrl = STRIPE_PAYMENT_LINK;
-  if (!stripeUrl) {
-    // No Stripe link configured — show setup instructions
-    showToast("⚙️ Add your Stripe link in the code to accept payments");
-    // Still let them go through the flow for demo purposes
-    stripeUrl = null;
-  }
-
-  if (stripeUrl) {
-    // Pass amount and handle so Stripe webhook can identify payment
-    const sep = stripeUrl.includes('?') ? '&' : '?';
-    const fullUrl = `${stripeUrl}${sep}client_reference_id=${encodeURIComponent(currentUser)}&prefilled_amount=${amount * 100}`;
-    _stripeWindow = window.open(fullUrl, '_blank');
-    if (!_stripeWindow || _stripeWindow.closed) {
-      // Popup was blocked — give direct link
-      showToast('⚠️ Popup blocked. <a href="'+fullUrl+'" target="_blank" style="color:var(--primary);">Open Stripe here</a>');
-    }
-  }
-
-  // Show step 2
-  document.getElementById('fund-step-1').style.display = 'none';
-  document.getElementById('fund-step-2').style.display = 'block';
-  document.getElementById('fund-confirm-amount').textContent = '$' + amount;
-  document.getElementById('fund-confirm-handle').textContent = currentUser;
-}
-
-function reopenStripe() {
-  if (!_pendingContrib || !STRIPE_PAYMENT_LINK) return showToast("No Stripe link configured yet");
-  const sep = STRIPE_PAYMENT_LINK.includes('?') ? '&' : '?';
-  const url = `${STRIPE_PAYMENT_LINK}${sep}client_reference_id=${encodeURIComponent(currentUser)}&prefilled_amount=${_pendingContrib.amount * 100}`;
-  _stripeWindow = window.open(url, '_blank');
-}
-
-function confirmPaymentDone() {
-  if (!_pendingContrib) return;
-  // Record contribution now that user has confirmed payment
-  contributions.push(_pendingContrib);
-  saveContributions();
-  addXp(25, 'goal', 'Contributed $' + _pendingContrib.amount + ' to community fund');
-  bumpWeekly('fund');
-  closeModal('add-funds-modal');
-  renderFunds();
-  showToast(`$${_pendingContrib.amount} contribution recorded — thank you! 🙏`);
-  _pendingContrib = null;
-  _stripeWindow = null;
-  // Reset modal back to step 1 for next time
-  document.getElementById('fund-step-1').style.display = 'block';
-  document.getElementById('fund-step-2').style.display = 'none';
-  document.querySelectorAll('#add-funds-modal .pledge-amount-btn').forEach(b => b.classList.remove('selected'));
-  selectedFundAmount = 0;
-  document.getElementById('fund-custom-amount').value = '';
-  document.getElementById('fund-note').value = '';
-}
-
-function cancelFundStep2() {
-  _pendingContrib = null;
-  _stripeWindow = null;
-  document.getElementById('fund-step-1').style.display = 'block';
-  document.getElementById('fund-step-2').style.display = 'none';
-  closeModal('add-funds-modal');
-}
-
-// Legacy — kept for safety
-function confirmAddFunds() { goToStripePayment(); }
-
-// ── MEMBER RAISES ──────────────────────────────────────────────────────────
-let memberRaises = JSON.parse(localStorage.getItem('pf_raises')) || [
-  { id:1, title:'NexusAI — Workflow Automation', desc:'B2B automation for ops teams. $180k ARR, growing 22% MoM. Raising to hire GTM.', stage:'Scaling', target:250000, poster:'@BuilderMindset', stripeLink:'https://buy.stripe.com/example1', date:'Feb 1, 2026' },
-  { id:2, title:'Stackr — No-Code App Builder', desc:'Visual dev platform for non-technical founders. 3k waitlist. Pre-launch raise.', stage:'Pre-Revenue', target:80000, poster:'@GrowthHustle', stripeLink:'https://buy.stripe.com/example2', date:'Feb 10, 2026' },
-];
-function saveRaises() { localStorage.setItem('pf_raises', JSON.stringify(memberRaises)); }
-
-function renderMemberRaises() {
-  const feed = document.getElementById('member-raises-feed');
-  if (!feed) return;
-  if (!memberRaises.length) { feed.innerHTML = ''; return; }
-  feed.innerHTML = memberRaises.map(r => {
-    const mine = currentUser && r.poster === currentUser;
-    return `
-    <div class="raise-card">
-      <div class="raise-card-top">
-        <div>
-          <div class="raise-title">${sanitize(r.title)}</div>
-          <div class="raise-desc">${sanitize(r.desc)}</div>
-          <div class="raise-meta">
-            <span class="raise-stage">${sanitize(r.stage)}</span>
-            <span>Target: <strong style="color:white;">${formatMoney(r.target)}</strong></span>
-            <span>· ${sanitize(r.poster)}</span>
-            <span>· ${sanitize(r.date)}</span>
-            ${mine ? `<span class="raise-own-badge">Your Raise</span>` : ''}
+    feed.innerHTML = '';
+    filtered.forEach(opp => {
+      const isMine = currentUser && (opp.poster === currentUser.handle || String(opp.poster_id) === String(currentUser.id));
+      const div = document.createElement('div');
+      div.className = 'opp-item';
+      div.innerHTML = `
+        <div class="opp-top">
+          <div>
+            <strong style="color:white;font-size:0.97rem;">${sanitize(opp.title)}</strong>
+            <div class="opp-meta">
+              ${opp.category?`<span class="opp-category">${sanitize(opp.category)}</span>`:''}
+              <span>${sanitize(opp.desc)}</span>
+              <span>• by ${sanitize(opp.poster)}</span>
+            </div>
           </div>
-        </div>
-        <div class="raise-target">${formatMoney(r.target)}<small>target</small></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">
-        <a href="${sanitize(r.stripeLink)}" target="_blank" class="raise-stripe-btn">
-          <i class="fas fa-credit-card" style="font-size:0.8rem;"></i> Back This Project
-        </a>
-        <span style="color:#4b5563;font-size:0.75rem;"><i class="fas fa-lock" style="margin-right:3px;"></i>Stripe · goes directly to ${sanitize(r.poster)}</span>
-        ${mine ? `<button onclick="deleteRaise(${r.id})" style="margin-left:auto;background:none;border:none;color:#64748b;cursor:pointer;font-size:0.82rem;transition:color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#64748b'"><i class="fas fa-trash"></i></button>` : ''}
-      </div>
-    </div>`}).join('');
-}
-
-function showRaiseModal() {
-  if (!currentUser) return showToast("Login first");
-  document.getElementById('raise-modal').style.display = 'flex';
-}
-function submitRaise() {
-  const title = document.getElementById('raise-title').value.trim();
-  const desc = document.getElementById('raise-desc').value.trim();
-  const target = parseInt(document.getElementById('raise-target').value) || 0;
-  const stage = document.getElementById('raise-stage').value;
-  const stripeLink = document.getElementById('raise-stripe-link').value.trim();
-  if (!title) return showToast("Add a project name");
-  if (!target) return showToast("Add your target amount");
-  if (!stage) return showToast("Select a stage");
-  if (!stripeLink || !stripeLink.startsWith('http')) return showToast("Add your Stripe Payment Link");
-  const dateStr = new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
-  memberRaises.unshift({ id: Date.now(), title, desc: desc || 'No description', stage, target, poster: currentUser, stripeLink, date: dateStr });
-  saveRaises();
-  closeModal('raise-modal');
-  ['raise-title','raise-desc','raise-target','raise-stripe-link'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('raise-stage').value = '';
-  renderMemberRaises();
-  showToast("Raise listed! 🚀");
-}
-function deleteRaise(id) {
-  if (!confirm("Delete this raise?")) return;
-  memberRaises = memberRaises.filter(r => r.id !== id);
-  saveRaises();
-  renderMemberRaises();
-  showToast("Raise deleted");
-}
-
-// ── PROJECT FUNDS ──────────────────────────────────────────────────────────
-const PROJECT_FUNDS = [
-  {
-    id:1, title:'Platform Development', desc:'Building out the core platform infrastructure — dashboards, community features, and marketplace foundation.',
-    goal: 5000, raised: 850, color:'alloc-green',
-    allocations:[
-      { label:'Developer tools & hosting', pct:40, color:'alloc-green' },
-      { label:'Design & UI improvements', pct:30, color:'alloc-blue' },
-      { label:'Reserve', pct:30, color:'alloc-purple' },
-    ]
-  },
-  {
-    id:2, title:'Community Events & Calls', desc:'Weekly live calls, workshops, and community events. Building the culture that makes this ecosystem real.',
-    goal: 2000, raised: 400, color:'alloc-blue',
-    allocations:[
-      { label:'Event platform & tools', pct:50, color:'alloc-blue' },
-      { label:'Guest speakers & experts', pct:35, color:'alloc-gold' },
-      { label:'Recording & content', pct:15, color:'alloc-purple' },
-    ]
-  },
-  {
-    id:3, title:'Member Rewards Program', desc:'Recognising and rewarding the most active, highest-contributing members. Your participation gets paid back.',
-    goal: 3000, raised: 0, color:'alloc-gold',
-    allocations:[
-      { label:'Top contributor bonuses', pct:60, color:'alloc-gold' },
-      { label:'Milestone rewards', pct:25, color:'alloc-green' },
-      { label:'Community prizes', pct:15, color:'alloc-blue' },
-    ]
-  },
-];
-
-function renderProjectFunds() {
-  const feed = document.getElementById('project-funds-feed');
-  if (!feed) return;
-  feed.innerHTML = PROJECT_FUNDS.map(p => {
-    const pct = Math.min(100, Math.round((p.raised / p.goal) * 100));
-    return `
-    <div class="project-fund-card">
-      <div class="project-fund-header">
-        <div>
-          <div class="project-fund-title">${sanitize(p.title)}</div>
-          <div class="project-fund-desc">${sanitize(p.desc)}</div>
-        </div>
-        <div style="text-align:right;flex-shrink:0;margin-left:1rem;">
-          <div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;color:var(--primary);">${formatMoney(p.raised)}</div>
-          <div style="color:#64748b;font-size:0.75rem;">of ${formatMoney(p.goal)} goal</div>
-          <span class="project-controlled-badge" style="margin-top:6px;display:inline-block;"><i class="fas fa-lock" style="margin-right:3px;font-size:0.6rem;"></i>Founder Controlled</span>
-        </div>
-      </div>
-      <div class="project-fund-progress">
-        <div class="project-alloc"><span>Progress</span><span>${pct}%</span></div>
-        <div class="alloc-bar" style="margin-bottom:1.2rem;"><div class="alloc-fill ${p.color}" style="width:${pct}%"></div></div>
-        <div style="font-size:0.78rem;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.6rem;">Fund Allocation</div>
-        ${p.allocations.map(a => `
-        <div style="margin-bottom:0.6rem;">
-          <div class="project-alloc"><span>${sanitize(a.label)}</span><span>${a.pct}%</span></div>
-          <div class="alloc-bar"><div class="alloc-fill ${a.color}" style="width:${a.pct}%"></div></div>
-        </div>`).join('')}
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ── COMMUNITY FEED ─────────────────────────────────────────────────────────
-const COMM_CHANNELS = ['All','General','Wins','Questions','Resources','Intros'];
-let commChannel = 'All';
-let communityPosts = JSON.parse(localStorage.getItem('pf_community')) || [
-  { id:1, handle:'@BuilderMindset', channel:'Wins', text:'Just closed a $12k retainer deal through a connection I made here. This community is the real deal. 🔥', upvotes:18, downvotes:0, votes:{}, comments:[{id:1,handle:'@GrowthHustle',text:'Massive! Congrats 🙌'}], ts: Date.now() - 86400000*2 },
-  { id:2, handle:'@GrowthHustle', channel:'Intros', text:"Hey everyone! I'm a growth marketer with 8 years building B2B pipelines. Happy to connect with founders who need help scaling. Let's build together.", upvotes:12, downvotes:0, votes:{}, comments:[], ts: Date.now() - 86400000 },
-  { id:3, handle:'@CapitalBuilder', channel:'Questions', text:'Anyone here have experience raising a pre-seed round without a warm intro? Looking for advice on the cold outreach approach.', upvotes:9, downvotes:1, votes:{}, comments:[{id:1,handle:'@BuilderMindset',text:'DM me — went through this last year.'}], ts: Date.now() - 3600000*5 },
-];
-
-function saveComm() { localStorage.setItem('pf_community', JSON.stringify(communityPosts)); }
-
-function timeAgo(ts) {
-  const diff = Date.now() - ts;
-  if (diff < 60000) return 'just now';
-  if (diff < 3600000) return Math.floor(diff/60000) + 'm ago';
-  if (diff < 86400000) return Math.floor(diff/3600000) + 'h ago';
-  return Math.floor(diff/86400000) + 'd ago';
-}
-
-function getInitials(handle) {
-  return handle.replace('@','').slice(0,2).toUpperCase();
-}
-
-function renderCommunity() {
-  renderCommChannels();
-  renderCommFeed();
-  renderCommSidebar();
-}
-
-function renderCommChannels() {
-  const bar = document.getElementById('comm-channels');
-  if (!bar) return;
-  bar.innerHTML = COMM_CHANNELS.map(ch => {
-    const emojis = {All:'🌐',General:'💬',Wins:'🏆',Questions:'❓',Resources:'📚',Intros:'👋'};
-    return `<button class="channel-btn ${commChannel===ch?'active':''}" onclick="setCommChannel('${ch}')">${emojis[ch]||''} ${ch}</button>`;
-  }).join('');
-}
-
-function setCommChannel(ch) {
-  commChannel = ch;
-  renderCommChannels();
-  renderCommFeed();
-}
-
-function renderCommFeed() {
-  const feed = document.getElementById('community-feed');
-  if (!feed) return;
-  let filtered = commChannel === 'All' ? communityPosts : communityPosts.filter(p => p.channel === commChannel);
-  filtered = [...filtered].sort((a,b) => b.ts - a.ts);
-  if (filtered.length === 0) {
-    feed.innerHTML = `<div style="padding:3rem;text-align:center;color:#4b5563;background:var(--card-bg);border:1px solid var(--border);border-radius:18px;">No posts in this channel yet. Start the conversation!</div>`;
-    return;
+          <div class="opp-actions">
+            <button onclick="expressInterest('${opp.id}')" class="interest-btn"><i class="fas fa-fire" style="font-size:0.72rem;margin-right:3px;"></i>${opp.interest}</button>
+            <button onclick="showDmModal('${sanitize(opp.poster)}','${sanitize(opp.title).replace(/'/g,"&#39;")}','${sanitize(opp.poster)}')" class="dm-btn"><i class="fas fa-paper-plane" style="font-size:0.75rem;margin-right:3px;"></i>DM</button>
+            ${isMine?`<button onclick="deleteOpportunity('${opp.id}')" class="delete-btn" title="Delete">🗑</button>`:''}
+          </div>
+        </div>`;
+      feed.appendChild(div);
+    });
   }
-  feed.innerHTML = '';
-  filtered.forEach(post => {
-    const isMine = currentUser && post.handle === currentUser;
-    const userVote = post.votes[currentUser] || null;
-    const score = (post.upvotes || 0) - (post.downvotes || 0);
-    const card = document.createElement('div');
-    card.className = 'comm-post-card';
-    card.id = 'post-card-' + post.id;
-    card.innerHTML = `
-      <div class="comm-post-header">
-        <div class="comm-avatar">${getInitials(post.handle)}</div>
-        <div>
-          <span class="comm-handle">${sanitize(post.handle)}</span>
-          <span class="comm-channel-tag">${sanitize(post.channel)}</span>
-        </div>
-        <div class="comm-time">${timeAgo(post.ts)}</div>
-      </div>
-      <div class="comm-post-body">${sanitize(post.text)}</div>
-      <div class="comm-post-actions">
-        <button class="vote-btn ${userVote==='up'?'upvoted':''}" onclick="votePost(${post.id},'up')">
-          <i class="fas fa-arrow-up"></i> ${post.upvotes}
-        </button>
-        <button class="vote-btn ${userVote==='down'?'downvoted':''}" onclick="votePost(${post.id},'down')" style="${userVote==='down'?'color:#ef4444':''}">
-          <i class="fas fa-arrow-down"></i> ${post.downvotes}
-        </button>
-        <button class="comment-toggle-btn" onclick="toggleComments(${post.id})">
-          <i class="fas fa-comment"></i> ${post.comments.length} ${post.comments.length === 1 ? 'reply' : 'replies'}
-        </button>
-        ${isMine ? `<button class="comm-delete-btn" onclick="deleteCommPost(${post.id})" title="Delete post"><i class="fas fa-trash"></i></button>` : ''}
-      </div>
-      <div class="comments-section" id="comments-${post.id}">
-        <div id="comments-list-${post.id}">
-          ${post.comments.map((c,ci) => renderComment(post.id, c, ci)).join('')}
-        </div>
-        <div class="add-comment-row">
-          <input type="text" placeholder="Reply..." id="comment-input-${post.id}" onkeydown="if(event.key==='Enter'){submitComment(${post.id});}"/>
-          <button onclick="submitComment(${post.id})">Reply</button>
-        </div>
-      </div>
-    `;
-    feed.appendChild(card);
-  });
+  const oc = document.getElementById('opp-count'); if (oc) oc.textContent = opportunities.length;
 }
 
-function renderComment(postId, c, ci) {
-  const isMine = currentUser && c.handle === currentUser;
-  return `
-    <div class="comment-item" id="comment-${postId}-${ci}">
-      <div class="comment-avatar">${getInitials(c.handle)}</div>
-      <div class="comment-body">
-        <span class="comment-author">${sanitize(c.handle)}</span>
-        ${isMine ? `<button class="comment-delete" onclick="deleteComment(${postId},${ci})">✕</button>` : ''}
-        <div class="comment-text">${sanitize(c.text)}</div>
-      </div>
-    </div>
-  `;
-}
-
-function toggleComments(postId) {
-  const section = document.getElementById('comments-' + postId);
-  if (section) section.classList.toggle('open');
-}
-
-function votePost(postId, dir) {
-  if (!currentUser) return showToast("Login to vote");
-  const post = communityPosts.find(p => p.id === postId);
-  if (!post) return;
-  if (!post.votes) post.votes = {};
-  const prev = post.votes[currentUser];
-  if (prev === dir) {
-    // undo vote
-    post.votes[currentUser] = null;
-    if (dir === 'up') post.upvotes = Math.max(0, post.upvotes - 1);
-    else post.downvotes = Math.max(0, post.downvotes - 1);
-  } else {
-    if (prev) {
-      if (prev === 'up') post.upvotes = Math.max(0, post.upvotes - 1);
-      else post.downvotes = Math.max(0, post.downvotes - 1);
-    }
-    post.votes[currentUser] = dir;
-    if (dir === 'up') post.upvotes++;
-    else post.downvotes++;
-  }
-  saveComm();
-  renderCommFeed();
-}
-
-function submitComment(postId) {
-  if (!currentUser) return showToast("Login to comment");
-  const input = document.getElementById('comment-input-' + postId);
-  if (!input || !input.value.trim()) return;
-  const post = communityPosts.find(p => p.id === postId);
-  if (!post) return;
-  post.comments.push({ id: Date.now(), handle: currentUser, text: input.value.trim() });
-  saveComm();
-  renderCommFeed();
-  // Re-open the comments section after re-render
-  const section = document.getElementById('comments-' + postId);
-  if (section) section.classList.add('open');
-}
-
-function deleteComment(postId, ci) {
-  const post = communityPosts.find(p => p.id === postId);
-  if (!post) return;
-  if (post.comments[ci].handle !== currentUser) return;
-  post.comments.splice(ci, 1);
-  saveComm();
-  renderCommFeed();
-  const section = document.getElementById('comments-' + postId);
-  if (section) section.classList.add('open');
-}
-
-function deleteCommPost(postId) {
-  if (!confirm("Delete this post?")) return;
-  communityPosts = communityPosts.filter(p => p.id !== postId);
-  saveComm();
-  renderCommFeed();
-  renderCommSidebar();
-  showToast("Post deleted");
-}
-
-function submitCommunityPost() {
-  if (!currentUser) return showToast("Login first");
-  const text = document.getElementById('comm-post-text').value.trim();
-  if (!text) return showToast("Write something first!");
-  const channel = document.getElementById('comm-post-channel').value;
-  communityPosts.unshift({ id: Date.now(), handle: currentUser, channel, text, upvotes:0, downvotes:0, votes:{}, comments:[], ts: Date.now() });
-  saveComm();
-  document.getElementById('comm-post-text').value = '';
-  renderCommFeed();
-  renderCommSidebar();
-  addXp(10, 'post', 'Posted in community');
-  bumpWeekly('comm');
-  showToast("Posted to #" + channel + " 🔥");
-}
-
-function renderCommSidebar() {
-  // Trending: top by upvotes
-  const trending = document.getElementById('trending-posts');
-  if (trending) {
-    const top = [...communityPosts].sort((a,b) => b.upvotes - a.upvotes).slice(0,5);
-    if (top.length === 0) {
-      trending.innerHTML = `<div style="color:#4b5563;font-size:0.85rem;">No posts yet.</div>`;
-    } else {
-      trending.innerHTML = top.map((p,i) => `
-        <div class="trending-item">
-          <span class="trending-num">#${i+1}</span>
-          <span class="trending-text">${sanitize(p.text.slice(0,55))}${p.text.length>55?'…':''}</span>
-          <span class="trending-votes">↑${p.upvotes}</span>
-        </div>
-      `).join('');
-    }
-  }
-  // Active members
-  const members = document.getElementById('active-members-list');
-  if (members) {
-    const handles = [...new Set(communityPosts.map(p => p.handle))].slice(0,6);
-    if (handles.length === 0) {
-      members.innerHTML = `<div style="color:#4b5563;font-size:0.85rem;">Be the first to post!</div>`;
-    } else {
-      members.innerHTML = handles.map(h => `
-        <div class="investor-row">
-          <div class="investor-avatar">${getInitials(h)}</div>
-          <div class="investor-name">${sanitize(h)}</div>
-          <div style="color:var(--primary);font-size:0.75rem;">● active</div>
-        </div>
-      `).join('');
-    }
-  }
-}
-
-// ── POST OPPORTUNITY — restore X sharing ───────────────────────────────────
-function postOpportunity() {
+async function postOpportunity() {
   const title = document.getElementById('opp-title').value.trim();
   const desc = document.getElementById('opp-desc').value.trim();
   const category = document.getElementById('opp-category').value;
   if (!title) return showToast("Please add a title");
   if (!category) return showToast("Please select a category");
   const shouldPostToX = postToX;
-  // Open X window FIRST (before any modal close) to avoid popup blocker
-  let xWin = null;
+
   if (shouldPostToX) {
-    const tweet = `Just posted on Pass It Forward 🔥\n\n${title}${desc ? '\n'+desc : ''}\n\nJoin real builders → passitforward.xyz`;
-    xWin = window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}`, '_blank');
+    const tweet = `Just posted on Pass It Forward 🔥\n\n${title}${desc?'\n'+desc:''}\n\nJoin real builders → passitforward.xyz`;
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}`, '_blank');
   }
-  opportunities.unshift({ id: Date.now(), title, desc: desc || "No description provided", category, interest: 1, poster: currentUser });
-  localStorage.setItem('pf_opportunities', JSON.stringify(opportunities));
+
+  const newOpp = { title, desc: desc||'No description', category, interest: 1, poster: currentUser.handle, poster_id: currentUser.id };
+
+  if (sb && !currentUser.id.startsWith('demo-')) {
+    const { data, error } = await sb.from('opportunities').insert({
+      title, description: newOpp.desc, category, interest: 1,
+      poster_handle: currentUser.handle, poster_id: currentUser.id
+    }).select().single();
+    if (error) return showToast("Error: " + error.message);
+    newOpp.id = data.id;
+  } else {
+    newOpp.id = Date.now();
+  }
+
+  opportunities.unshift(newOpp);
   renderOpportunities();
   updatePostedCount();
   closeModal('post-modal');
-  document.getElementById('opp-title').value = '';
-  document.getElementById('opp-desc').value = '';
-  document.getElementById('opp-category').value = '';
+  ['opp-title','opp-desc'].forEach(id => { const e = document.getElementById(id); if(e) e.value=''; });
+  const oc = document.getElementById('opp-category'); if(oc) oc.value='';
   postToX = false;
-  const sw = document.getElementById('x-switch');
-  if (sw) sw.classList.remove('on');
+  const sw = document.getElementById('x-switch'); if(sw) sw.classList.remove('on');
   markTaskDone(3);
   addXp(20, 'opp', 'Posted an opportunity');
   bumpWeekly('opps');
-  showToast(shouldPostToX ? "Posted! Opening X… 🔥" : "Opportunity posted! 🔥");
-  // Fallback if popup was blocked
-  if (shouldPostToX && (!xWin || xWin.closed)) {
-    const tweet = `Just posted on Pass It Forward 🔥\n\n${title}${desc ? '\n'+desc : ''}\n\nJoin real builders → passitforward.xyz`;
-    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}`;
-    showToast('⚠️ Popup blocked — <a href="'+url+'" target="_blank" style="color:var(--primary)">click here to post on X</a>');
+  showToast(shouldPostToX ? "Posted & shared on X! 🔥" : "Opportunity posted! 🔥");
+}
+
+async function deleteOpportunity(id) {
+  if (!confirm("Delete this opportunity?")) return;
+  if (sb && !currentUser.id.startsWith('demo-')) {
+    await sb.from('opportunities').delete().eq('id', id).eq('poster_id', currentUser.id);
   }
+  opportunities = opportunities.filter(o => String(o.id) !== String(id));
+  renderOpportunities();
+  updatePostedCount();
+  showToast("Deleted");
 }
 
-console.log('%c✅ PASS IT FORWARD v13.0 LIVE 🔥', 'color:#10b981;font-weight:700;font-size:14px');
-
-// ══════════════════════════════════════════════════════
-// ── XP SYSTEM (must come first)
-// ══════════════════════════════════════════════════════
-function getXp() { return parseInt(localStorage.getItem('pf_xp_'+currentUser)||'0'); }
-function addXp(pts, type, label) {
-  if (!currentUser) return;
-  const total = getXp() + pts;
-  localStorage.setItem('pf_xp_'+currentUser, total);
-  logXpEvent(type, label, pts);
-  // update stat panel if visible
-  const el = document.getElementById('opp-count');
-  // refresh stats if open
-}
-function logXpEvent(type, label, pts) {
-  if (!currentUser) return;
-  const log = JSON.parse(localStorage.getItem('pf_xplog_'+currentUser)||'[]');
-  const time = new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
-  log.push({type, label, pts, time});
-  localStorage.setItem('pf_xplog_'+currentUser, JSON.stringify(log));
-}
-
-// ══════════════════════════════════════════════════════
-// ── LIGHT / DARK MODE
-// ══════════════════════════════════════════════════════
-function toggleTheme() {
-  const on = document.body.classList.toggle('light');
-  localStorage.setItem('pf_theme', on ? 'light' : 'dark');
-  document.getElementById('theme-icon').className = on ? 'fas fa-sun' : 'fas fa-moon';
-}
-(function initTheme() {
-  if (localStorage.getItem('pf_theme') === 'light') {
-    document.body.classList.add('light');
-    const ti = document.getElementById('theme-icon');
-    if (ti) ti.className = 'fas fa-sun';
+async function expressInterest(id) {
+  const opp = opportunities.find(o => String(o.id) === String(id)); if (!opp) return;
+  opp.interest++;
+  if (sb && !String(id).toString().startsWith('1')) {
+    await sb.from('opportunities').update({ interest: opp.interest }).eq('id', id);
   }
-})();
-
-// ══════════════════════════════════════════════════════
-// ── NOTIFICATIONS (only for actions by OTHERS on your content)
-// ══════════════════════════════════════════════════════
-function getNotifs() { return JSON.parse(localStorage.getItem('pf_notifs_'+currentUser) || '[]'); }
-function saveNotifs(n) { localStorage.setItem('pf_notifs_'+currentUser, JSON.stringify(n)); }
-function addNotif(text) {
-  // Only call this for events triggered by others — not self-actions
-  if (!currentUser) return;
-  const notifs = getNotifs();
-  const t = new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-  notifs.unshift({ id: Date.now(), text, time: t, read: false });
-  if (notifs.length > 30) notifs.length = 30;
-  saveNotifs(notifs);
-  renderNotifBell();
-}
-function renderNotifBell() {
-  const notifs = getNotifs();
-  const badge = document.getElementById('notif-badge');
-  const list = document.getElementById('notif-list');
-  if (!badge || !list) return;
-  const unread = notifs.filter(n => !n.read).length;
-  if (unread > 0) { badge.textContent = unread > 9 ? '9+' : unread; badge.classList.add('on'); }
-  else { badge.textContent = ''; badge.classList.remove('on'); }
-  if (!notifs.length) { list.innerHTML = '<div class="notif-empty">No notifications yet — start participating!</div>'; return; }
-  list.innerHTML = notifs.map(n => `
-    <div class="notif-row ${n.read?'':'unread'}" onclick="readNotif(${n.id})">
-      <div class="nr-dot ${n.read?'read':''}"></div>
-      <div class="nr-text">${sanitize(n.text)}<span class="nr-time">${sanitize(n.time)}</span></div>
-    </div>`).join('');
-}
-function readNotif(id) {
-  const notifs = getNotifs();
-  const n = notifs.find(x => x.id === id);
-  if (n) { n.read = true; saveNotifs(notifs); renderNotifBell(); }
-}
-function clearAllNotifs() {
-  saveNotifs(getNotifs().map(n => ({...n, read:true})));
-  renderNotifBell();
-  document.getElementById('notif-panel').classList.remove('open');
-}
-function toggleNotifPanel(e) {
-  e && e.stopPropagation();
-  document.getElementById('notif-panel').classList.toggle('open');
-}
-document.addEventListener('click', () => {
-  const p = document.getElementById('notif-panel');
-  if (p) p.classList.remove('open');
-});
-
-// ══════════════════════════════════════════════════════
-// ── LEADERBOARD
-// ══════════════════════════════════════════════════════
-let activeLbTab = 'xp';
-const DEMO_LB = [
-  {handle:'@BuilderMindset', xp:840, opps:7, posts:23, fund:250},
-  {handle:'@CapitalBuilder',  xp:720, opps:4, posts:18, fund:500},
-  {handle:'@GrowthHustle',   xp:610, opps:5, posts:29, fund:100},
-  {handle:'@DevLaunch',      xp:490, opps:6, posts:12, fund:50 },
-  {handle:'@MarketMaker',    xp:380, opps:3, posts:9,  fund:250},
-  {handle:'@SaaSFounder',    xp:270, opps:2, posts:7,  fund:0  },
-  {handle:'@DesignPro',      xp:190, opps:1, posts:14, fund:25 },
-];
-function getMyLbEntry() {
-  if (!currentUser) return null;
-  const myPosts = (JSON.parse(localStorage.getItem('pf_community')||'[]')).filter(p=>p.handle===currentUser).length;
-  const myOpps = opportunities.filter(o=>o.poster===currentUser).length;
-  const myFund = (JSON.parse(localStorage.getItem('pf_contributions')||'[]')).filter(c=>c.handle===currentUser).reduce((s,c)=>s+c.amount,0);
-  return {handle:currentUser, xp:getXp(), opps:myOpps, posts:myPosts, fund:myFund};
-}
-function setLbTab(tab, btn) {
-  activeLbTab = tab;
-  document.querySelectorAll('.lb-tab').forEach(b=>b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  renderLeaderboard();
-}
-function renderLeaderboard() {
-  const board = document.getElementById('lb-board'); if (!board) return;
-  let data = [...DEMO_LB];
-  const me = getMyLbEntry();
-  if (me && !data.find(d=>d.handle===me.handle)) data.push(me);
-  else if (me) { const i = data.findIndex(d=>d.handle===me.handle); if(i>=0) data[i]={...data[i],...me}; }
-  data.sort((a,b)=>b[activeLbTab]-a[activeLbTab]);
-  const rc = i => i===0?'g':i===1?'s':i===2?'b':'n';
-  const re = i => i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
-  const fmt = (m,t) => t==='fund'?'$'+m[t].toLocaleString():m[t].toLocaleString();
-  const labels = {xp:'XP',opps:'opps',posts:'posts',fund:'contributed'};
-  board.innerHTML = data.map((m,i)=>`
-    <div class="lb-row" ${m.handle===currentUser?'style="background:rgba(16,185,129,0.05);"':''}>
-      <div class="lb-rank ${rc(i)}">${re(i)}</div>
-      <div class="lb-av">${m.handle.replace('@','').substring(0,2).toUpperCase()}</div>
-      <div class="lb-info">
-        <div class="lb-handle">${sanitize(m.handle)}${m.handle===currentUser?' <span style="color:#64748b;font-size:0.68rem;">(you)</span>':''}</div>
-        <div class="lb-sub">${fmt(m,activeLbTab)} ${labels[activeLbTab]}</div>
-      </div>
-      <div class="lb-score">${fmt(m,activeLbTab)}</div>
-    </div>`).join('');
-  const mvp = [...data].sort((a,b)=>b.xp-a.xp)[0];
-  const mvpEl = document.getElementById('lb-mvp'); if(mvpEl) mvpEl.textContent = mvp?.handle||'—';
-  const set = (id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
-  set('lb-stat-members', data.length);
-  set('lb-stat-opps', data.reduce((s,m)=>s+m.opps,0));
-  set('lb-stat-posts', data.reduce((s,m)=>s+m.posts,0));
-  set('lb-stat-xp', data.reduce((s,m)=>s+m.xp,0).toLocaleString());
+  renderOpportunities();
+  bumpWeekly('interests');
+  showToast("Interest registered! 🔥");
 }
 
-// ══════════════════════════════════════════════════════
-// ── WEEKLY CHALLENGES
-// ══════════════════════════════════════════════════════
-const CHALLENGES = [
-  {id:'c1',title:'Post an Opportunity',desc:'Share what you need or what you can offer.',xp:20,target:1,key:'opps'},
-  {id:'c2',title:'Write 3 Community Posts',desc:'Share a win, question, or resource with the community.',xp:15,target:3,key:'comm'},
-  {id:'c3',title:'Express Interest in 5 Opps',desc:'Click the fire button on 5 opportunities.',xp:10,target:5,key:'interests'},
-  {id:'c4',title:'Set Your 30-Day Goal',desc:'Define what you want to achieve this month.',xp:10,target:1,key:'goal'},
-  {id:'c5',title:'Send a Message',desc:'Reach out to another member directly.',xp:15,target:1,key:'dms'},
-];
-function getWeekKey() {
-  const d = new Date(), day = d.getDay();
-  const mon = new Date(d); mon.setDate(d.getDate()-(day===0?6:day-1)); mon.setHours(0,0,0,0);
-  return mon.toISOString().split('T')[0];
+function updatePostedCount() {
+  const count = opportunities.filter(o => o.poster === currentUser?.handle).length;
+  const el = document.getElementById('stat-posted'); if(el) el.textContent = count;
 }
-function getWeeklyProg() { return JSON.parse(localStorage.getItem('pf_wk_'+currentUser+'_'+getWeekKey())||'{}'); }
-function saveWeeklyProg(p) { localStorage.setItem('pf_wk_'+currentUser+'_'+getWeekKey(), JSON.stringify(p)); }
-function bumpWeekly(key, amount) {
-  if (!currentUser) return;
-  const p = getWeeklyProg();
-  const wasComplete = {};
-  CHALLENGES.forEach(c=>{ wasComplete[c.id] = (p[c.key]||0) >= c.target; });
-  p[key] = (p[key]||0) + (amount||1);
-  saveWeeklyProg(p);
-  // Award XP for any newly completed challenges
-  CHALLENGES.forEach(c=>{
-    if (!wasComplete[c.id] && (p[c.key]||0) >= c.target) {
-      addXp(c.xp, 'goal', 'Challenge: '+c.title);
-      showToast('🎯 Challenge complete! +'+c.xp+' XP');
-    }
+function showPostModal() {
+  if (!currentUser) return showToast("Login first");
+  document.getElementById('post-modal').style.display = 'flex';
+}
+
+// ── TESTIMONIALS ──────────────────────────────────────────────────
+async function loadAndRenderTestimonials() {
+  setLoading('testimonials-grid', 'Loading testimonials…');
+  let testimonials = [];
+  if (sb) {
+    const { data } = await sb.from('testimonials').select('*').order('created_at', { ascending: false });
+    if (data) testimonials = data;
+  }
+  renderTestimonials(testimonials);
+}
+function renderTestimonials(list) {
+  const grid = document.getElementById('testimonials-grid'); if (!grid) return;
+  if (!list.length) { grid.innerHTML = '<div style="color:#4b5563;text-align:center;padding:2rem;grid-column:1/-1;">No testimonials yet — be the first!</div>'; return; }
+  grid.innerHTML = '';
+  list.forEach(t => {
+    const handle = t.author_handle || t.author || '';
+    const isMine = currentUser && (handle === currentUser.handle || String(t.author_id) === String(currentUser.id));
+    const card = document.createElement('div');
+    card.className = 'testimonial-card';
+    card.innerHTML = `
+      <p>"${sanitize(t.body || t.text || '')}"</p>
+      <div class="testimonial-author"><i class="fas fa-user-circle"></i> ${sanitize(handle)}</div>
+      ${isMine?`<button onclick="deleteTestimonial('${t.id}')" class="delete-testimonial" title="Delete">🗑</button>`:''}`;
+    grid.appendChild(card);
   });
-  renderChallenges();
 }
-function renderChallenges() {
-  const list = document.getElementById('challenges-list'); if (!list) return;
-  const prog = getWeeklyProg();
-  const done = CHALLENGES.filter(c=>(prog[c.key]||0)>=c.target).length;
-  const ptxt = document.getElementById('ch-prog-text'); if(ptxt) ptxt.textContent = done+' / '+CHALLENGES.length+' done';
-  list.innerHTML = CHALLENGES.map(c=>{
-    const cur = Math.min(prog[c.key]||0, c.target), isDone = cur>=c.target, pct = Math.round(cur/c.target*100);
-    return `<div class="ch-card ${isDone?'ch-done':''}">
-      <div class="ch-top">
-        <div><div class="ch-title">${sanitize(c.title)}</div><div class="ch-desc">${sanitize(c.desc)}</div></div>
-        ${isDone?`<span class="ch-done-tag">✓ Done</span>`:`<span class="ch-xp-tag">+${c.xp} XP</span>`}
+async function submitTestimonial() {
+  const text = document.getElementById('new-testimonial')?.value.trim(); if (!text) return;
+  if (!currentUser) return showToast("Login required");
+  if (sb && !currentUser.id.startsWith('demo-')) {
+    const { error } = await sb.from('testimonials').insert({ author_handle: currentUser.handle, author_id: currentUser.id, body: text });
+    if (error) return showToast("Error: " + error.message);
+  }
+  const inp = document.getElementById('new-testimonial'); if(inp) inp.value = '';
+  markTaskDone(1); addXp(15, 'test', 'Posted a testimonial'); bumpWeekly('comm');
+  showToast("Testimonial posted! 🙏");
+  loadAndRenderTestimonials();
+}
+async function deleteTestimonial(id) {
+  if (!confirm("Delete this testimonial?")) return;
+  if (sb && !currentUser.id.startsWith('demo-')) {
+    await sb.from('testimonials').delete().eq('id', id).eq('author_id', currentUser.id);
+  }
+  showToast("Deleted"); loadAndRenderTestimonials();
+}
+
+// ── COMMUNITY ─────────────────────────────────────────────────────
+async function loadAndRenderCommunity() {
+  setLoading('comm-feed', 'Loading posts…');
+  if (sb) {
+    const { data } = await sb.from('community_posts').select('*').order('created_at', { ascending: false }).limit(50);
+    if (data) communityPosts = data.map(p => ({
+      id: p.id, handle: p.handle, user_id: p.user_id, body: p.body,
+      category: p.category, likes: p.likes,
+      time: new Date(p.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'})
+    }));
+  }
+  renderCommunity();
+}
+function renderCommunity() {
+  const feed = document.getElementById('comm-feed'); if (!feed) return;
+  const cats = document.getElementById('comm-cats');
+  if (cats) cats.innerHTML = COMM_CATS.map(c=>`<button class="filter-btn ${activeCommCat===c?'active':''}" onclick="setCommCat('${c}')">${c}</button>`).join('');
+  const filtered = activeCommCat==='All' ? communityPosts : communityPosts.filter(p=>p.category===activeCommCat);
+  if (!filtered.length) { feed.innerHTML=`<div style="padding:2rem;text-align:center;color:#4b5563;">No posts yet — start the conversation!</div>`; return; }
+  feed.innerHTML = filtered.map(p => {
+    const isMine = currentUser && (p.handle===currentUser.handle || String(p.user_id)===String(currentUser.id));
+    return `<div class="comm-post-card">
+      <div class="comm-post-top">
+        <div class="comm-post-avatar">${sanitize(p.handle).replace('@','').substring(0,2).toUpperCase()}</div>
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <strong style="color:white;font-size:0.88rem;">${sanitize(p.handle)}</strong>
+            ${p.category&&p.category!=='General'?`<span class="opp-category" style="font-size:0.7rem;">${sanitize(p.category)}</span>`:''}
+            <span style="color:#4b5563;font-size:0.72rem;">${sanitize(p.time||'')}</span>
+          </div>
+        </div>
+        ${isMine?`<button onclick="deleteCommunityPost('${p.id}')" class="delete-btn" title="Delete">🗑</button>`:''}
       </div>
-      <div class="ch-prog-bar"><div class="ch-prog-fill" style="width:${pct}%"></div></div>
-      <div class="ch-prog-labels"><span>${cur} / ${c.target}</span><span>${pct}%</span></div>
+      <div class="comm-post-body">${sanitize(p.body)}</div>
+      <div class="comm-post-actions">
+        <button onclick="likeCommunityPost('${p.id}')" class="comm-like-btn"><i class="fas fa-heart" style="font-size:0.75rem;margin-right:4px;"></i>${p.likes||0}</button>
+      </div>
     </div>`;
   }).join('');
 }
-(function chCountdown() {
-  function upd() {
-    const now = new Date(), day = now.getDay();
-    const mon = new Date(now); mon.setDate(now.getDate()+(day===0?1:8-day)); mon.setHours(0,0,0,0);
-    const diff = mon-now, h=Math.floor(diff/3600000), m=Math.floor(diff%3600000/60000), s=Math.floor(diff%60000/1000);
-    const el=document.getElementById('ch-countdown'); if(el) el.textContent=h+'h '+m+'m '+s+'s';
-  }
-  upd(); setInterval(upd,1000);
-})();
+function setCommCat(c) { activeCommCat = c; renderCommunity(); }
+async function submitCommunityPost() {
+  const body = document.getElementById('comm-post-input')?.value.trim();
+  const category = document.getElementById('comm-cat-select')?.value || 'General';
+  if (!body) return showToast("Write something first");
+  if (!currentUser) return showToast("Login first");
+  const time = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const newP = { handle: currentUser.handle, user_id: currentUser.id, body, category, likes: 0, time };
+  if (sb && !currentUser.id.startsWith('demo-')) {
+    const { data, error } = await sb.from('community_posts').insert({ handle:currentUser.handle, user_id:currentUser.id, body, category, likes:0 }).select().single();
+    if (error) return showToast("Error: "+error.message);
+    newP.id = data.id;
+  } else { newP.id = Date.now(); }
+  communityPosts.unshift(newP);
+  const inp = document.getElementById('comm-post-input'); if(inp) inp.value='';
+  addXp(10,'post','Posted in community'); bumpWeekly('comm');
+  renderCommunity(); showToast("Posted! 🙌");
+}
+async function likeCommunityPost(id) {
+  const p = communityPosts.find(x=>String(x.id)===String(id)); if(!p) return;
+  p.likes = (p.likes||0)+1;
+  if (sb && !currentUser?.id.startsWith('demo-')) await sb.from('community_posts').update({likes:p.likes}).eq('id',id);
+  renderCommunity();
+}
+async function deleteCommunityPost(id) {
+  if (!confirm("Delete this post?")) return;
+  if (sb && !currentUser.id.startsWith('demo-')) await sb.from('community_posts').delete().eq('id',id).eq('user_id',currentUser.id);
+  communityPosts = communityPosts.filter(p=>String(p.id)!==String(id));
+  renderCommunity(); showToast("Post deleted");
+}
 
-// ══════════════════════════════════════════════════════
-// ── EVENTS BOARD (with delete own events)
-// ══════════════════════════════════════════════════════
-let eventsData = JSON.parse(localStorage.getItem('pf_events')||'null') || [
-  {id:1,title:'Weekly Founders Call',desc:'Open call for all members. Share updates, get feedback, make connections.',day:3,month:'Mar',time:'7pm UTC',type:'Live Call',poster:'@BuilderMindset',rsvps:['@GrowthHustle','@CapitalBuilder']},
-  {id:2,title:'Fundraising Workshop',desc:'Practical session covering pitch decks, term sheets, and closing your first angel round.',day:10,month:'Mar',time:'6pm UTC',type:'Workshop',poster:'@CapitalBuilder',rsvps:['@BuilderMindset']},
-  {id:3,title:'Growth Hacking AMA',desc:'Ask anything about scaling B2B pipelines from 0 to $1M ARR.',day:17,month:'Mar',time:'8pm UTC',type:'AMA',poster:'@GrowthHustle',rsvps:[]},
-];
-function saveEvents() { localStorage.setItem('pf_events', JSON.stringify(eventsData)); }
+// ── EVENTS ────────────────────────────────────────────────────────
+async function loadAndRenderEvents() {
+  setLoading('events-list','Loading events…');
+  if (sb) {
+    const { data } = await sb.from('events').select('*').order('created_at',{ascending:false});
+    if (data) eventsData = data.map(e=>({
+      id:e.id, title:e.title, desc:e.description, day:e.day, month:e.month,
+      time:e.event_time, type:e.type, poster:e.poster_handle, poster_id:e.poster_id, rsvps:e.rsvps||[]
+    }));
+  }
+  renderEvents();
+}
 function renderEvents() {
-  const list = document.getElementById('events-list'); if (!list) return;
+  const list = document.getElementById('events-list'); if(!list) return;
   if (!eventsData.length) { list.innerHTML='<div style="text-align:center;color:#4b5563;padding:2rem;">No events yet — post the first one!</div>'; return; }
   list.innerHTML = eventsData.map(ev=>{
-    const going = currentUser && ev.rsvps.includes(currentUser);
-    const isMine = currentUser && ev.poster === currentUser;
+    const isMine = currentUser&&(ev.poster===currentUser.handle||String(ev.poster_id)===String(currentUser.id));
+    const going = currentUser&&ev.rsvps.includes(currentUser.handle);
     return `<div class="ev-card">
       <div class="ev-top">
         <div class="ev-datebox"><div class="ev-day">${ev.day}</div><div class="ev-mon">${sanitize(ev.month)}</div></div>
         <div style="flex:1;">
           <div class="ev-title">${sanitize(ev.title)}</div>
           <div class="ev-desc">${sanitize(ev.desc)}</div>
-          <div class="ev-meta">
-            <span><i class="fas fa-clock"></i> ${sanitize(ev.time)}</span>
-            <span><i class="fas fa-tag"></i> ${sanitize(ev.type)}</span>
-            <span><i class="fas fa-user"></i> ${sanitize(ev.poster)}</span>
-          </div>
+          <div class="ev-meta"><span><i class="fas fa-clock"></i> ${sanitize(ev.time)}</span><span><i class="fas fa-tag"></i> ${sanitize(ev.type)}</span><span><i class="fas fa-user"></i> ${sanitize(ev.poster)}</span></div>
         </div>
-        ${isMine ? `<button onclick="deleteEvent(${ev.id})" title="Delete event" style="background:none;border:none;color:#4b5563;cursor:pointer;font-size:1rem;flex-shrink:0;transition:color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#4b5563'"><i class="fas fa-trash"></i></button>` : ''}
+        ${isMine?`<button onclick="deleteEvent('${ev.id}')" title="Delete" style="background:none;border:none;color:#4b5563;cursor:pointer;font-size:1rem;flex-shrink:0;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#4b5563'"><i class="fas fa-trash"></i></button>`:''}
       </div>
       <div class="ev-footer">
-        <button class="ev-rsvp-btn ${going?'going':''}" onclick="rsvpEvent(${ev.id})">${going?'✓ Going':'RSVP'}</button>
+        <button class="ev-rsvp-btn ${going?'going':''}" onclick="rsvpEvent('${ev.id}')">${going?'✓ Going':'RSVP'}</button>
         <span class="ev-rsvp-count">${ev.rsvps.length} going</span>
       </div>
     </div>`;
   }).join('');
 }
-function deleteEvent(id) {
-  if (!confirm("Delete this event?")) return;
-  eventsData = eventsData.filter(e=>e.id!==id);
-  saveEvents(); renderEvents();
-  showToast("Event deleted");
-}
-function rsvpEvent(id) {
+async function rsvpEvent(id) {
   if (!currentUser) return showToast("Login first");
-  const ev = eventsData.find(e=>e.id===id); if(!ev) return;
-  if (ev.rsvps.includes(currentUser)) {
-    ev.rsvps = ev.rsvps.filter(h=>h!==currentUser);
-    showToast("RSVP removed");
-  } else {
-    ev.rsvps.push(currentUser);
-    addXp(5, 'opp', 'RSVP\'d to an event');
-    bumpWeekly('rsvps');
-    showToast("You're going! 🎉");
-  }
-  saveEvents(); renderEvents();
+  const ev = eventsData.find(e=>String(e.id)===String(id)); if(!ev) return;
+  const going = ev.rsvps.includes(currentUser.handle);
+  if (going) { ev.rsvps=ev.rsvps.filter(h=>h!==currentUser.handle); showToast("RSVP removed"); }
+  else { ev.rsvps.push(currentUser.handle); addXp(5,'opp',"RSVP'd to event"); bumpWeekly('rsvps'); showToast("You're going! 🎉"); }
+  if (sb && !currentUser.id.startsWith('demo-')) await sb.from('events').update({rsvps:ev.rsvps}).eq('id',id);
+  renderEvents();
 }
-function showEventModal() { if (!currentUser) return showToast("Login first"); document.getElementById('event-modal').style.display='flex'; }
-function submitEvent() {
+async function deleteEvent(id) {
+  if (!confirm("Delete this event?")) return;
+  if (sb && !currentUser.id.startsWith('demo-')) await sb.from('events').delete().eq('id',id).eq('poster_id',currentUser.id);
+  eventsData = eventsData.filter(e=>String(e.id)!==String(id));
+  renderEvents(); showToast("Event deleted");
+}
+function showEventModal() { if(!currentUser) return showToast("Login first"); document.getElementById('event-modal').style.display='flex'; }
+async function submitEvent() {
   const title=document.getElementById('ev-title-inp').value.trim();
   const desc=document.getElementById('ev-desc-inp').value.trim();
   const day=parseInt(document.getElementById('ev-day-inp').value)||0;
   const month=document.getElementById('ev-month-inp').value;
   const time=document.getElementById('ev-time-inp').value.trim();
   const type=document.getElementById('ev-type-inp').value;
-  if (!title||!day||!month||!time||!type) return showToast("Please fill in all fields");
-  eventsData.unshift({id:Date.now(),title,desc:desc||'No description',day,month,time,type,poster:currentUser,rsvps:[]});
-  saveEvents(); closeModal('event-modal'); renderEvents();
-  ['ev-title-inp','ev-desc-inp','ev-day-inp','ev-time-inp'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  if(!title||!day||!month||!time||!type) return showToast("Fill in all fields");
+  const newEv={title,desc:desc||'No description',day,month,time,type,poster:currentUser.handle,poster_id:currentUser.id,rsvps:[]};
+  if (sb && !currentUser.id.startsWith('demo-')) {
+    const{data,error}=await sb.from('events').insert({title,description:newEv.desc,day,month,event_time:time,type,poster_handle:currentUser.handle,poster_id:currentUser.id,rsvps:[]}).select().single();
+    if(error) return showToast("Error: "+error.message);
+    newEv.id=data.id;
+  } else { newEv.id=Date.now(); }
+  eventsData.unshift(newEv);
+  closeModal('event-modal');
+  ['ev-title-inp','ev-desc-inp','ev-day-inp','ev-time-inp'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
   document.getElementById('ev-month-inp').value=''; document.getElementById('ev-type-inp').value='';
-  addXp(15, 'opp', 'Posted an event');
-  showToast("Event posted! 📅");
+  addXp(15,'opp','Posted an event'); renderEvents(); showToast("Event posted! 📅");
 }
 
-// ══════════════════════════════════════════════════════
-// ── MEMBER DIRECTORY
-// ══════════════════════════════════════════════════════
-const DEMO_PROFILES = [
-  {handle:'@BuilderMindset',bio:'Building AI-powered tools for operators. Ex-Stripe. Open to co-founders.',skills:['AI/ML','Product','Fundraising'],xp:840,xUrl:''},
-  {handle:'@CapitalBuilder', bio:'Angel investor & operator. 12 portfolio companies. Looking for great teams.',skills:['Investing','M&A','Strategy'],xp:720,xUrl:''},
-  {handle:'@GrowthHustle',  bio:'B2B growth specialist. Took 3 SaaS companies from 0 to $1M ARR.',skills:['Growth','Sales','GTM'],xp:610,xUrl:''},
-  {handle:'@DevLaunch',     bio:'Full-stack dev turned founder. Building developer tools.',skills:['React','Node.js','DevTools'],xp:490,xUrl:''},
-  {handle:'@MarketMaker',   bio:'CMO background. Now building a performance marketing agency.',skills:['Marketing','Paid Ads','Brand'],xp:380,xUrl:''},
-  {handle:'@DesignPro',     bio:'Product designer with 10 years experience. UI/UX for startups.',skills:['UI/UX','Figma','Branding'],xp:190,xUrl:''},
+// ── FUNDS ─────────────────────────────────────────────────────────
+function switchFundTab(tab) {
+  document.querySelectorAll('.fund-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.fund-tab-panel').forEach(p=>p.classList.remove('active'));
+  const btn=document.querySelector(`.fund-tab[onclick="switchFundTab('${tab}')"]`); if(btn) btn.classList.add('active');
+  const panel=document.getElementById('tab-'+tab); if(panel) panel.classList.add('active');
+  if(tab==='member-raises') renderMemberRaises();
+  if(tab==='project-funds') renderProjectFunds();
+}
+function formatMoney(n){ return n>=1000000?'$'+(n/1000000).toFixed(1)+'M':n>=1000?'$'+(n/1000).toFixed(0)+'k':'$'+n; }
+
+async function renderFunds() {
+  if (sb) {
+    const{data}=await sb.from('fund_contributions').select('*').order('created_at',{ascending:false});
+    if(data) contributions=data.map(c=>({id:c.id,handle:c.handle,amount:c.amount,note:c.note,date:new Date(c.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}));
+    const{data:rd}=await sb.from('member_raises').select('*').order('created_at',{ascending:false});
+    if(rd) memberRaises=rd.map(r=>({id:r.id,title:r.title,desc:r.description,stage:r.stage,target:r.target,poster:r.poster_handle,poster_id:r.poster_id,stripeLink:r.stripe_link,date:new Date(r.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}));
+  }
+  const total=contributions.reduce((s,c)=>s+(c.amount||0),0);
+  const goal=25000, pct=Math.min(100,Math.round((total/goal)*100));
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set('fund-total',formatMoney(total)); set('fund-pct',pct+'%'); set('fund-contributor-count',contributions.length);
+  const bar=document.getElementById('fund-progress-bar'); if(bar) bar.style.width=pct+'%';
+  const cont=document.getElementById('pot-contributors');
+  if(cont) cont.innerHTML=contributions.slice(0,8).map(c=>`<span class="contributor-av" title="${sanitize(c.handle)}">${c.handle.replace('@','').substring(0,2).toUpperCase()}</span>`).join('');
+  const cards=document.getElementById('contrib-cards');
+  if(cards) cards.innerHTML=contributions.slice(0,6).map(c=>`
+    <div class="fund-contrib-card">
+      <div class="contrib-amount">${formatMoney(c.amount)}</div>
+      <div class="contrib-handle">${sanitize(c.handle)}</div>
+      ${c.note?`<div class="contrib-note">"${sanitize(c.note)}"</div>`:''}
+      <div class="contrib-date">${sanitize(c.date||'')}</div>
+    </div>`).join('');
+  renderMemberRaises();
+}
+
+function renderMemberRaises() {
+  const feed=document.getElementById('member-raises-feed'); if(!feed) return;
+  if(!memberRaises.length){feed.innerHTML='<div style="text-align:center;color:#4b5563;padding:2rem;">No raises listed yet.</div>';return;}
+  feed.innerHTML=memberRaises.map(r=>{
+    const mine=currentUser&&(r.poster===currentUser.handle||String(r.poster_id)===String(currentUser.id));
+    return`<div class="raise-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
+        <div style="flex:1;">
+          <div style="font-family:'Syne',sans-serif;color:white;font-weight:700;font-size:1rem;margin-bottom:4px;">${sanitize(r.title)}</div>
+          <div style="color:#64748b;font-size:0.82rem;line-height:1.5;margin-bottom:0.7rem;">${sanitize(r.desc)}</div>
+          <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;">
+            <span class="raise-stage-badge">${sanitize(r.stage)}</span>
+            ${r.target?`<span style="color:#64748b;font-size:0.78rem;">Target: ${formatMoney(r.target)}</span>`:''}
+            <span style="color:#4b5563;font-size:0.75rem;">by ${sanitize(r.poster)}</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:0.5rem;align-items:center;flex-shrink:0;">
+          ${r.stripeLink&&r.stripeLink.startsWith('http')?`<a href="${sanitize(r.stripeLink)}" target="_blank" class="raise-stripe-btn"><i class="fab fa-stripe"></i> Back This</a>`:`<span style="color:#4b5563;font-size:0.78rem;padding:0.5rem;">No Stripe link yet</span>`}
+          ${mine?`<button onclick="deleteRaise('${r.id}')" class="delete-btn" title="Delete">🗑</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+async function deleteRaise(id) {
+  if(!confirm("Delete this raise?")) return;
+  if(sb&&!currentUser.id.startsWith('demo-')) await sb.from('member_raises').delete().eq('id',id).eq('poster_id',currentUser.id);
+  memberRaises=memberRaises.filter(r=>String(r.id)!==String(id));
+  renderMemberRaises(); showToast("Raise deleted");
+}
+function renderProjectFunds() {
+  const el=document.getElementById('project-funds-feed'); if(!el) return;
+  el.innerHTML=`<div style="padding:1.5rem;text-align:center;color:#4b5563;font-size:0.88rem;">Project funds are created by the Pass It Forward founder.<br>Check back soon for upcoming community projects.</div>`;
+}
+
+// ── STRIPE / FUND CONTRIBUTION ────────────────────────────────────
+function showAddFundsModal() {
+  if(!currentUser) return showToast("Login first");
+  ['fund-custom-amount','fund-note'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.querySelectorAll('#add-funds-modal .pledge-amount-btn').forEach(b=>b.classList.remove('selected'));
+  selectedFundAmount=0; _pendingContrib=null;
+  document.getElementById('fund-step-1').style.display='block';
+  document.getElementById('fund-step-2').style.display='none';
+  document.getElementById('add-funds-modal').style.display='flex';
+}
+function selectFundAmount(amount,btn) {
+  document.querySelectorAll('#add-funds-modal .pledge-amount-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected'); selectedFundAmount=amount;
+  document.getElementById('fund-custom-amount').value='';
+}
+function goToStripePayment() {
+  const custom=parseInt(document.getElementById('fund-custom-amount').value)||0;
+  const amount=custom||selectedFundAmount;
+  if(!amount||amount<=0) return showToast("Please select or enter an amount");
+  const note=document.getElementById('fund-note').value.trim();
+  _pendingContrib={id:Date.now(),handle:currentUser.handle,user_id:currentUser.id,amount,note,date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})};
+  if(STRIPE_PAYMENT_LINK){
+    const sep=STRIPE_PAYMENT_LINK.includes('?')?'&':'?';
+    const url=`${STRIPE_PAYMENT_LINK}${sep}client_reference_id=${encodeURIComponent(currentUser.handle)}&prefilled_amount=${amount*100}`;
+    _stripeWindow=window.open(url,'_blank');
+    if(!_stripeWindow||_stripeWindow.closed) showToast('⚠️ Popup blocked — allow popups and try again');
+  } else {
+    showToast("⚙️ Stripe not set up yet — add your link at the top of the file");
+  }
+  document.getElementById('fund-step-1').style.display='none';
+  document.getElementById('fund-step-2').style.display='block';
+  document.getElementById('fund-confirm-amount').textContent='$'+amount;
+  document.getElementById('fund-confirm-handle').textContent=currentUser.handle;
+}
+function reopenStripe() {
+  if(!_pendingContrib||!STRIPE_PAYMENT_LINK) return showToast("Stripe not configured yet");
+  const sep=STRIPE_PAYMENT_LINK.includes('?')?'&':'?';
+  window.open(`${STRIPE_PAYMENT_LINK}${sep}client_reference_id=${encodeURIComponent(currentUser.handle)}&prefilled_amount=${_pendingContrib.amount*100}`,'_blank');
+}
+async function confirmPaymentDone() {
+  if(!_pendingContrib) return;
+  if(sb&&!currentUser.id.startsWith('demo-')){
+    const{error}=await sb.from('fund_contributions').insert({handle:_pendingContrib.handle,user_id:_pendingContrib.user_id,amount:_pendingContrib.amount,note:_pendingContrib.note||''});
+    if(error) console.warn('Fund insert:',error.message);
+  }
+  contributions.push(_pendingContrib);
+  addXp(25,'goal','Contributed $'+_pendingContrib.amount+' to community fund');
+  bumpWeekly('fund');
+  closeModal('add-funds-modal');
+  renderFunds();
+  showToast(`$${_pendingContrib.amount} recorded — thank you! 🙏`);
+  _pendingContrib=null; _stripeWindow=null;
+  document.getElementById('fund-step-1').style.display='block';
+  document.getElementById('fund-step-2').style.display='none';
+  document.querySelectorAll('#add-funds-modal .pledge-amount-btn').forEach(b=>b.classList.remove('selected'));
+  selectedFundAmount=0;
+}
+function cancelFundStep2(){
+  _pendingContrib=null; _stripeWindow=null;
+  document.getElementById('fund-step-1').style.display='block';
+  document.getElementById('fund-step-2').style.display='none';
+  closeModal('add-funds-modal');
+}
+
+// ── MEMBER RAISES ─────────────────────────────────────────────────
+function showRaiseModal(){ if(!currentUser) return showToast("Login first"); document.getElementById('raise-modal').style.display='flex'; }
+async function submitRaise(){
+  const title=document.getElementById('raise-title').value.trim();
+  const desc=document.getElementById('raise-desc').value.trim();
+  const stage=document.getElementById('raise-stage').value;
+  const target=parseInt(document.getElementById('raise-target').value)||0;
+  const stripeLink=document.getElementById('raise-stripe-link').value.trim();
+  if(!title) return showToast("Add a title");
+  const newR={title,desc:desc||'No description',stage:stage||'Pre-Revenue',target,poster:currentUser.handle,poster_id:currentUser.id,stripeLink,date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})};
+  if(sb&&!currentUser.id.startsWith('demo-')){
+    const{data,error}=await sb.from('member_raises').insert({title,description:newR.desc,stage:newR.stage,target,poster_handle:currentUser.handle,poster_id:currentUser.id,stripe_link:stripeLink}).select().single();
+    if(error) return showToast("Error: "+error.message);
+    newR.id=data.id;
+  } else { newR.id=Date.now(); }
+  memberRaises.unshift(newR);
+  closeModal('raise-modal');
+  ['raise-title','raise-desc','raise-target','raise-stripe-link'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  renderMemberRaises(); showToast("Raise listed! 🚀");
+}
+
+// ── ROADMAP ────────────────────────────────────────────────────────
+function renderRoadmap(){
+  const c=document.getElementById('roadmap-timeline'); if(!c) return;
+  const years=[
+    {year:'2026',badge:'IN PROGRESS',active:true,items:[
+      {icon:'fa-check',text:'First 150 founding members accepted'},
+      {icon:'fa-check',text:'Private Discord + Notion live'},
+      {icon:'fa-check',text:'Weekly calls & workshops'},
+      {icon:'fa-clock',text:'Internal opportunity marketplace'}
+    ]},
+    {year:'2027',badge:'PLANNED',active:false},
+    {year:'2028',badge:'PLANNED',active:false},
+    {year:'2030',badge:'LEGACY',active:false},
+  ];
+  c.innerHTML=years.map(y=>`
+    <div class="roadmap-year ${y.active?'active':''}">
+      <div class="planned-badge">${y.badge}</div>
+      <div class="year-circle">${y.year}</div>
+      ${y.items?`<div class="roadmap-year-content"><ul>${y.items.map(i=>`<li><i class="fas ${i.icon}"></i> ${i.text}</li>`).join('')}</ul></div>`:''}
+    </div>`).join('');
+}
+
+// ── GOAL ──────────────────────────────────────────────────────────
+function showGoalModal(){if(!currentUser)return showToast("Login first");const e=localStorage.getItem('pf_goal');if(e)document.getElementById('goal-text').value=e;document.getElementById('goal-modal').style.display='flex';}
+function saveGoal(){const g=document.getElementById('goal-text').value.trim();if(!g)return;localStorage.setItem('pf_goal',g);closeModal('goal-modal');markTaskDone(2);addXp(10,'goal','Set a 30-day goal');bumpWeekly('goal');showToast("Goal saved!");renderGoal();}
+function deleteGoal(){if(!confirm("Delete your goal?"))return;localStorage.removeItem('pf_goal');renderGoal();showToast("Goal deleted");}
+function renderGoal(){const g=localStorage.getItem('pf_goal');const b=document.getElementById('current-goal-box');if(!b)return;if(g){const dg=document.getElementById('display-goal');if(dg)dg.textContent=g;b.classList.add('show');}else{b.classList.remove('show');}}
+
+// ── PROFILE ────────────────────────────────────────────────────────
+function renderProfile(){
+  if(!currentUser)return;
+  const profile=JSON.parse(localStorage.getItem('pf_profile_'+currentUser.handle)||'{}');
+  const ph=document.getElementById('profile-handle');if(ph)ph.textContent=currentUser.handle;
+  const pbd=document.getElementById('profile-bio-display');if(pbd)pbd.textContent=profile.bio||'No bio yet. Click edit to add one.';
+  const psd=document.getElementById('profile-skills-display');if(psd)psd.innerHTML=(profile.skills||[]).map(s=>`<span class="skill-tag">${sanitize(s)}</span>`).join('');
+  const xl=document.getElementById('profile-x-link');if(xl){if(profile.xUrl){xl.href=profile.xUrl;xl.style.display='inline-flex';}else{xl.style.display='none';}}
+  updatePostedCount();
+}
+function showProfileModal(){
+  const p=JSON.parse(localStorage.getItem('pf_profile_'+currentUser.handle)||'{}');
+  document.getElementById('edit-bio').value=p.bio||'';
+  document.getElementById('edit-x-url').value=p.xUrl||'';
+  pendingSkills=[...(p.skills||[])];renderSkillsPreview();
+  document.getElementById('profile-modal').style.display='flex';
+}
+function addSkill(){const i=document.getElementById('skill-input');const v=i.value.trim();if(!v||pendingSkills.includes(v)||pendingSkills.length>=8){if(pendingSkills.length>=8)showToast("Max 8 skills");return;}pendingSkills.push(v);i.value='';renderSkillsPreview();}
+function renderSkillsPreview(){document.getElementById('skills-preview').innerHTML=pendingSkills.map((s,i)=>`<span class="skill-tag" onclick="removeSkill(${i})" title="Click to remove">${sanitize(s)} ✕</span>`).join('');}
+function removeSkill(i){pendingSkills.splice(i,1);renderSkillsPreview();}
+function saveProfile(){const bio=document.getElementById('edit-bio').value.trim();const xUrl=document.getElementById('edit-x-url').value.trim();localStorage.setItem('pf_profile_'+currentUser.handle,JSON.stringify({bio,skills:pendingSkills,xUrl}));closeModal('profile-modal');renderProfile();showToast("Profile updated!");}
+
+// ── TASKS ──────────────────────────────────────────────────────────
+function getCompletedTasks(){return JSON.parse(localStorage.getItem('pf_tasks_'+(currentUser?.handle||'x'))||'[]');}
+function markTaskDone(num){const d=getCompletedTasks();if(!d.includes(num)){d.push(num);localStorage.setItem('pf_tasks_'+(currentUser?.handle||'x'),JSON.stringify(d));}refreshTaskUI();}
+function refreshTaskUI(){
+  const done=getCompletedTasks();const pct=Math.round((done.length/3)*100);
+  const bar=document.getElementById('task-progress-bar');if(bar)bar.style.width=pct+'%';
+  const txt=document.getElementById('task-progress-text');if(txt)txt.textContent=done.length+' / 3 done';
+  [1,2,3].forEach(n=>{
+    const check=document.getElementById('task-check-'+n);const row=document.getElementById('welcome-task-'+n);
+    if(check&&done.includes(n)){check.style.background='var(--primary)';check.style.borderColor='var(--primary)';check.innerHTML='<i class="fas fa-check" style="color:#0a0f1e;font-size:0.65rem;"></i>';if(row)row.style.opacity='0.6';}
+    const dbar=document.getElementById('dash-task-bar');if(dbar)dbar.style.width=pct+'%';
+    const dtxt=document.getElementById('dash-task-text');if(dtxt)dtxt.textContent=done.length+' / 3 done';
+    const pill=document.getElementById('dash-t'+n);
+    if(pill&&done.includes(n)){pill.style.background='rgba(16,185,129,0.12)';pill.style.borderColor='rgba(16,185,129,0.4)';pill.style.color='var(--primary)';pill.innerHTML=pill.innerHTML.replace('✦','✓');}
+  });
+}
+function welcomeTask(num){markTaskDone(num);setTimeout(()=>{closeModal('welcome-modal');setTimeout(()=>{if(num===1)switchTab('testimonials');else if(num===2)showGoalModal();else if(num===3)showPostModal();},300);},400);}
+function showWelcomeModal(){if(!currentUser)return;document.getElementById('welcome-modal').style.display='flex';localStorage.setItem('pf_welcomeShown_'+currentUser.handle,'true');}
+function closeWelcome(){closeModal('welcome-modal');}
+
+// ── XP SYSTEM ─────────────────────────────────────────────────────
+function getXp(){return parseInt(localStorage.getItem('pf_xp_'+(currentUser?.handle||'x'))||'0');}
+function addXp(pts,type,label){if(!currentUser)return;const total=getXp()+pts;localStorage.setItem('pf_xp_'+currentUser.handle,total);logXpEvent(type,label,pts);}
+function logXpEvent(type,label,pts){if(!currentUser)return;const log=JSON.parse(localStorage.getItem('pf_xplog_'+currentUser.handle)||'[]');const time=new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});log.push({type,label,pts,time});localStorage.setItem('pf_xplog_'+currentUser.handle,JSON.stringify(log));}
+
+// ── DM MODAL (opp page) ───────────────────────────────────────────
+function showDmModal(poster,title){
+  document.getElementById('dm-modal-title').textContent=`Contact ${sanitize(poster)}`;
+  document.getElementById('dm-modal-body').textContent=`Reach out to ${sanitize(poster)} about: "${sanitize(title)}"`;
+  const msg=`Hey ${poster}, saw your opportunity "${title}" on Pass It Forward — interested in connecting!`;
+  document.getElementById('dm-x-link').href=`https://twitter.com/messages/compose?text=${encodeURIComponent(msg)}`;
+  document.getElementById('dm-modal').style.display='flex';
+}
+
+// ── NOTIFICATIONS ─────────────────────────────────────────────────
+function getNotifs(){return JSON.parse(localStorage.getItem('pf_notifs_'+(currentUser?.handle||'x'))||'[]');}
+function saveNotifs(n){localStorage.setItem('pf_notifs_'+(currentUser?.handle||'x'),JSON.stringify(n));}
+function addNotif(text){if(!currentUser)return;const notifs=getNotifs();const t=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});notifs.unshift({id:Date.now(),text,time:t,read:false});if(notifs.length>30)notifs.length=30;saveNotifs(notifs);renderNotifBell();}
+function renderNotifBell(){const notifs=getNotifs();const badge=document.getElementById('notif-badge');const list=document.getElementById('notif-list');if(!badge||!list)return;const unread=notifs.filter(n=>!n.read).length;if(unread>0){badge.textContent=unread>9?'9+':unread;badge.classList.add('on');}else{badge.textContent='';badge.classList.remove('on');}list.innerHTML=notifs.length?notifs.map(n=>`<div class="notif-row ${n.read?'':'unread'}" onclick="readNotif(${n.id})"><div class="nr-dot ${n.read?'read':''}"></div><div class="nr-text">${sanitize(n.text)}<span class="nr-time">${sanitize(n.time)}</span></div></div>`).join(''):'<div class="notif-empty">No notifications yet</div>';}
+function readNotif(id){const notifs=getNotifs();const n=notifs.find(x=>x.id===id);if(n){n.read=true;saveNotifs(notifs);renderNotifBell();}}
+function clearAllNotifs(){saveNotifs(getNotifs().map(n=>({...n,read:true})));renderNotifBell();document.getElementById('notif-panel').classList.remove('open');}
+function toggleNotifPanel(e){e&&e.stopPropagation();document.getElementById('notif-panel').classList.toggle('open');}
+document.addEventListener('click',()=>{const p=document.getElementById('notif-panel');if(p)p.classList.remove('open');});
+
+// ── THEME ─────────────────────────────────────────────────────────
+function toggleTheme(){const on=document.body.classList.toggle('light');localStorage.setItem('pf_theme',on?'light':'dark');document.getElementById('theme-icon').className=on?'fas fa-sun':'fas fa-moon';}
+(function(){if(localStorage.getItem('pf_theme')==='light'){document.body.classList.add('light');const ti=document.getElementById('theme-icon');if(ti)ti.className='fas fa-sun';}})();
+
+// ── LEADERBOARD ───────────────────────────────────────────────────
+const DEMO_LB=[
+  {handle:'@BuilderMindset',xp:840,opps:7,posts:23,fund:250},
+  {handle:'@CapitalBuilder',xp:720,opps:4,posts:18,fund:500},
+  {handle:'@GrowthHustle',xp:610,opps:5,posts:29,fund:100},
+  {handle:'@DevLaunch',xp:490,opps:6,posts:12,fund:50},
+  {handle:'@MarketMaker',xp:380,opps:3,posts:9,fund:250},
+  {handle:'@SaaSFounder',xp:270,opps:2,posts:7,fund:0},
+  {handle:'@DesignPro',xp:190,opps:1,posts:14,fund:25},
 ];
-function renderDirectory() {
-  const grid = document.getElementById('dir-grid'); if (!grid) return;
-  const q = (document.getElementById('dir-search-input')?.value||'').toLowerCase().trim();
-  let members = [...DEMO_PROFILES];
-  if (currentUser) {
-    const myP = JSON.parse(localStorage.getItem('pf_profile_'+currentUser)||'{}');
-    const me = {handle:currentUser, bio:myP.bio||'', skills:myP.skills||[], xp:getXp(), xUrl:myP.xUrl||''};
-    if (!members.find(m=>m.handle===me.handle)) members.unshift(me);
-  }
-  if (q) members = members.filter(m => m.handle.toLowerCase().includes(q)||(m.skills||[]).some(s=>s.toLowerCase().includes(q))||(m.bio||'').toLowerCase().includes(q));
-  if (!members.length) { grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#4b5563;padding:2rem;">No members found</div>'; return; }
-  grid.innerHTML = members.map(m=>{
-    const ini = m.handle.replace('@','').substring(0,2).toUpperCase();
-    const isMe = m.handle===currentUser;
-    return `<div class="dir-card">
-      <div class="dir-av">${ini}</div>
-      <div class="dir-name">${sanitize(m.handle)}${isMe?' <span style="color:#64748b;font-size:0.65rem;">(you)</span>':''}</div>
-      <div class="dir-bio">${m.bio?sanitize(m.bio):'<span style="color:#4b5563;">No bio yet.</span>'}</div>
-      <div class="dir-tags">${(m.skills||[]).map(s=>`<span class="dir-tag">${sanitize(s)}</span>`).join('')}</div>
-      <div class="dir-foot">
-        ${m.xUrl?`<a href="${sanitize(m.xUrl)}" target="_blank" class="dir-xl"><i class="fab fa-x-twitter"></i> X Profile</a>`:`<span style="color:#4b5563;font-size:0.72rem;">⭐ ${m.xp} XP</span>`}
-        ${!isMe?`<button class="dir-dm-btn" onclick="openDmWith('${m.handle.replace(/'/g,"\\'")}')">Message</button>`:''}
-      </div>
+function getMyLbEntry(){if(!currentUser)return null;return{handle:currentUser.handle,xp:getXp(),opps:opportunities.filter(o=>o.poster===currentUser.handle).length,posts:communityPosts.filter(p=>p.handle===currentUser.handle).length,fund:contributions.filter(c=>c.handle===currentUser.handle).reduce((s,c)=>s+c.amount,0)};}
+function setLbTab(tab,btn){activeLbTab=tab;document.querySelectorAll('.lb-tab').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');renderLeaderboard();}
+function renderLeaderboard(){
+  const board=document.getElementById('lb-board');if(!board)return;
+  let data=[...DEMO_LB];const me=getMyLbEntry();
+  if(me&&!data.find(d=>d.handle===me.handle))data.push(me);
+  else if(me){const i=data.findIndex(d=>d.handle===me.handle);if(i>=0)data[i]={...data[i],...me};}
+  data.sort((a,b)=>b[activeLbTab]-a[activeLbTab]);
+  const rc=i=>i===0?'g':i===1?'s':i===2?'b':'n';
+  const re=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
+  const labels={xp:'XP',opps:'opps',posts:'posts',fund:'contributed'};
+  const fmt=(m,t)=>t==='fund'?'$'+m[t].toLocaleString():m[t].toLocaleString();
+  board.innerHTML=data.map((m,i)=>`
+    <div class="lb-row" ${m.handle===currentUser?.handle?'style="background:rgba(16,185,129,0.05);"':''}>
+      <div class="lb-rank ${rc(i)}">${re(i)}</div>
+      <div class="lb-av">${m.handle.replace('@','').substring(0,2).toUpperCase()}</div>
+      <div class="lb-info"><div class="lb-handle">${sanitize(m.handle)}${m.handle===currentUser?.handle?' <span style="color:#64748b;font-size:0.68rem;">(you)</span>':''}</div><div class="lb-sub">${fmt(m,activeLbTab)} ${labels[activeLbTab]}</div></div>
+      <div class="lb-score">${fmt(m,activeLbTab)}</div>
+    </div>`).join('');
+  const mvp=[...data].sort((a,b)=>b.xp-a.xp)[0];
+  const mvpEl=document.getElementById('lb-mvp');if(mvpEl)mvpEl.textContent=mvp?.handle||'—';
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set('lb-stat-members',data.length);set('lb-stat-opps',data.reduce((s,m)=>s+m.opps,0));
+  set('lb-stat-posts',data.reduce((s,m)=>s+m.posts,0));set('lb-stat-xp',data.reduce((s,m)=>s+m.xp,0).toLocaleString());
+}
+
+// ── CHALLENGES ────────────────────────────────────────────────────
+const CHALLENGES=[
+  {id:'c1',title:'Post an Opportunity',desc:'Share what you need or what you can offer.',xp:20,target:1,key:'opps'},
+  {id:'c2',title:'Write 3 Community Posts',desc:'Share a win, question, or resource.',xp:15,target:3,key:'comm'},
+  {id:'c3',title:'Express Interest in 5 Opps',desc:'Fire on 5 opportunities.',xp:10,target:5,key:'interests'},
+  {id:'c4',title:'Set Your 30-Day Goal',desc:'Define what you want to achieve this month.',xp:10,target:1,key:'goal'},
+  {id:'c5',title:'Send a DM',desc:'Reach out to another member directly.',xp:15,target:1,key:'dms'},
+];
+function getWeekKey(){const d=new Date(),day=d.getDay();const mon=new Date(d);mon.setDate(d.getDate()-(day===0?6:day-1));mon.setHours(0,0,0,0);return mon.toISOString().split('T')[0];}
+function getWeeklyProg(){return JSON.parse(localStorage.getItem('pf_wk_'+(currentUser?.handle||'x')+'_'+getWeekKey())||'{}');}
+function saveWeeklyProg(p){localStorage.setItem('pf_wk_'+(currentUser?.handle||'x')+'_'+getWeekKey(),JSON.stringify(p));}
+function bumpWeekly(key,amount){
+  if(!currentUser)return;const p=getWeeklyProg();const was={};
+  CHALLENGES.forEach(c=>{was[c.id]=(p[c.key]||0)>=c.target;});
+  p[key]=(p[key]||0)+(amount||1);saveWeeklyProg(p);
+  CHALLENGES.forEach(c=>{if(!was[c.id]&&(p[c.key]||0)>=c.target){addXp(c.xp,'goal','Challenge: '+c.title);showToast('🎯 Challenge complete! +'+c.xp+' XP');}});
+  renderChallenges();
+}
+function renderChallenges(){
+  const list=document.getElementById('challenges-list');if(!list)return;
+  const prog=getWeeklyProg();const done=CHALLENGES.filter(c=>(prog[c.key]||0)>=c.target).length;
+  const ptxt=document.getElementById('ch-prog-text');if(ptxt)ptxt.textContent=done+' / '+CHALLENGES.length+' done';
+  list.innerHTML=CHALLENGES.map(c=>{const cur=Math.min(prog[c.key]||0,c.target),isDone=cur>=c.target,pct=Math.round(cur/c.target*100);
+    return`<div class="ch-card ${isDone?'ch-done':''}">
+      <div class="ch-top"><div><div class="ch-title">${sanitize(c.title)}</div><div class="ch-desc">${sanitize(c.desc)}</div></div>
+      ${isDone?`<span class="ch-done-tag">✓ Done</span>`:`<span class="ch-xp-tag">+${c.xp} XP</span>`}</div>
+      <div class="ch-prog-bar"><div class="ch-prog-fill" style="width:${pct}%"></div></div>
+      <div class="ch-prog-labels"><span>${cur} / ${c.target}</span><span>${pct}%</span></div>
     </div>`;
+  }).join('');
+}
+(function(){function upd(){const now=new Date(),day=now.getDay();const mon=new Date(now);mon.setDate(now.getDate()+(day===0?1:8-day));mon.setHours(0,0,0,0);const diff=mon-now,h=Math.floor(diff/3600000),m=Math.floor(diff%3600000/60000),s=Math.floor(diff%60000/1000);const el=document.getElementById('ch-countdown');if(el)el.textContent=h+'h '+m+'m '+s+'s';}upd();setInterval(upd,1000);})();
+
+// ── DIRECTORY ─────────────────────────────────────────────────────
+const DEMO_PROFILES=[
+  {handle:'@BuilderMindset',bio:'Building AI-powered tools for operators. Ex-Stripe.',skills:['AI/ML','Product','Fundraising'],xUrl:''},
+  {handle:'@CapitalBuilder',bio:'Angel investor & operator. 12 portfolio companies.',skills:['Investing','M&A','Strategy'],xUrl:''},
+  {handle:'@GrowthHustle',bio:'B2B growth specialist. 0 to $1M ARR three times.',skills:['Growth','Sales','GTM'],xUrl:''},
+  {handle:'@DevLaunch',bio:'Full-stack dev turned founder. Building developer tools.',skills:['React','Node.js','DevTools'],xUrl:''},
+  {handle:'@MarketMaker',bio:'CMO background. Building a performance marketing agency.',skills:['Marketing','Paid Ads','Brand'],xUrl:''},
+  {handle:'@DesignPro',bio:'Product designer 10 years. UI/UX for startups.',skills:['UI/UX','Figma','Branding'],xUrl:''},
+];
+async function loadAndRenderDirectory(){
+  let members=[...DEMO_PROFILES];
+  if(currentUser){const myP=JSON.parse(localStorage.getItem('pf_profile_'+currentUser.handle)||'{}');const me={handle:currentUser.handle,bio:myP.bio||'',skills:myP.skills||[],xUrl:myP.xUrl||''};if(!members.find(m=>m.handle===me.handle))members.unshift(me);}
+  renderDirectory(members);
+}
+function renderDirectory(members){
+  const grid=document.getElementById('dir-grid');if(!grid)return;
+  const q=(document.getElementById('dir-search-input')?.value||'').toLowerCase().trim();
+  let filtered=members||[...DEMO_PROFILES];
+  if(q)filtered=filtered.filter(m=>m.handle.toLowerCase().includes(q)||(m.skills||[]).some(s=>s.toLowerCase().includes(q))||(m.bio||'').toLowerCase().includes(q));
+  if(!filtered.length){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;color:#4b5563;padding:2rem;">No members found for "${sanitize(q)}"</div>`;return;}
+  grid.innerHTML=filtered.map(m=>{const ini=m.handle.replace('@','').substring(0,2).toUpperCase();const isMe=m.handle===currentUser?.handle;
+    return`<div class="dir-card"><div class="dir-av">${ini}</div><div class="dir-name">${sanitize(m.handle)}${isMe?' <span style="color:#64748b;font-size:0.65rem;">(you)</span>':''}</div><div class="dir-bio">${m.bio?sanitize(m.bio):'<span style="color:#4b5563;">No bio yet.</span>'}</div><div class="dir-tags">${(m.skills||[]).map(s=>`<span class="dir-tag">${sanitize(s)}</span>`).join('')}</div><div class="dir-foot">${m.xUrl?`<a href="${sanitize(m.xUrl)}" target="_blank" class="dir-xl"><i class="fab fa-x-twitter"></i> X</a>`:`<span style="color:#4b5563;font-size:0.72rem;">⭐ Member</span>`}${!isMe?`<button class="dir-dm-btn" onclick="openDmWith('${m.handle.replace(/'/g,"\\'")}')">Message</button>`:''}</div></div>`;
   }).join('');
 }
 
-// ══════════════════════════════════════════════════════
-// ── DIRECT MESSAGES (simulated — stored locally per user)
-// Demo replies show what the other side would see
-// ══════════════════════════════════════════════════════
-let activeDmHandle = null;
-const DM_AUTO_REPLIES = {
-  '@BuilderMindset': ["Hey! Saw your message. Let's connect 🤝","What are you working on right now?","Happy to jump on a call this week"],
-  '@CapitalBuilder': ["Interesting — tell me more about your traction","What round are you raising?","Send me your deck and I'll take a look"],
-  '@GrowthHustle': ["I've been thinking about this too!","What's your current CAC looking like?","Let's get on a call — I have some ideas"],
-  '@DevLaunch': ["Happy to collab on the tech side","What stack are you using?","I might have someone who can help"],
-  '@MarketMaker': ["Love this! Are you open to a rev-share?","What's your current paid spend?","DM me your X and let's chat properly"],
-  '@DesignPro': ["I can help with the UI — share your brief","What's the timeline?","Happy to do a quick design review for free"],
-};
-function getDmStore() { return JSON.parse(localStorage.getItem('pf_dm_'+currentUser)||'{}'); }
-function saveDmStore(s) { localStorage.setItem('pf_dm_'+currentUser, JSON.stringify(s)); }
-function openDmWith(handle) {
-  if (!currentUser) return showToast("Login first");
-  const store = getDmStore();
-  if (!store[handle]) {
-    // seed with a demo welcome message from the other person
-    const replies = DM_AUTO_REPLIES[handle];
-    const intro = replies ? [{from:handle, text:`Hey ${currentUser}! Good to connect. What's on your mind?`, time:'Earlier'}] : [];
-    store[handle] = intro;
-    saveDmStore(store);
-  }
-  switchTab('messages');
-  setTimeout(()=>{ renderDmSidebar(); openThread(handle); }, 120);
-}
-function renderDmSidebar() {
-  const list = document.getElementById('dm-thread-list'); if (!list) return;
-  const store = getDmStore();
-  const keys = Object.keys(store);
-  if (!keys.length) { list.innerHTML='<div style="padding:1.2rem 1rem;text-align:center;color:#4b5563;font-size:0.78rem;">No conversations yet.<br>Start one from the Directory!</div>'; return; }
-  list.innerHTML = keys.map(h=>{
-    const msgs=store[h], last=msgs[msgs.length-1], ini=h.replace('@','').substring(0,2).toUpperCase();
-    return `<div class="dm-thread ${activeDmHandle===h?'active':''}" onclick="openThread('${h.replace(/'/g,"\\'")}')">
-      <div class="dm-tav">${ini}</div>
-      <div class="dm-tinfo">
-        <div class="dm-thandle">${sanitize(h)}</div>
-        <div class="dm-tpreview">${last?sanitize(last.text.substring(0,30))+'…':'No messages yet'}</div>
-      </div>
-    </div>`;
+// ── DIRECT MESSAGES ───────────────────────────────────────────────
+function getDmStore(){return JSON.parse(localStorage.getItem('pf_dm_'+(currentUser?.handle||'x'))||'{}');}
+function saveDmStore(s){localStorage.setItem('pf_dm_'+(currentUser?.handle||'x'),JSON.stringify(s));}
+function openDmWith(handle){if(!currentUser)return showToast("Login first");const store=getDmStore();if(!store[handle])store[handle]=[];saveDmStore(store);switchTab('messages');setTimeout(()=>{renderDmSidebar();openThread(handle);},150);}
+function renderDmSidebar(){
+  const list=document.getElementById('dm-thread-list');if(!list)return;
+  const store=getDmStore();const keys=Object.keys(store);
+  if(!keys.length){list.innerHTML='<div style="padding:1.2rem;text-align:center;color:#4b5563;font-size:0.78rem;">No conversations yet.<br>Find members in the Directory!</div>';return;}
+  list.innerHTML=keys.map(h=>{const msgs=store[h],last=msgs[msgs.length-1],ini=h.replace('@','').substring(0,2).toUpperCase();
+    return`<div class="dm-thread ${activeDmHandle===h?'active':''}" onclick="openThread('${h.replace(/'/g,"\\'")}')"><div class="dm-tav">${ini}</div><div class="dm-tinfo"><div class="dm-thandle">${sanitize(h)}</div><div class="dm-tpreview">${last?sanitize(last.text.substring(0,30))+'…':'No messages yet'}</div></div></div>`;
   }).join('');
 }
-function openThread(handle) {
-  activeDmHandle = handle;
-  const store = getDmStore(), msgs = store[handle]||[];
-  const right = document.getElementById('dm-right-panel'); if (!right) return;
-  right.innerHTML = `
+function openThread(handle){
+  activeDmHandle=handle;const store=getDmStore(),msgs=store[handle]||[];
+  const right=document.getElementById('dm-right-panel');if(!right)return;
+  right.innerHTML=`
     <div class="dm-right-head"><strong>${sanitize(handle)}</strong></div>
-    <div class="dm-msgs" id="dm-msg-area">
-      ${msgs.length ? msgs.map(m=>`
-        <div class="dm-bwrap ${m.from===currentUser?'me':'them'}">
-          <div class="dm-bubble">${sanitize(m.text)}</div>
-          <div class="dm-btime">${sanitize(m.time)}</div>
-        </div>`).join('') : '<div class="dm-no-conv" style="flex:1;">No messages yet — say hi! 👋</div>'}
-    </div>
-    <div class="dm-compose">
-      <input class="dm-inp" id="dm-msg-field" placeholder="Type a message..." onkeydown="if(event.key==='Enter'){event.preventDefault();sendDmMsg();}"/>
-      <button class="dm-send" onclick="sendDmMsg()"><i class="fas fa-paper-plane"></i></button>
-    </div>`;
-  const area = document.getElementById('dm-msg-area'); if(area) area.scrollTop = area.scrollHeight;
+    <div class="dm-msgs" id="dm-msg-area">${msgs.length?msgs.map(m=>`<div class="dm-bwrap ${m.from===currentUser.handle?'me':'them'}"><div class="dm-bubble">${sanitize(m.text)}</div><div class="dm-btime">${sanitize(m.time)}</div></div>`).join(''):'<div class="dm-no-conv" style="flex:1;">No messages yet — say hi! 👋</div>'}</div>
+    <div class="dm-compose"><input class="dm-inp" id="dm-msg-field" placeholder="Type a message..." onkeydown="if(event.key==='Enter'){event.preventDefault();sendDmMsg();}"/><button class="dm-send" onclick="sendDmMsg()"><i class="fas fa-paper-plane"></i></button></div>`;
+  const area=document.getElementById('dm-msg-area');if(area)area.scrollTop=area.scrollHeight;
   renderDmSidebar();
 }
-function sendDmMsg() {
-  if (!activeDmHandle) return;
-  const inp = document.getElementById('dm-msg-field'); if (!inp) return;
-  const text = inp.value.trim(); if (!text) return;
-  const store = getDmStore();
-  if (!store[activeDmHandle]) store[activeDmHandle]=[];
-  const time = new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-  store[activeDmHandle].push({from:currentUser, text, time});
-  // Simulate a reply after a short delay if it's a demo member
-  const replies = DM_AUTO_REPLIES[activeDmHandle];
-  if (replies) {
-    const reply = replies[Math.floor(Math.random()*replies.length)];
-    const replyTime = new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-    setTimeout(()=>{
-      const s2 = getDmStore();
-      if (!s2[activeDmHandle]) s2[activeDmHandle]=[];
-      s2[activeDmHandle].push({from:activeDmHandle, text:reply, time:replyTime});
-      saveDmStore(s2);
-      addNotif(`💬 ${activeDmHandle} replied to your message`);
-      if (activeDmHandle === (document.querySelector('.dm-right-head strong')?.textContent)) openThread(activeDmHandle);
-      else renderDmSidebar();
-    }, 1500 + Math.random()*2000);
-  }
-  saveDmStore(store);
-  inp.value='';
-  openThread(activeDmHandle);
-  bumpWeekly('dms');
+function sendDmMsg(){
+  if(!activeDmHandle)return;const inp=document.getElementById('dm-msg-field');if(!inp)return;
+  const text=inp.value.trim();if(!text)return;
+  const store=getDmStore();if(!store[activeDmHandle])store[activeDmHandle]=[];
+  const time=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  store[activeDmHandle].push({from:currentUser.handle,text,time});saveDmStore(store);inp.value='';
+  openThread(activeDmHandle);bumpWeekly('dms');
+  const replies=["Sounds great, let's connect!","Interesting, tell me more.","I'll look into this, thanks!","Let's schedule a call this week.","Love this, definitely interested."];
+  setTimeout(()=>{const s2=getDmStore();const rt=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});s2[activeDmHandle].push({from:activeDmHandle,text:replies[Math.floor(Math.random()*replies.length)],time:rt});saveDmStore(s2);addNotif(`💬 ${activeDmHandle} replied`);if(activeDmHandle===(document.querySelector('.dm-right-head strong')?.textContent))openThread(activeDmHandle);else renderDmSidebar();},1800+Math.random()*2000);
 }
-function showNewDmModal() { if(!currentUser) return showToast("Login first"); document.getElementById('new-dm-modal').style.display='flex'; }
-function sendNewDm() {
-  let handle = document.getElementById('dm-to-inp').value.trim();
-  const msg = document.getElementById('dm-msg-inp').value.trim();
-  if (!handle) return showToast("Enter a handle");
-  if (!msg) return showToast("Write a message");
-  if (!handle.startsWith('@')) handle='@'+handle;
-  const store = getDmStore();
-  if (!store[handle]) {
-    const replies = DM_AUTO_REPLIES[handle];
-    store[handle] = replies ? [{from:handle, text:`Hey ${currentUser}! Good to connect. What's on your mind?`, time:'Earlier'}] : [];
-  }
-  const time = new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-  store[handle].push({from:currentUser, text:msg, time});
-  saveDmStore(store);
-  document.getElementById('dm-to-inp').value=''; document.getElementById('dm-msg-inp').value='';
-  closeModal('new-dm-modal');
-  activeDmHandle = handle;
-  renderDmSidebar(); openThread(handle);
-  showToast("Message sent to "+handle+"!");
-  bumpWeekly('dms');
-  addXp(5, 'post', 'Sent a message');
+function showNewDmModal(){if(!currentUser)return showToast("Login first");document.getElementById('new-dm-modal').style.display='flex';}
+function sendNewDm(){
+  let handle=document.getElementById('dm-to-inp').value.trim();const msg=document.getElementById('dm-msg-inp').value.trim();
+  if(!handle)return showToast("Enter a handle");if(!msg)return showToast("Write a message");
+  if(!handle.startsWith('@'))handle='@'+handle;
+  const store=getDmStore();if(!store[handle])store[handle]=[];
+  const time=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  store[handle].push({from:currentUser.handle,text:msg,time});saveDmStore(store);
+  document.getElementById('dm-to-inp').value='';document.getElementById('dm-msg-inp').value='';
+  closeModal('new-dm-modal');activeDmHandle=handle;renderDmSidebar();openThread(handle);
+  showToast("Message sent to "+handle+"!");bumpWeekly('dms');
 }
 
-// ══════════════════════════════════════════════════════
-// ── PERSONAL STATS
-// ══════════════════════════════════════════════════════
-function renderMyStats() {
-  if (!currentUser) return;
-  try {
-    const xp = getXp();
-    const myOpps = opportunities.filter(o=>o.poster===currentUser).length;
-    const allPosts = JSON.parse(localStorage.getItem('pf_community')||'[]');
-    const myPosts = allPosts.filter(p=>p.handle===currentUser).length;
-    const contribs = JSON.parse(localStorage.getItem('pf_contributions')||'[]');
-    const myFund = contribs.filter(c=>c.handle===currentUser).reduce((s,c)=>s+(c.amount||0),0);
-    const myTests = (JSON.parse(localStorage.getItem('pf_testimonials')||'[]')).filter(t=>t.author===currentUser).length;
-    const tasks = getCompletedTasks();
-    const lvlName = xp>=700?'Community Pillar':xp>=300?'Core Contributor':xp>=100?'Active Builder':'Founding Member';
-    const ini = currentUser.replace('@','').substring(0,2).toUpperCase();
-
-    const el = id => document.getElementById(id);
-    const setText = (id,v) => { const e=el(id); if(e) e.textContent=v; };
-
-    setText('stats-av-initials', ini);
-    setText('stats-handle-text', currentUser);
-    setText('stats-level-text', lvlName+' · '+xp.toLocaleString()+' XP');
-
-    const nums = el('stats-nums-grid');
-    if (nums) nums.innerHTML = [
-      {v:xp.toLocaleString(),   l:'Total XP'},
-      {v:myOpps,                l:'Opps Posted'},
-      {v:myPosts,               l:'Community Posts'},
-      {v:'$'+myFund.toLocaleString(), l:'Fund Contributed'},
-      {v:myTests,               l:'Testimonials'},
-      {v:tasks.length+' / 3',  l:'Tasks Done'},
+// ── MY STATS ──────────────────────────────────────────────────────
+function renderMyStats(){
+  if(!currentUser)return;
+  try{
+    const xp=getXp();const tasks=getCompletedTasks();
+    const myOpps=opportunities.filter(o=>o.poster===currentUser.handle).length;
+    const myPosts=communityPosts.filter(p=>p.handle===currentUser.handle).length;
+    const myFund=contributions.filter(c=>c.handle===currentUser.handle).reduce((s,c)=>s+(c.amount||0),0);
+    const lvlName=xp>=700?'Community Pillar':xp>=300?'Core Contributor':xp>=100?'Active Builder':'Founding Member';
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    set('stats-av-initials',currentUser.handle.replace('@','').substring(0,2).toUpperCase());
+    set('stats-handle-text',currentUser.handle);
+    set('stats-level-text',lvlName+' · '+xp.toLocaleString()+' XP');
+    const nums=document.getElementById('stats-nums-grid');
+    if(nums)nums.innerHTML=[
+      {v:xp.toLocaleString(),l:'Total XP'},{v:myOpps,l:'Opps Posted'},{v:myPosts,l:'Community Posts'},
+      {v:'$'+myFund.toLocaleString(),l:'Fund Contributed'},{v:tasks.length+' / 3',l:'Tasks Done'},
     ].map(s=>`<div class="snum-box"><div class="sv">${s.v}</div><div class="sl">${s.l}</div></div>`).join('');
-
-    const xpLog = JSON.parse(localStorage.getItem('pf_xplog_'+currentUser)||'[]');
-    setText('xp-log-count-txt', xpLog.length+' events');
-    const iconMap = {opp:'fa-bolt',post:'fa-comment',test:'fa-star',goal:'fa-bullseye',login:'fa-sign-in-alt'};
-    const logEl = el('xp-log-items');
-    if (logEl) {
-      if (!xpLog.length) {
-        logEl.innerHTML = '<div style="padding:2rem;text-align:center;color:#4b5563;">No XP yet — start posting and participating!</div>';
-      } else {
-        logEl.innerHTML = [...xpLog].reverse().slice(0,25).map(e=>`
-          <div class="xp-log-row">
-            <div class="xp-icon ${e.type||'opp'}"><i class="fas ${iconMap[e.type]||'fa-bolt'}"></i></div>
-            <div class="xp-log-info"><strong>${sanitize(e.label||'XP Earned')}</strong><span>${sanitize(e.time||'')}</span></div>
-            <div class="xp-log-pts">+${e.pts||0} XP</div>
-          </div>`).join('');
-      }
-    }
-  } catch(err) {
-    console.error('renderMyStats error:', err);
-  }
+    const xpLog=JSON.parse(localStorage.getItem('pf_xplog_'+currentUser.handle)||'[]');
+    set('xp-log-count-txt',xpLog.length+' events');
+    const iconMap={opp:'fa-bolt',post:'fa-comment',test:'fa-star',goal:'fa-bullseye',login:'fa-sign-in-alt'};
+    const logEl=document.getElementById('xp-log-items');
+    if(logEl)logEl.innerHTML=xpLog.length?[...xpLog].reverse().slice(0,25).map(e=>`<div class="xp-log-row"><div class="xp-icon ${e.type||'opp'}"><i class="fas ${iconMap[e.type]||'fa-bolt'}"></i></div><div class="xp-log-info"><strong>${sanitize(e.label||'XP')}</strong><span>${sanitize(e.time||'')}</span></div><div class="xp-log-pts">+${e.pts||0} XP</div></div>`).join(''):'<div style="padding:2rem;text-align:center;color:#4b5563;">No XP yet — start participating!</div>';
+  }catch(e){console.error('renderMyStats:',e);}
 }
 
+// ── X TOGGLE ─────────────────────────────────────────────────────
+function toggleXPost(){postToX=!postToX;const sw=document.getElementById('x-switch');if(sw)sw.classList.toggle('on',postToX);}
 
+// ── LIVE COUNTER ─────────────────────────────────────────────────
+let fakeOnline=183;
+setInterval(()=>{fakeOnline=Math.max(150,Math.min(220,fakeOnline+Math.floor(Math.random()*5)-2));const el=document.getElementById('online-count');if(el)el.textContent=fakeOnline;},4500);
+
+// ── APPLY FORM ───────────────────────────────────────────────────
+document.getElementById('apply-form')?.addEventListener('submit',e=>{e.preventDefault();e.target.reset();showToast("✅ Application received! We'll DM you on X within 48 hours.");});
+
+// ── MODAL BACKDROPS ───────────────────────────────────────────────
+document.querySelectorAll('.modal').forEach(modal=>{modal.addEventListener('click',e=>{if(e.target===modal)modal.style.display='none';});});
+
+// ── LOGIN / LOGOUT ────────────────────────────────────────────────
+document.getElementById('login-btn').addEventListener('click',()=>{document.getElementById('login-modal').style.display='flex';showAuthTab('login');if(!sb){const w=document.getElementById('auth-no-sb-warning');if(w)w.style.display='block';}});
+document.getElementById('logout-btn').addEventListener('click',logout);
+
+// ── INIT ─────────────────────────────────────────────────────────
+async function init() {
+  renderRoadmap();
+  renderFilters();
+  const loggedIn = await initAuth();
+  if (loggedIn && currentUser) {
+    showMemberTabs();
+    await loadOpportunitiesAndRender();
+  } else {
+    document.getElementById('apply-card').style.display = 'block';
+    document.querySelectorAll('.member-link').forEach(l => l.style.display = 'none');
+    // Still load public opportunities and testimonials
+    loadOpportunitiesAndRender();
+    loadAndRenderTestimonials();
+  }
+}
+init();
+
+console.log('%c✅ PASS IT FORWARD v14 — SUPABASE + STRIPE 🔥','color:#10b981;font-weight:700;font-size:14px');
 
 </script>
 </body>
