@@ -1456,10 +1456,10 @@ create policy "raises_delete" on member_raises for delete using (auth.uid() = po
 //   → Your site is live instantly — share the URL
 // ══════════════════════════════════════════════════════════════════════
 
-const SUPABASE_URL     = '';  // e.g. https://xxxx.supabase.co
-const SUPABASE_ANON_KEY = ''; // Your anon/public key from Supabase settings
-const STRIPE_PAYMENT_LINK = ''; // https://buy.stripe.com/xxxxxxxxxxxx
-const FOUNDER_EMAIL = ''; // ← Your email here — gives you full admin/founder access
+const SUPABASE_URL     = 'https://liubjbfjdycacmaujawu.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpdWpiamZqZHljYWNtYXVqYXd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzQxMjYsImV4cCI6MjA4ODIxMDEyNn0.g8P98rM5OVFml5_bQY3V5x7nX5CHnVRqITSMu72Wy2Y';
+const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/bJebIUgI56Yy8VU1B2dEs00';
+const FOUNDER_EMAIL = 'miguelbettencourt74@gmail.com';
 
 // Init Supabase safely — never crashes even if CDN is slow or keys are missing
 let sb = null;
