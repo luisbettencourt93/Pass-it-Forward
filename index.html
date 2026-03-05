@@ -622,7 +622,7 @@
   <div class="header-inner">
     <div class="logo"><i class="fas fa-arrow-right-arrow-left"></i> Pass It Forward</div>
     <nav id="main-nav">
-      <a onclick="switchTab('hero');return false">Home</a>
+      <a onclick="switchTab('hero');return false" id="nav-home">Home</a>
       <a onclick="switchTab('dashboard');return false" class="member-link">Dashboard</a>
       <a onclick="switchTab('community');return false" class="member-link">Community</a>
       <a onclick="switchTab('leaderboard');return false" class="member-link">Leaderboard</a>
@@ -819,7 +819,7 @@
         <div class="fund-pot-bar-wrap">
           <div class="fund-pot-bar-fill" id="pot-bar" style="width:0%"></div>
         </div>
-        <div class="fund-pot-goal-text">Goal: <strong id="pot-goal-display">$10,000</strong> — <span id="pot-pct">0%</span> there</div>
+        <div class="fund-pot-goal-text">Goal: <strong id="pot-goal-display">$10,000</strong> — <span id="pot-pct">0%</span> there &nbsp;<button id="edit-pot-goal-btn" onclick="showEditPotGoal()" style="display:none;background:none;border:1px solid var(--border);color:#64748b;padding:1px 7px;border-radius:6px;font-size:0.68rem;cursor:pointer;font-family:'DM Sans',sans-serif;" title="Change goal">✏️ Edit Goal</button></div>
         <div class="fund-contributors" id="pot-contributors"></div>
         <button onclick="showAddFundsModal()" class="add-funds-btn">
           <i class="fas fa-plus" style="margin-right:8px;"></i>Add to the Fund
@@ -1639,6 +1639,8 @@ function showMemberTabs() {
   const dn = document.getElementById('display-name'); if (dn) dn.textContent = currentUser.handle;
   const pn = document.getElementById('profile-name'); if (pn) pn.textContent = currentUser.handle;
   document.getElementById('apply-card').style.display = 'none';
+  // Hide Home tab when logged in
+  const homeNav = document.getElementById('nav-home'); if(homeNav) homeNav.style.display = 'none';
   const atf = document.getElementById('add-testimonial-form'); if (atf) atf.style.display = 'block';
   document.querySelectorAll('.member-link').forEach(l => l.style.display = 'block');
   const nw = document.getElementById('notif-wrap'); if (nw) nw.classList.add('visible');
@@ -1650,6 +1652,7 @@ function showMemberTabs() {
   renderGoal();
   refreshTaskUI();
   renderNotifBell();
+  updateMemberCount();
   if (!localStorage.getItem('pf_welcomeShown_' + currentUser.handle)) {
     setTimeout(() => showWelcomeModal(), 900);
   }
@@ -1920,10 +1923,21 @@ async function submitCommunityPost() {
   const time = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'});
   const newP = { handle: currentUser.handle, user_id: currentUser.id, body, category, likes: 0, time };
   if (sb && !currentUser.id.startsWith('demo-')) {
-    const { data, error } = await sb.from('community_posts').insert({ handle:currentUser.handle, user_id:currentUser.id, body, category, likes:0 }).select().single();
-    if (error) return showToast("Error: "+error.message);
+    // Get fresh session to ensure auth.uid() matches
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return showToast("Session expired — please log in again");
+    const { data, error } = await sb.from('community_posts')
+      .insert({ handle: currentUser.handle, user_id: session.user.id, body, category, likes: 0 })
+      .select().single();
+    if (error) {
+      console.error('Community post error:', error);
+      return showToast("Error: " + error.message);
+    }
     newP.id = data.id;
-  } else { newP.id = Date.now(); }
+    newP.user_id = session.user.id;
+  } else {
+    newP.id = Date.now();
+  }
   communityPosts.unshift(newP);
   const inp = document.getElementById('comm-post-text') || document.getElementById('comm-post-input');
   if(inp) inp.value='';
@@ -2034,10 +2048,18 @@ async function renderFunds() {
     if(rd) memberRaises=rd.map(r=>({id:r.id,title:r.title,desc:r.description,stage:r.stage,target:r.target,poster:r.poster_handle,poster_id:r.poster_id,stripeLink:r.stripe_link,date:new Date(r.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}));
   }
   const total=contributions.reduce((s,c)=>s+(c.amount||0),0);
-  const goal=25000, pct=Math.min(100,Math.round((total/goal)*100));
+  // Founder-controlled goal — stored in localStorage
+  const goal = parseInt(localStorage.getItem('pf_pot_goal')||'10000');
+  const pct=Math.min(100,Math.round((total/goal)*100));
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
   set('fund-total',formatMoney(total)); set('fund-pct',pct+'%'); set('fund-contributor-count',contributions.length);
+  // Update goal display
+  const goalEl=document.getElementById('pot-goal-display'); if(goalEl) goalEl.textContent=formatMoney(goal);
+  const pctEl=document.getElementById('pot-pct'); if(pctEl) pctEl.textContent=pct+'%';
   const bar=document.getElementById('fund-progress-bar'); if(bar) bar.style.width=pct+'%';
+  // Show edit button for founder
+  const editGoalBtn = document.getElementById('edit-pot-goal-btn');
+  if(editGoalBtn) editGoalBtn.style.display = isFounder() ? 'inline-flex' : 'none';
   const cont=document.getElementById('pot-contributors');
   if(cont) cont.innerHTML=contributions.slice(0,8).map(c=>`<span class="contributor-av" title="${sanitize(c.handle)}">${c.handle.replace('@','').substring(0,2).toUpperCase()}</span>`).join('');
   const cards=document.getElementById('contrib-cards');
@@ -2049,6 +2071,17 @@ async function renderFunds() {
       <div class="contrib-date">${sanitize(c.date||'')}</div>
     </div>`).join('');
   renderMemberRaises();
+}
+function showEditPotGoal(){
+  if(!isFounder()) return;
+  const cur = localStorage.getItem('pf_pot_goal')||'10000';
+  const val = prompt('Set new community pot goal ($):', cur);
+  if(!val) return;
+  const num = parseInt(val);
+  if(isNaN(num)||num<=0) return showToast("Enter a valid number");
+  localStorage.setItem('pf_pot_goal', num);
+  renderFunds();
+  showToast("Goal updated to $"+num.toLocaleString()+" ✅");
 }
 
 function renderMemberRaises() {
@@ -2229,23 +2262,49 @@ async function submitRaise(){
 // ── ROADMAP ────────────────────────────────────────────────────────
 function renderRoadmap(){
   const c=document.getElementById('roadmap-timeline'); if(!c) return;
+  const founder = isFounder();
+  // Load saved tick states
+  const ticks = JSON.parse(localStorage.getItem('pf_roadmap_ticks')||'{}');
+  const items2026 = [
+    {id:'r1', text:'Founding Circle established (first 150 members)', done: true},
+    {id:'r2', text:'Private community platform live', done: true},
+    {id:'r3', text:'First community collaboration launched', done: true},
+    {id:'r4', text:'Opportunity marketplace in development', done: false},
+  ].map(i => ({...i, done: ticks[i.id] !== undefined ? ticks[i.id] : i.done}));
+
   const years=[
-    {year:'2026',badge:'IN PROGRESS',active:true,items:[
-      {icon:'fa-check',text:'First 150 verified founding members onboarded'},
-      {icon:'fa-check',text:'Private community platform live'},
-      {icon:'fa-check',text:'First community collaboration launched'},
-      {icon:'fa-clock',text:'Internal opportunity marketplace'}
+    {year:'2026',badge:'IN PROGRESS',active:true,items:items2026},
+    {year:'2027',badge:'PLANNED',active:false,items:[
+      {id:'r5',text:'$1M+ in member-to-member deals facilitated',done:ticks['r5']||false},
+      {id:'r6',text:'500 active verified members',done:ticks['r6']||false},
+      {id:'r7',text:'First Pass It Forward live event',done:ticks['r7']||false},
     ]},
-    {year:'2027',badge:'PLANNED',active:false},
-    {year:'2028',badge:'PLANNED',active:false},
-    {year:'2030',badge:'LEGACY',active:false},
+    {year:'2028',badge:'PLANNED',active:false,items:[
+      {id:'r8',text:'Community fund reaches $100k',done:ticks['r8']||false},
+      {id:'r9',text:'Global member network across 20+ countries',done:ticks['r9']||false},
+    ]},
+    {year:'2030',badge:'LEGACY',active:false,items:[
+      {id:'r10',text:'Pass It Forward becomes self-sustaining ecosystem',done:ticks['r10']||false},
+    ]},
   ];
   c.innerHTML=years.map(y=>`
     <div class="roadmap-year ${y.active?'active':''}">
       <div class="planned-badge">${y.badge}</div>
       <div class="year-circle">${y.year}</div>
-      ${y.items?`<div class="roadmap-year-content"><ul>${y.items.map(i=>`<li><i class="fas ${i.icon}"></i> ${i.text}</li>`).join('')}</ul></div>`:''}
+      ${y.items?`<div class="roadmap-year-content"><ul>${y.items.map(i=>`
+        <li style="cursor:${founder?'pointer':'default'};${i.done?'color:#10b981;':''}" ${founder?`onclick="toggleRoadmapTick('${i.id}',${i.done})" title="Click to tick/untick"`:''}">
+          <i class="fas ${i.done?'fa-check-circle':'fa-clock'}" style="color:${i.done?'var(--primary)':'#64748b'};"></i>
+          <span style="${i.done?'color:var(--primary);font-weight:600;':''}">${sanitize(i.text)}</span>
+        </li>`).join('')}</ul></div>`:''}
     </div>`).join('');
+}
+function toggleRoadmapTick(id, currentDone) {
+  if(!isFounder()) return;
+  const ticks = JSON.parse(localStorage.getItem('pf_roadmap_ticks')||'{}');
+  ticks[id] = !currentDone;
+  localStorage.setItem('pf_roadmap_ticks', JSON.stringify(ticks));
+  renderRoadmap();
+  showToast(ticks[id] ? '✅ Milestone marked complete!' : 'Milestone unmarked');
 }
 
 // ── GOAL ──────────────────────────────────────────────────────────
@@ -2486,8 +2545,15 @@ function renderMyStats(){
 function toggleXPost(){postToX=!postToX;const sw=document.getElementById('x-switch');if(sw)sw.classList.toggle('on',postToX);}
 
 // ── LIVE COUNTER ─────────────────────────────────────────────────
-let fakeOnline=183;
-setInterval(()=>{fakeOnline=Math.max(150,Math.min(220,fakeOnline+Math.floor(Math.random()*5)-2));const el=document.getElementById('online-count');if(el)el.textContent=fakeOnline;},4500);
+// ── REAL MEMBER COUNT ─────────────────────────────────────────────
+async function updateMemberCount() {
+  const el = document.getElementById('online-count'); if (!el) return;
+  if (sb) {
+    const { count } = await sb.from('profiles').select('*', { count: 'exact', head: true });
+    if (count !== null) { el.textContent = count; return; }
+  }
+  el.textContent = '—';
+}
 
 // ── APPLY FORM ───────────────────────────────────────────────────
 document.getElementById('apply-form')?.addEventListener('submit',e=>{e.preventDefault();e.target.reset();showToast("✅ Application received! We'll DM you on X within 48 hours.");});
