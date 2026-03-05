@@ -1473,10 +1473,11 @@ create policy "raises_delete" on member_raises for delete using (auth.uid() = po
 //   → Your site is live instantly — share the URL
 // ══════════════════════════════════════════════════════════════════════
 
-const SUPABASE_URL     =  'https://liujbjfjdycacmaujawu.supabase.co';
+const SUPABASE_URL     = 'https://liujbjfjdycacmaujawu.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpdWpiamZqZHljYWNtYXVqYXd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzQxMjYsImV4cCI6MjA4ODIxMDEyNn0.g8P98rM5OVFml5_bQY3V5x7nX5CHnVRqITSMu72Wy2Y';
-const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/bJebIUgIS6Yy8VU1B2dEs00';
-const FOUNDER_EMAIL = 'miguelbettencourt74@gmail.com';
+const STRIPE_PAYMENT_LINK =  'https://buy.stripe.com/bJebIUgIS6Yy8VU1B2dEs00';
+const FOUNDER_EMAIL =  'miguelbettencourt74@gmail.com';
+
 // Init Supabase safely — never crashes even if CDN is slow or keys are missing
 let sb = null;
 try {
@@ -2743,11 +2744,11 @@ async function sendNewDm() {
 
 // ── REAL-TIME POLLING ─────────────────────────────────────────────
 setInterval(async () => {
-  // Refresh funds every 30 seconds if on funds tab
-  if(document.getElementById('funds')?.style.display !== 'none') renderFunds();
-  // Refresh community posts every 20 seconds if on community tab
-  if(document.getElementById('community')?.style.display !== 'none') loadAndRenderCommunity();
+  if(document.getElementById('funds')?.style.display !== 'none') await renderFunds();
+  if(document.getElementById('community')?.style.display !== 'none') await loadAndRenderCommunity();
 }, 20000);
+
+setInterval(async () => {
   if (activeDmHandle && document.getElementById('messages')?.style.display !== 'none') {
     await openThread(activeDmHandle);
   }
