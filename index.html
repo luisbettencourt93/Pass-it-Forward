@@ -1456,14 +1456,17 @@ create policy "raises_delete" on member_raises for delete using (auth.uid() = po
 //   → Your site is live instantly — share the URL
 // ══════════════════════════════════════════════════════════════════════
 
-const SUPABASE_URL =  'https://liujbjfjdycacmaujawu.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpdWpiamZqZHljYWNtYXVqYXd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzQxMjYsImV4cCI6MjA4ODIxMDEyNn0.g8P98rM5OVFml5_bQY3V5x7nX5CHnVRqITSMu72Wy2Y';
+const SUPABASE_URL     = 'https://liujbjfjdycacmaujawu.supabase.co';
+const SUPABASE_ANON_KEY = 'SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpdWpiamZqZHljYWNtYXVqYXd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzQxMjYsImV4cCI6MjA4ODIxMDEyNn0.g8P98rM5OVFml5_bQY3V5x7nX5CHnVRqITSMu72Wy2Y';
 const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/bJebIUgIS6Yy8VU1B2dEs00';
+const FOUNDER_EMAIL = 'miguelbettencourt74@gmail.com';
 
 // Init Supabase (graceful if keys not set — runs in demo mode)
 const sb = (SUPABASE_URL && SUPABASE_ANON_KEY)
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
+
+function isFounder() { return currentUser && FOUNDER_EMAIL && currentUser.email === FOUNDER_EMAIL; }
 
 const CATEGORIES = ["All","Tech","Marketing","Sales","Design","Investing","Operations","Other"];
 const COMM_CATS = ['All','General','Win','Question','Resource','Collab'];
@@ -1528,7 +1531,6 @@ async function handleLogin() {
   if (btn) { btn.textContent = 'Logging in…'; btn.disabled = true; }
 
   if (!sb) {
-    // DEMO MODE — no Supabase configured
     const handle = '@' + email.split('@')[0].replace(/[^a-zA-Z0-9_]/g,'');
     currentUser = { id: 'demo-' + handle, email, handle };
     localStorage.setItem('pf_demo_user', JSON.stringify(currentUser));
@@ -1541,7 +1543,12 @@ async function handleLogin() {
 
   const { data, error } = await sb.auth.signInWithPassword({ email, password });
   if (btn) { btn.textContent = 'Login'; btn.disabled = false; }
-  if (error) return showToast("❌ " + error.message);
+  if (error) {
+    if (error.message.includes('Email not confirmed')) {
+      return showToast("⚠️ Please check your email and confirm your account first, then try logging in again.");
+    }
+    return showToast("❌ " + error.message);
+  }
   await loadCurrentUser(data.user);
   closeModal('login-modal');
   showMemberTabs();
@@ -1833,13 +1840,22 @@ function renderTestimonials(list) {
   });
 }
 async function submitTestimonial() {
-  const text = document.getElementById('new-testimonial')?.value.trim(); if (!text) return;
+  const inp = document.getElementById('new-testimonial');
+  const text = inp?.value.trim();
+  if (!text) return showToast("Write your testimonial first");
   if (!currentUser) return showToast("Login required");
   if (sb && !currentUser.id.startsWith('demo-')) {
-    const { error } = await sb.from('testimonials').insert({ author_handle: currentUser.handle, author_id: currentUser.id, body: text });
-    if (error) return showToast("Error: " + error.message);
+    const { error } = await sb.from('testimonials').insert({
+      author_handle: currentUser.handle,
+      author_id: currentUser.id,
+      body: text
+    });
+    if (error) {
+      console.error('Testimonial error:', error);
+      return showToast("Error saving: " + error.message);
+    }
   }
-  const inp = document.getElementById('new-testimonial'); if(inp) inp.value = '';
+  if (inp) inp.value = '';
   markTaskDone(1); addXp(15, 'test', 'Posted a testimonial'); bumpWeekly('comm');
   showToast("Testimonial posted! 🙏");
   loadAndRenderTestimonials();
@@ -1894,8 +1910,8 @@ function renderCommunity() {
 }
 function setCommCat(c) { activeCommCat = c; renderCommunity(); }
 async function submitCommunityPost() {
-  const body = document.getElementById('comm-post-input')?.value.trim();
-  const category = document.getElementById('comm-cat-select')?.value || 'General';
+  const body = (document.getElementById('comm-post-text') || document.getElementById('comm-post-input'))?.value.trim();
+  const category = (document.getElementById('comm-post-channel') || document.getElementById('comm-cat-select'))?.value || 'General';
   if (!body) return showToast("Write something first");
   if (!currentUser) return showToast("Login first");
   const time = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'});
@@ -1906,7 +1922,8 @@ async function submitCommunityPost() {
     newP.id = data.id;
   } else { newP.id = Date.now(); }
   communityPosts.unshift(newP);
-  const inp = document.getElementById('comm-post-input'); if(inp) inp.value='';
+  const inp = document.getElementById('comm-post-text') || document.getElementById('comm-post-input');
+  if(inp) inp.value='';
   addXp(10,'post','Posted in community'); bumpWeekly('comm');
   renderCommunity(); showToast("Posted! 🙌");
 }
@@ -2061,9 +2078,64 @@ async function deleteRaise(id) {
   memberRaises=memberRaises.filter(r=>String(r.id)!==String(id));
   renderMemberRaises(); showToast("Raise deleted");
 }
+let projectFunds = JSON.parse(localStorage.getItem('pf_project_funds')||'[]');
+function saveProjectFunds(){ localStorage.setItem('pf_project_funds', JSON.stringify(projectFunds)); }
+
 function renderProjectFunds() {
   const el=document.getElementById('project-funds-feed'); if(!el) return;
-  el.innerHTML=`<div style="padding:1.5rem;text-align:center;color:#4b5563;font-size:0.88rem;">Project funds are created by the Pass It Forward founder.<br>Check back soon for upcoming community projects.</div>`;
+  const founder = isFounder();
+  let html = '';
+  if(!projectFunds.length){
+    html='<div style="padding:1.5rem;text-align:center;color:#4b5563;font-size:0.88rem;">No project funds yet.'+(founder?' Create the first one below.':' Check back soon.')+'</div>';
+  } else {
+    html=projectFunds.map(pf=>`
+      <div class="project-fund-card">
+        <div class="project-fund-header">
+          <div>
+            <div class="project-fund-title">${sanitize(pf.title)}</div>
+            <div class="project-fund-desc">${sanitize(pf.desc)}</div>
+          </div>
+          ${founder?`<button onclick="deleteProjectFund('${pf.id}')" class="delete-btn" title="Delete">🗑</button>`:''}
+        </div>
+        <div class="project-fund-progress">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            <span style="color:#64748b;font-size:0.8rem;">${sanitize(pf.note||'')}</span>
+            <span style="font-family:'Syne',sans-serif;color:var(--primary);font-weight:700;font-size:0.88rem;">${formatMoney(pf.raised||0)} / ${formatMoney(pf.goal)}</span>
+          </div>
+          <div style="height:6px;background:#0a0f1e;border-radius:999px;overflow:hidden;border:1px solid var(--border);">
+            <div style="height:100%;width:${Math.min(100,Math.round(((pf.raised||0)/pf.goal)*100))}%;background:linear-gradient(to right,var(--primary),#34d399);border-radius:999px;"></div>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+  if(founder){
+    html+=`<div style="margin-top:1.2rem;">
+      <button onclick="showProjectFundModal()" class="btn" style="width:100%;"><i class="fas fa-plus" style="margin-right:8px;"></i>Create Project Fund</button>
+    </div>`;
+  }
+  el.innerHTML=html;
+}
+function showProjectFundModal(){
+  if(!isFounder()) return showToast("Only the founder can create project funds");
+  document.getElementById('project-fund-modal').style.display='flex';
+}
+function submitProjectFund(){
+  const title=document.getElementById('pf-title-inp').value.trim();
+  const desc=document.getElementById('pf-desc-inp').value.trim();
+  const goal=parseInt(document.getElementById('pf-goal-inp').value)||0;
+  const note=document.getElementById('pf-note-inp').value.trim();
+  if(!title||!goal) return showToast("Fill in title and goal amount");
+  projectFunds.unshift({id:Date.now(),title,desc:desc||'',goal,raised:0,note});
+  saveProjectFunds();
+  ['pf-title-inp','pf-desc-inp','pf-goal-inp','pf-note-inp'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  closeModal('project-fund-modal');
+  renderProjectFunds();
+  showToast("Project fund created! ⚡");
+}
+function deleteProjectFund(id){
+  if(!confirm("Delete this project fund?")) return;
+  projectFunds=projectFunds.filter(p=>String(p.id)!==String(id));
+  saveProjectFunds(); renderProjectFunds(); showToast("Deleted");
 }
 
 // ── STRIPE / FUND CONTRIBUTION ────────────────────────────────────
@@ -2250,22 +2322,16 @@ function toggleTheme(){const on=document.body.classList.toggle('light');localSto
 (function(){if(localStorage.getItem('pf_theme')==='light'){document.body.classList.add('light');const ti=document.getElementById('theme-icon');if(ti)ti.className='fas fa-sun';}})();
 
 // ── LEADERBOARD ───────────────────────────────────────────────────
-const DEMO_LB=[
-  {handle:'@BuilderMindset',xp:840,opps:7,posts:23,fund:250},
-  {handle:'@CapitalBuilder',xp:720,opps:4,posts:18,fund:500},
-  {handle:'@GrowthHustle',xp:610,opps:5,posts:29,fund:100},
-  {handle:'@DevLaunch',xp:490,opps:6,posts:12,fund:50},
-  {handle:'@MarketMaker',xp:380,opps:3,posts:9,fund:250},
-  {handle:'@SaaSFounder',xp:270,opps:2,posts:7,fund:0},
-  {handle:'@DesignPro',xp:190,opps:1,posts:14,fund:25},
-];
 function getMyLbEntry(){if(!currentUser)return null;return{handle:currentUser.handle,xp:getXp(),opps:opportunities.filter(o=>o.poster===currentUser.handle).length,posts:communityPosts.filter(p=>p.handle===currentUser.handle).length,fund:contributions.filter(c=>c.handle===currentUser.handle).reduce((s,c)=>s+c.amount,0)};}
 function setLbTab(tab,btn){activeLbTab=tab;document.querySelectorAll('.lb-tab').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');renderLeaderboard();}
 function renderLeaderboard(){
   const board=document.getElementById('lb-board');if(!board)return;
-  let data=[...DEMO_LB];const me=getMyLbEntry();
-  if(me&&!data.find(d=>d.handle===me.handle))data.push(me);
-  else if(me){const i=data.findIndex(d=>d.handle===me.handle);if(i>=0)data[i]={...data[i],...me};}
+  // Only real users — no fake bots
+  let data=[];
+  const me=getMyLbEntry();
+  if(me) data.push(me);
+  if(!data.length){board.innerHTML='<div style="padding:2rem;text-align:center;color:#4b5563;">Be the first on the leaderboard — start posting!</div>';
+    ['lb-mvp','lb-stat-members','lb-stat-opps','lb-stat-posts','lb-stat-xp'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—';});return;}
   data.sort((a,b)=>b[activeLbTab]-a[activeLbTab]);
   const rc=i=>i===0?'g':i===1?'s':i===2?'b':'n';
   const re=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
@@ -2319,25 +2385,24 @@ function renderChallenges(){
 (function(){function upd(){const now=new Date(),day=now.getDay();const mon=new Date(now);mon.setDate(now.getDate()+(day===0?1:8-day));mon.setHours(0,0,0,0);const diff=mon-now,h=Math.floor(diff/3600000),m=Math.floor(diff%3600000/60000),s=Math.floor(diff%60000/1000);const el=document.getElementById('ch-countdown');if(el)el.textContent=h+'h '+m+'m '+s+'s';}upd();setInterval(upd,1000);})();
 
 // ── DIRECTORY ─────────────────────────────────────────────────────
-const DEMO_PROFILES=[
-  {handle:'@BuilderMindset',bio:'Building AI-powered tools for operators. Ex-Stripe.',skills:['AI/ML','Product','Fundraising'],xUrl:''},
-  {handle:'@CapitalBuilder',bio:'Angel investor & operator. 12 portfolio companies.',skills:['Investing','M&A','Strategy'],xUrl:''},
-  {handle:'@GrowthHustle',bio:'B2B growth specialist. 0 to $1M ARR three times.',skills:['Growth','Sales','GTM'],xUrl:''},
-  {handle:'@DevLaunch',bio:'Full-stack dev turned founder. Building developer tools.',skills:['React','Node.js','DevTools'],xUrl:''},
-  {handle:'@MarketMaker',bio:'CMO background. Building a performance marketing agency.',skills:['Marketing','Paid Ads','Brand'],xUrl:''},
-  {handle:'@DesignPro',bio:'Product designer 10 years. UI/UX for startups.',skills:['UI/UX','Figma','Branding'],xUrl:''},
-];
 async function loadAndRenderDirectory(){
-  let members=[...DEMO_PROFILES];
-  if(currentUser){const myP=JSON.parse(localStorage.getItem('pf_profile_'+currentUser.handle)||'{}');const me={handle:currentUser.handle,bio:myP.bio||'',skills:myP.skills||[],xUrl:myP.xUrl||''};if(!members.find(m=>m.handle===me.handle))members.unshift(me);}
+  let members=[];
+  if(sb){
+    const{data}=await sb.from('profiles').select('handle,bio,skills,x_url').order('created_at',{ascending:true});
+    if(data) members=data.map(p=>({handle:p.handle,bio:p.bio||'',skills:p.skills||[],xUrl:p.x_url||''}));
+  } else if(currentUser){
+    // demo mode — just show yourself
+    const myP=JSON.parse(localStorage.getItem('pf_profile_'+currentUser.handle)||'{}');
+    members=[{handle:currentUser.handle,bio:myP.bio||'',skills:myP.skills||[],xUrl:myP.xUrl||''}];
+  }
   renderDirectory(members);
 }
 function renderDirectory(members){
   const grid=document.getElementById('dir-grid');if(!grid)return;
   const q=(document.getElementById('dir-search-input')?.value||'').toLowerCase().trim();
-  let filtered=members||[...DEMO_PROFILES];
+  let filtered=[...(members||[])];
   if(q)filtered=filtered.filter(m=>m.handle.toLowerCase().includes(q)||(m.skills||[]).some(s=>s.toLowerCase().includes(q))||(m.bio||'').toLowerCase().includes(q));
-  if(!filtered.length){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;color:#4b5563;padding:2rem;">No members found for "${sanitize(q)}"</div>`;return;}
+  if(!filtered.length){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;color:#4b5563;padding:2rem;">${q?'No members found for "'+sanitize(q)+'"':'No members yet — be the first!'}</div>`;return;}
   grid.innerHTML=filtered.map(m=>{const ini=m.handle.replace('@','').substring(0,2).toUpperCase();const isMe=m.handle===currentUser?.handle;
     return`<div class="dir-card"><div class="dir-av">${ini}</div><div class="dir-name">${sanitize(m.handle)}${isMe?' <span style="color:#64748b;font-size:0.65rem;">(you)</span>':''}</div><div class="dir-bio">${m.bio?sanitize(m.bio):'<span style="color:#4b5563;">No bio yet.</span>'}</div><div class="dir-tags">${(m.skills||[]).map(s=>`<span class="dir-tag">${sanitize(s)}</span>`).join('')}</div><div class="dir-foot">${m.xUrl?`<a href="${sanitize(m.xUrl)}" target="_blank" class="dir-xl"><i class="fab fa-x-twitter"></i> X</a>`:`<span style="color:#4b5563;font-size:0.72rem;">⭐ Member</span>`}${!isMe?`<button class="dir-dm-btn" onclick="openDmWith('${m.handle.replace(/'/g,"\\'")}')">Message</button>`:''}</div></div>`;
   }).join('');
@@ -2452,6 +2517,20 @@ init();
 console.log('%c✅ PASS IT FORWARD v14 — SUPABASE + STRIPE 🔥','color:#10b981;font-weight:700;font-size:14px');
 
 </script>
+<!-- PROJECT FUND MODAL (founder only) -->
+<div id="project-fund-modal" class="modal">
+  <div class="modal-content" style="max-width:480px;text-align:left;">
+    <h2>⚡ Create Project Fund</h2>
+    <p style="color:#64748b;margin-bottom:1.5rem;font-size:0.88rem;">Founder-controlled. Members see full transparency on goals and spending.</p>
+    <input id="pf-title-inp" type="text" placeholder="Project title" class="form-input" style="margin-bottom:0.8rem;"/>
+    <textarea id="pf-desc-inp" placeholder="What is this fund for?" class="form-input" style="height:80px;resize:vertical;margin-bottom:0.8rem;"></textarea>
+    <input id="pf-goal-inp" type="number" placeholder="Funding goal ($)" class="form-input" style="margin-bottom:0.8rem;"/>
+    <input id="pf-note-inp" type="text" placeholder="Status note (e.g. 'Active — accepting contributions')" class="form-input" style="margin-bottom:1.2rem;"/>
+    <button onclick="submitProjectFund()" class="btn" style="width:100%;">Create Fund</button>
+    <button onclick="closeModal('project-fund-modal')" class="modal-cancel">Cancel</button>
+  </div>
+</div>
+
 </body>
 </html>
 
