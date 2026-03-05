@@ -650,7 +650,7 @@
           <div class="notif-scroll" id="notif-list"><div class="notif-empty">No notifications yet</div></div>
         </div>
       </div>
-      <button id="login-btn" class="btn btn-sm">Member Login</button>
+      <button id="login-btn" class="btn btn-sm" onclick="document.getElementById('login-modal').style.display='flex';showAuthTab&&showAuthTab('login');">Member Login</button>
       <div id="user-area" style="display:none; align-items:center; gap:0.6rem;">
         <span style="color:#64748b; font-size:0.9rem;">Hi, <strong id="display-name" style="color:white;"></strong></span>
         <button id="logout-btn" class="btn btn-sm" style="background:#1e2a3a; color:#94a3b8;">Logout</button>
@@ -1457,14 +1457,17 @@ create policy "raises_delete" on member_raises for delete using (auth.uid() = po
 // ══════════════════════════════════════════════════════════════════════
 
 const SUPABASE_URL     = 'https://liujbjfjdycacmaujawu.supabase.co';
-const SUPABASE_ANON_KEY = 'SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpdWpiamZqZHljYWNtYXVqYXd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzQxMjYsImV4cCI6MjA4ODIxMDEyNn0.g8P98rM5OVFml5_bQY3V5x7nX5CHnVRqITSMu72Wy2Y';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpdWpiamZqZHljYWNtYXVqYXd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzQxMjYsImV4cCI6MjA4ODIxMDEyNn0.g8P98rM5OVFml5_bQY3V5x7nX5CHnVRqITSMu72Wy2Y';
 const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/bJebIUgIS6Yy8VU1B2dEs00';
 const FOUNDER_EMAIL = 'miguelbettencourt74@gmail.com';
 
-// Init Supabase (graceful if keys not set — runs in demo mode)
-const sb = (SUPABASE_URL && SUPABASE_ANON_KEY)
-  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-  : null;
+// Init Supabase safely — never crashes even if CDN is slow or keys are missing
+let sb = null;
+try {
+  if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+} catch(e) { console.warn('Supabase init failed, running in demo mode:', e.message); }
 
 function isFounder() { return currentUser && FOUNDER_EMAIL && currentUser.email === FOUNDER_EMAIL; }
 
@@ -2493,8 +2496,14 @@ document.getElementById('apply-form')?.addEventListener('submit',e=>{e.preventDe
 document.querySelectorAll('.modal').forEach(modal=>{modal.addEventListener('click',e=>{if(e.target===modal)modal.style.display='none';});});
 
 // ── LOGIN / LOGOUT ────────────────────────────────────────────────
-document.getElementById('login-btn').addEventListener('click',()=>{document.getElementById('login-modal').style.display='flex';showAuthTab('login');if(!sb){const w=document.getElementById('auth-no-sb-warning');if(w)w.style.display='block';}});
-document.getElementById('logout-btn').addEventListener('click',logout);
+try {
+  document.getElementById('login-btn').addEventListener('click',()=>{
+    document.getElementById('login-modal').style.display='flex';
+    if(typeof showAuthTab==='function') showAuthTab('login');
+    if(!sb){const w=document.getElementById('auth-no-sb-warning');if(w)w.style.display='block';}
+  });
+  document.getElementById('logout-btn').addEventListener('click', logout);
+} catch(e) { console.warn('Login listener error:', e.message); }
 
 // ── INIT ─────────────────────────────────────────────────────────
 async function init() {
