@@ -633,7 +633,6 @@
       <a onclick="switchTab('funds');return false" class="member-link">Funds</a>
       <a onclick="switchTab('mystats');return false" class="member-link">My Stats</a>
       <a onclick="switchTab('vision');return false" class="member-link">Roadmap</a>
-      <a onclick="switchTab('testimonials');return false" class="member-link">Testimonials</a>
     </nav>
     <div id="auth-area" style="display:flex;align-items:center;gap:0.5rem;">
       <button class="theme-btn" onclick="toggleTheme()" title="Toggle light/dark mode"><i class="fas fa-moon" id="theme-icon"></i></button>
@@ -931,18 +930,14 @@
         </div>
 
         <!-- Channel filter -->
-        <div class="community-channels" id="comm-channels"></div>
+        <div class="community-channels" id="comm-cats"></div>
 
         <!-- Feed -->
-        <div id="community-feed"></div>
+        <div id="comm-feed"></div>
       </div>
 
       <!-- RIGHT: Sidebar -->
       <div>
-        <div class="comm-sidebar-card">
-          <h4>🔥 Trending Posts</h4>
-          <div id="trending-posts"></div>
-        </div>
         <div class="comm-sidebar-card">
           <h4>📋 Community Rules</h4>
           <ul class="community-rules">
@@ -959,6 +954,19 @@
         </div>
       </div>
     </div>
+
+    <!-- TESTIMONIALS SECTION inside Community -->
+    <div style="margin-top:3rem;padding-top:2.5rem;border-top:1px solid var(--border);">
+      <h3 style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;color:white;margin-bottom:0.4rem;">Member Testimonials</h3>
+      <p style="color:#64748b;margin-bottom:1.8rem;font-size:0.9rem;">Real words from real members. What has Pass It Forward done for you?</p>
+      <div class="testimonials-grid" id="testimonials-grid"></div>
+      <div id="add-testimonial-form" class="add-testimonial" style="display:none;">
+        <h3>Share Your Experience</h3>
+        <textarea id="new-testimonial" placeholder="What has Pass It Forward done for you? Be real."></textarea>
+        <button onclick="submitTestimonial()" class="btn">Submit Testimonial</button>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -1458,8 +1466,8 @@ create policy "raises_delete" on member_raises for delete using (auth.uid() = po
 
 const SUPABASE_URL     = 'https://liujbjfjdycacmaujawu.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpdWpiamZqZHljYWNtYXVqYXd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzQxMjYsImV4cCI6MjA4ODIxMDEyNn0.g8P98rM5OVFml5_bQY3V5x7nX5CHnVRqITSMu72Wy2Y';
-const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/bJebIUgI56Yy8VU1B2dEs00';
-const FOUNDER_EMAIL =  'miguelbettencourt74@gmail.com';
+const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/bJebIUgIS6Yy8VU1B2dEs00';
+const FOUNDER_EMAIL = 'miguelbettencourt74@gmail.com';
 
 // Init Supabase safely — never crashes even if CDN is slow or keys are missing
 let sb = null;
@@ -1680,7 +1688,7 @@ function switchTab(tabId) {
     window.scrollTo({ top:0, behavior:'smooth' });
     if (tabId === 'dashboard')     loadOpportunitiesAndRender();
     if (tabId === 'testimonials')  loadAndRenderTestimonials();
-    if (tabId === 'community')     loadAndRenderCommunity();
+    if (tabId === 'community')     { loadAndRenderCommunity(); loadAndRenderTestimonials(); }
     if (tabId === 'funds')         renderFunds();
     if (tabId === 'events')        loadAndRenderEvents();
     if (tabId === 'directory')     loadAndRenderDirectory();
@@ -2200,9 +2208,8 @@ function goToStripePayment() {
   const note=document.getElementById('fund-note').value.trim();
   _pendingContrib={id:Date.now(),handle:currentUser.handle,user_id:currentUser.id,amount,note,date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})};
   if(STRIPE_PAYMENT_LINK){
-    const sep=STRIPE_PAYMENT_LINK.includes('?')?'&':'?';
-    const url=`${STRIPE_PAYMENT_LINK}${sep}client_reference_id=${encodeURIComponent(currentUser.handle)}&prefilled_amount=${amount*100}`;
-    _stripeWindow=window.open(url,'_blank');
+    // Use clean Stripe link — no extra params that break the checkout page
+    _stripeWindow=window.open(STRIPE_PAYMENT_LINK,'_blank');
     if(!_stripeWindow||_stripeWindow.closed) showToast('⚠️ Popup blocked — allow popups and try again');
   } else {
     showToast("⚙️ Stripe not set up yet — add your link at the top of the file");
@@ -2213,9 +2220,8 @@ function goToStripePayment() {
   document.getElementById('fund-confirm-handle').textContent=currentUser.handle;
 }
 function reopenStripe() {
-  if(!_pendingContrib||!STRIPE_PAYMENT_LINK) return showToast("Stripe not configured yet");
-  const sep=STRIPE_PAYMENT_LINK.includes('?')?'&':'?';
-  window.open(`${STRIPE_PAYMENT_LINK}${sep}client_reference_id=${encodeURIComponent(currentUser.handle)}&prefilled_amount=${_pendingContrib.amount*100}`,'_blank');
+  if(!STRIPE_PAYMENT_LINK) return showToast("Stripe not configured yet");
+  window.open(STRIPE_PAYMENT_LINK,'_blank');
 }
 async function confirmPaymentDone() {
   if(!_pendingContrib) return;
@@ -2312,13 +2318,31 @@ function renderRoadmap(){
     </div>`;
   }).join('');
 }
-function toggleRoadmapTick(id, currentDone){
+async function toggleRoadmapTick(id, currentDone){
   if(!isFounder()) return;
+  const newDone = !currentDone;
+  // Save to Supabase so ALL members see the update
+  if(sb){
+    await sb.from('roadmap_ticks').upsert({id, done: newDone}, {onConflict:'id'});
+  }
+  // Also save locally as cache
   const ticks=JSON.parse(localStorage.getItem('pf_roadmap_ticks')||'{}');
-  ticks[id]=!currentDone;
+  ticks[id]=newDone;
   localStorage.setItem('pf_roadmap_ticks',JSON.stringify(ticks));
   renderRoadmap();
-  showToast(ticks[id]?'✅ Milestone marked complete!':'Milestone unmarked');
+  showToast(newDone?'✅ Milestone marked complete! Everyone can see this.':'Milestone unmarked');
+}
+
+async function loadRoadmapTicks(){
+  if(sb){
+    const{data}=await sb.from('roadmap_ticks').select('*');
+    if(data&&data.length){
+      const ticks={};
+      data.forEach(r=>{ ticks[r.id]=r.done; });
+      localStorage.setItem('pf_roadmap_ticks',JSON.stringify(ticks));
+    }
+  }
+  renderRoadmap();
 }
 
 // ── GOAL ──────────────────────────────────────────────────────────
@@ -2705,7 +2729,7 @@ try {
 
 // ── INIT ─────────────────────────────────────────────────────────
 async function init() {
-  renderRoadmap();
+  loadRoadmapTicks(); // loads from Supabase then renders
   renderFilters();
   const loggedIn = await initAuth();
   if (loggedIn && currentUser) {
