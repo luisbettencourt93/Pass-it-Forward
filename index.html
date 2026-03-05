@@ -832,7 +832,7 @@
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem;">
         <div class="fund-stat-card"><div class="label">Total Raised</div><div class="value" id="pot-total-stat">$0</div><div class="sub">From community members</div></div>
         <div class="fund-stat-card"><div class="label">Contributors</div><div class="value" id="pot-contrib-count">0</div><div class="sub change-up">Members who gave</div></div>
-        <div class="fund-stat-card"><div class="label">Current Goal</div><div class="value">$10k</div><div class="sub">Phase 1 milestone</div></div>
+        <div class="fund-stat-card"><div class="label">Current Goal</div><div class="value" id="pot-goal-stat">$10k</div><div class="sub">Phase 1 milestone</div></div>
         <div class="fund-stat-card"><div class="label">Top Contribution</div><div class="value" id="pot-top-contrib">—</div><div class="sub">Single largest add</div></div>
       </div>
 
@@ -1456,10 +1456,10 @@ create policy "raises_delete" on member_raises for delete using (auth.uid() = po
 //   → Your site is live instantly — share the URL
 // ══════════════════════════════════════════════════════════════════════
 
-const SUPABASE_URL     = 'https://liujbjfjdycacmaujawu.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpdWpiamZqZHljYWNtYXVqYXd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzQxMjYsImV4cCI6MjA4ODIxMDEyNn0.g8P98rM5OVFml5_bQY3V5x7nX5CHnVRqITSMu72Wy2Y';
-const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/bJebIUgIS6Yy8VU1B2dEs00';
-const FOUNDER_EMAIL = 'miguelbettencourt74@gmail.com';
+const SUPABASE_URL     = '';  // e.g. https://xxxx.supabase.co
+const SUPABASE_ANON_KEY = ''; // Your anon/public key from Supabase settings
+const STRIPE_PAYMENT_LINK = ''; // https://buy.stripe.com/xxxxxxxxxxxx
+const FOUNDER_EMAIL = ''; // ← Your email here — gives you full admin/founder access
 
 // Init Supabase safely — never crashes even if CDN is slow or keys are missing
 let sb = null;
@@ -2048,12 +2048,16 @@ async function renderFunds() {
     if(rd) memberRaises=rd.map(r=>({id:r.id,title:r.title,desc:r.description,stage:r.stage,target:r.target,poster:r.poster_handle,poster_id:r.poster_id,stripeLink:r.stripe_link,date:new Date(r.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}));
   }
   const total=contributions.reduce((s,c)=>s+(c.amount||0),0);
-  // Founder-controlled goal — stored in localStorage
   const goal = parseInt(localStorage.getItem('pf_pot_goal')||'10000');
   const pct=Math.min(100,Math.round((total/goal)*100));
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-  set('fund-total',formatMoney(total)); set('fund-pct',pct+'%'); set('fund-contributor-count',contributions.length);
-  // Update goal display
+  // Fix: use correct element IDs that match the HTML
+  set('pot-total-stat', formatMoney(total));
+  set('pot-contrib-count', contributions.length);
+  set('pot-goal-stat', formatMoney(goal));
+  const topContrib = contributions.length ? formatMoney(Math.max(...contributions.map(c=>c.amount||0))) : '—';
+  set('pot-top-contrib', topContrib);
+  // Progress bar + text
   const goalEl=document.getElementById('pot-goal-display'); if(goalEl) goalEl.textContent=formatMoney(goal);
   const pctEl=document.getElementById('pot-pct'); if(pctEl) pctEl.textContent=pct+'%';
   const bar=document.getElementById('fund-progress-bar'); if(bar) bar.style.width=pct+'%';
@@ -2263,48 +2267,58 @@ async function submitRaise(){
 function renderRoadmap(){
   const c=document.getElementById('roadmap-timeline'); if(!c) return;
   const founder = isFounder();
-  // Load saved tick states
   const ticks = JSON.parse(localStorage.getItem('pf_roadmap_ticks')||'{}');
-  const items2026 = [
-    {id:'r1', text:'Founding Circle established (first 150 members)', done: true},
-    {id:'r2', text:'Private community platform live', done: true},
-    {id:'r3', text:'First community collaboration launched', done: true},
-    {id:'r4', text:'Opportunity marketplace in development', done: false},
-  ].map(i => ({...i, done: ticks[i.id] !== undefined ? ticks[i.id] : i.done}));
 
   const years=[
-    {year:'2026',badge:'IN PROGRESS',active:true,items:items2026},
-    {year:'2027',badge:'PLANNED',active:false,items:[
-      {id:'r5',text:'$1M+ in member-to-member deals facilitated',done:ticks['r5']||false},
-      {id:'r6',text:'500 active verified members',done:ticks['r6']||false},
-      {id:'r7',text:'First Pass It Forward live event',done:ticks['r7']||false},
+    {year:'2026', badge:'IN PROGRESS', active:true, items:[
+      {id:'r1', text:'Founding Circle established (first 150 members)', done: ticks['r1']!==undefined ? ticks['r1'] : true},
+      {id:'r2', text:'Private community platform live',               done: ticks['r2']!==undefined ? ticks['r2'] : true},
+      {id:'r3', text:'First community collaboration launched',         done: ticks['r3']!==undefined ? ticks['r3'] : true},
+      {id:'r4', text:'Opportunity marketplace in development',         done: ticks['r4']!==undefined ? ticks['r4'] : false},
     ]},
-    {year:'2028',badge:'PLANNED',active:false,items:[
-      {id:'r8',text:'Community fund reaches $100k',done:ticks['r8']||false},
-      {id:'r9',text:'Global member network across 20+ countries',done:ticks['r9']||false},
+    {year:'2027', badge:'PLANNED', active:false, items:[
+      {id:'r5', text:'$1M+ in member-to-member deals facilitated',    done: ticks['r5']||false},
+      {id:'r6', text:'500 active verified members',                    done: ticks['r6']||false},
+      {id:'r7', text:'First Pass It Forward live event',               done: ticks['r7']||false},
     ]},
-    {year:'2030',badge:'LEGACY',active:false,items:[
-      {id:'r10',text:'Pass It Forward becomes self-sustaining ecosystem',done:ticks['r10']||false},
+    {year:'2028', badge:'PLANNED', active:false, items:[
+      {id:'r8', text:'Community fund reaches $100k',                   done: ticks['r8']||false},
+      {id:'r9', text:'Global member network across 20+ countries',     done: ticks['r9']||false},
+    ]},
+    {year:'2030', badge:'LEGACY', active:false, items:[
+      {id:'r10', text:'Pass It Forward becomes self-sustaining ecosystem', done: ticks['r10']||false},
     ]},
   ];
-  c.innerHTML=years.map(y=>`
-    <div class="roadmap-year ${y.active?'active':''}">
+
+  c.innerHTML = years.map(y => {
+    // For non-active years: members see "Planned" lock, founder sees real items
+    const showItems = y.active || founder;
+    const itemsHtml = showItems
+      ? `<div class="roadmap-year-content"><ul>${y.items.map(i=>`
+          <li style="cursor:${founder?'pointer':'default'};" onclick="${founder?`toggleRoadmapTick('${i.id}',${i.done})`:''}" ${founder?`title="Click to tick/untick"`:''}> 
+            <i class="fas ${i.done?'fa-check-circle':'fa-clock'}" style="color:${i.done?'var(--primary)':'#4b5563'};flex-shrink:0;"></i>
+            <span style="${i.done?'color:var(--primary);font-weight:600;':'color:#94a3b8;'}">${sanitize(i.text)}</span>
+          </li>`).join('')}</ul></div>`
+      : `<div class="roadmap-year-content" style="text-align:center;padding:1.8rem 1rem;">
+          <i class="fas fa-lock" style="color:#2d3748;font-size:1.5rem;display:block;margin-bottom:0.7rem;"></i>
+          <div style="color:#374151;font-size:0.8rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;">Coming Soon</div>
+          <div style="color:#1f2937;font-size:0.72rem;margin-top:4px;">Milestones unlocked as we grow</div>
+        </div>`;
+
+    return `<div class="roadmap-year ${y.active?'active':''}">
       <div class="planned-badge">${y.badge}</div>
       <div class="year-circle">${y.year}</div>
-      ${y.items?`<div class="roadmap-year-content"><ul>${y.items.map(i=>`
-        <li style="cursor:${founder?'pointer':'default'};${i.done?'color:#10b981;':''}" ${founder?`onclick="toggleRoadmapTick('${i.id}',${i.done})" title="Click to tick/untick"`:''}">
-          <i class="fas ${i.done?'fa-check-circle':'fa-clock'}" style="color:${i.done?'var(--primary)':'#64748b'};"></i>
-          <span style="${i.done?'color:var(--primary);font-weight:600;':''}">${sanitize(i.text)}</span>
-        </li>`).join('')}</ul></div>`:''}
-    </div>`).join('');
+      ${itemsHtml}
+    </div>`;
+  }).join('');
 }
-function toggleRoadmapTick(id, currentDone) {
+function toggleRoadmapTick(id, currentDone){
   if(!isFounder()) return;
-  const ticks = JSON.parse(localStorage.getItem('pf_roadmap_ticks')||'{}');
-  ticks[id] = !currentDone;
-  localStorage.setItem('pf_roadmap_ticks', JSON.stringify(ticks));
+  const ticks=JSON.parse(localStorage.getItem('pf_roadmap_ticks')||'{}');
+  ticks[id]=!currentDone;
+  localStorage.setItem('pf_roadmap_ticks',JSON.stringify(ticks));
   renderRoadmap();
-  showToast(ticks[id] ? '✅ Milestone marked complete!' : 'Milestone unmarked');
+  showToast(ticks[id]?'✅ Milestone marked complete!':'Milestone unmarked');
 }
 
 // ── GOAL ──────────────────────────────────────────────────────────
@@ -2471,49 +2485,167 @@ function renderDirectory(members){
 }
 
 // ── DIRECT MESSAGES ───────────────────────────────────────────────
-function getDmStore(){return JSON.parse(localStorage.getItem('pf_dm_'+(currentUser?.handle||'x'))||'{}');}
-function saveDmStore(s){localStorage.setItem('pf_dm_'+(currentUser?.handle||'x'),JSON.stringify(s));}
-function openDmWith(handle){if(!currentUser)return showToast("Login first");const store=getDmStore();if(!store[handle])store[handle]=[];saveDmStore(store);switchTab('messages');setTimeout(()=>{renderDmSidebar();openThread(handle);},150);}
-function renderDmSidebar(){
-  const list=document.getElementById('dm-thread-list');if(!list)return;
-  const store=getDmStore();const keys=Object.keys(store);
-  if(!keys.length){list.innerHTML='<div style="padding:1.2rem;text-align:center;color:#4b5563;font-size:0.78rem;">No conversations yet.<br>Find members in the Directory!</div>';return;}
-  list.innerHTML=keys.map(h=>{const msgs=store[h],last=msgs[msgs.length-1],ini=h.replace('@','').substring(0,2).toUpperCase();
-    return`<div class="dm-thread ${activeDmHandle===h?'active':''}" onclick="openThread('${h.replace(/'/g,"\\'")}')"><div class="dm-tav">${ini}</div><div class="dm-tinfo"><div class="dm-thandle">${sanitize(h)}</div><div class="dm-tpreview">${last?sanitize(last.text.substring(0,30))+'…':'No messages yet'}</div></div></div>`;
+// ── REAL MESSAGING (Supabase) ─────────────────────────────────────
+let dmThreads = {}; // { handle: [{id, from_handle, to_handle, body, created_at}] }
+
+function openDmWith(handle) {
+  if (!currentUser) return showToast("Login first");
+  switchTab('messages');
+  setTimeout(() => { renderDmSidebar(); openThread(handle); }, 150);
+}
+
+async function renderDmSidebar() {
+  const list = document.getElementById('dm-thread-list'); if (!list) return;
+  list.innerHTML = '<div style="padding:1rem;text-align:center;color:#4b5563;font-size:0.78rem;"><i class="fas fa-spinner fa-spin"></i></div>';
+
+  if (sb && !currentUser.id.startsWith('demo-')) {
+    // Load all messages involving current user
+    const { data, error } = await sb.from('messages')
+      .select('*')
+      .or(`from_handle.eq.${currentUser.handle},to_handle.eq.${currentUser.handle}`)
+      .order('created_at', { ascending: true });
+
+    if (error) { console.error('DM load:', error.message); }
+
+    // Group into threads by the OTHER person's handle
+    dmThreads = {};
+    (data || []).forEach(msg => {
+      const other = msg.from_handle === currentUser.handle ? msg.to_handle : msg.from_handle;
+      if (!dmThreads[other]) dmThreads[other] = [];
+      dmThreads[other].push(msg);
+    });
+  }
+
+  const keys = Object.keys(dmThreads);
+  if (!keys.length) {
+    list.innerHTML = '<div style="padding:1.2rem;text-align:center;color:#4b5563;font-size:0.78rem;">No conversations yet.<br>Find members in the Directory!</div>';
+    return;
+  }
+  list.innerHTML = keys.map(h => {
+    const msgs = dmThreads[h];
+    const last = msgs[msgs.length - 1];
+    const ini = h.replace('@','').substring(0,2).toUpperCase();
+    const unread = msgs.filter(m => m.to_handle === currentUser.handle && !m.read).length;
+    return `<div class="dm-thread ${activeDmHandle===h?'active':''}" onclick="openThread('${h.replace(/'/g,"\\'")}')">
+      <div class="dm-tav">${ini}</div>
+      <div class="dm-tinfo">
+        <div class="dm-thandle">${sanitize(h)} ${unread>0?`<span style="background:var(--primary);color:#0a0f1e;font-size:0.6rem;font-weight:800;padding:1px 6px;border-radius:999px;margin-left:4px;">${unread}</span>`:''}</div>
+        <div class="dm-tpreview">${last ? sanitize((last.body||'').substring(0,35))+'…' : 'No messages yet'}</div>
+      </div>
+    </div>`;
   }).join('');
 }
-function openThread(handle){
-  activeDmHandle=handle;const store=getDmStore(),msgs=store[handle]||[];
-  const right=document.getElementById('dm-right-panel');if(!right)return;
-  right.innerHTML=`
-    <div class="dm-right-head"><strong>${sanitize(handle)}</strong></div>
-    <div class="dm-msgs" id="dm-msg-area">${msgs.length?msgs.map(m=>`<div class="dm-bwrap ${m.from===currentUser.handle?'me':'them'}"><div class="dm-bubble">${sanitize(m.text)}</div><div class="dm-btime">${sanitize(m.time)}</div></div>`).join(''):'<div class="dm-no-conv" style="flex:1;">No messages yet — say hi! 👋</div>'}</div>
-    <div class="dm-compose"><input class="dm-inp" id="dm-msg-field" placeholder="Type a message..." onkeydown="if(event.key==='Enter'){event.preventDefault();sendDmMsg();}"/><button class="dm-send" onclick="sendDmMsg()"><i class="fas fa-paper-plane"></i></button></div>`;
-  const area=document.getElementById('dm-msg-area');if(area)area.scrollTop=area.scrollHeight;
+
+async function openThread(handle) {
+  activeDmHandle = handle;
+  const right = document.getElementById('dm-right-panel'); if (!right) return;
+
+  // Load messages for this thread
+  let msgs = [];
+  if (sb && !currentUser.id.startsWith('demo-')) {
+    const { data } = await sb.from('messages')
+      .select('*')
+      .or(`and(from_handle.eq.${currentUser.handle},to_handle.eq.${handle}),and(from_handle.eq.${handle},to_handle.eq.${currentUser.handle})`)
+      .order('created_at', { ascending: true });
+    msgs = data || [];
+    dmThreads[handle] = msgs;
+
+    // Mark incoming messages as read
+    const unreadIds = msgs.filter(m => m.to_handle === currentUser.handle && !m.read).map(m => m.id);
+    if (unreadIds.length) {
+      await sb.from('messages').update({ read: true }).in('id', unreadIds);
+    }
+  } else {
+    msgs = dmThreads[handle] || [];
+  }
+
+  right.innerHTML = `
+    <div class="dm-right-head">
+      <strong>${sanitize(handle)}</strong>
+      <span style="color:#4b5563;font-size:0.72rem;margin-left:8px;">${msgs.length} message${msgs.length!==1?'s':''}</span>
+    </div>
+    <div class="dm-msgs" id="dm-msg-area">
+      ${msgs.length ? msgs.map(m => `
+        <div class="dm-bwrap ${m.from_handle===currentUser.handle?'me':'them'}">
+          <div class="dm-bubble">${sanitize(m.body||'')}</div>
+          <div class="dm-btime">${new Date(m.created_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}</div>
+        </div>`).join('') : '<div style="flex:1;display:flex;align-items:center;justify-content:center;color:#4b5563;">No messages yet — say hi! 👋</div>'}
+    </div>
+    <div class="dm-compose">
+      <input class="dm-inp" id="dm-msg-field" placeholder="Type a message..." onkeydown="if(event.key==='Enter'){event.preventDefault();sendDmMsg();}"/>
+      <button class="dm-send" onclick="sendDmMsg()"><i class="fas fa-paper-plane"></i></button>
+    </div>`;
+
+  const area = document.getElementById('dm-msg-area');
+  if (area) area.scrollTop = area.scrollHeight;
   renderDmSidebar();
 }
-function sendDmMsg(){
-  if(!activeDmHandle)return;const inp=document.getElementById('dm-msg-field');if(!inp)return;
-  const text=inp.value.trim();if(!text)return;
-  const store=getDmStore();if(!store[activeDmHandle])store[activeDmHandle]=[];
-  const time=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-  store[activeDmHandle].push({from:currentUser.handle,text,time});saveDmStore(store);inp.value='';
-  openThread(activeDmHandle);bumpWeekly('dms');
-  const replies=["Sounds great, let's connect!","Interesting, tell me more.","I'll look into this, thanks!","Let's schedule a call this week.","Love this, definitely interested."];
-  setTimeout(()=>{const s2=getDmStore();const rt=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});s2[activeDmHandle].push({from:activeDmHandle,text:replies[Math.floor(Math.random()*replies.length)],time:rt});saveDmStore(s2);addNotif(`💬 ${activeDmHandle} replied`);if(activeDmHandle===(document.querySelector('.dm-right-head strong')?.textContent))openThread(activeDmHandle);else renderDmSidebar();},1800+Math.random()*2000);
+
+async function sendDmMsg() {
+  if (!activeDmHandle) return;
+  const inp = document.getElementById('dm-msg-field'); if (!inp) return;
+  const text = inp.value.trim(); if (!text) return;
+  inp.value = '';
+
+  const time = new Date().toISOString();
+  const newMsg = { from_handle: currentUser.handle, to_handle: activeDmHandle, body: text, created_at: time, read: false };
+
+  if (sb && !currentUser.id.startsWith('demo-')) {
+    const { data, error } = await sb.from('messages')
+      .insert({ from_handle: currentUser.handle, to_handle: activeDmHandle, body: text, read: false })
+      .select().single();
+    if (error) { console.error('Send DM:', error.message); showToast("Error sending message"); return; }
+    newMsg.id = data.id;
+    newMsg.created_at = data.created_at;
+  } else {
+    newMsg.id = Date.now();
+    if (!dmThreads[activeDmHandle]) dmThreads[activeDmHandle] = [];
+  }
+
+  if (!dmThreads[activeDmHandle]) dmThreads[activeDmHandle] = [];
+  dmThreads[activeDmHandle].push(newMsg);
+  bumpWeekly('dms');
+  openThread(activeDmHandle);
 }
-function showNewDmModal(){if(!currentUser)return showToast("Login first");document.getElementById('new-dm-modal').style.display='flex';}
-function sendNewDm(){
-  let handle=document.getElementById('dm-to-inp').value.trim();const msg=document.getElementById('dm-msg-inp').value.trim();
-  if(!handle)return showToast("Enter a handle");if(!msg)return showToast("Write a message");
-  if(!handle.startsWith('@'))handle='@'+handle;
-  const store=getDmStore();if(!store[handle])store[handle]=[];
-  const time=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-  store[handle].push({from:currentUser.handle,text:msg,time});saveDmStore(store);
-  document.getElementById('dm-to-inp').value='';document.getElementById('dm-msg-inp').value='';
-  closeModal('new-dm-modal');activeDmHandle=handle;renderDmSidebar();openThread(handle);
-  showToast("Message sent to "+handle+"!");bumpWeekly('dms');
+
+function showNewDmModal() {
+  if (!currentUser) return showToast("Login first");
+  document.getElementById('new-dm-modal').style.display = 'flex';
 }
+
+async function sendNewDm() {
+  let handle = document.getElementById('dm-to-inp').value.trim();
+  const msg = document.getElementById('dm-msg-inp').value.trim();
+  if (!handle) return showToast("Enter a handle");
+  if (!msg) return showToast("Write a message");
+  if (!handle.startsWith('@')) handle = '@' + handle;
+
+  if (sb && !currentUser.id.startsWith('demo-')) {
+    const { error } = await sb.from('messages')
+      .insert({ from_handle: currentUser.handle, to_handle: handle, body: msg, read: false });
+    if (error) return showToast("Error: " + error.message);
+  }
+
+  if (!dmThreads[handle]) dmThreads[handle] = [];
+  dmThreads[handle].push({ from_handle: currentUser.handle, to_handle: handle, body: msg, created_at: new Date().toISOString(), read: false, id: Date.now() });
+
+  document.getElementById('dm-to-inp').value = '';
+  document.getElementById('dm-msg-inp').value = '';
+  closeModal('new-dm-modal');
+  activeDmHandle = handle;
+  renderDmSidebar();
+  openThread(handle);
+  showToast("Message sent to " + handle + "! 📨");
+  bumpWeekly('dms');
+}
+
+// Poll for new messages every 15 seconds when on messages tab
+setInterval(async () => {
+  if (activeDmHandle && document.getElementById('messages')?.style.display !== 'none') {
+    await openThread(activeDmHandle);
+  }
+}, 15000);
+
 
 // ── MY STATS ──────────────────────────────────────────────────────
 function renderMyStats(){
