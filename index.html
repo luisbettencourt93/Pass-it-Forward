@@ -259,25 +259,25 @@
     .community-layout { display:grid; grid-template-columns:1fr 300px; gap:2rem; align-items:start; }
     @media (max-width:968px) { .community-layout { grid-template-columns:1fr; } }
     .community-channels { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.5rem; }
-    .channel-btn { background:#0a0f1e; border:1px solid var(--border); color:#94a3b8; padding:0.35rem 1rem; border-radius:999px; font-size:0.85rem; cursor:pointer; transition:all 0.2s; font-family:'DM Sans',sans-serif; display:flex; align-items:center; gap:6px; }
-    .channel-btn:hover, .channel-btn.active { background:rgba(16,185,129,0.12); border-color:var(--primary); color:var(--primary); }
-    .community-post-box { background:var(--card-bg); border:1px solid var(--border); border-radius:18px; padding:1.2rem 1.4rem; margin-bottom:1.2rem; }
-    .community-post-box textarea { width:100%; background:#0a0f1e; border:1.5px solid var(--border); border-radius:12px; color:white; font-size:0.95rem; font-family:'DM Sans',sans-serif; padding:0.9rem 1rem; resize:none; height:90px; transition:border-color 0.2s; }
-    .community-post-box textarea:focus { outline:none; border-color:var(--primary); }
-    .community-post-box textarea::placeholder { color:#4b5563; }
-    .community-post-box-footer { display:flex; justify-content:space-between; align-items:center; margin-top:0.8rem; flex-wrap:wrap; gap:0.6rem; }
-    .post-channel-select { background:#0a0f1e; border:1px solid var(--border); color:#94a3b8; padding:0.4rem 0.8rem; border-radius:8px; font-size:0.82rem; font-family:'DM Sans',sans-serif; cursor:pointer; }
+    .channel-btn { background:rgba(10,15,30,0.6); border:1px solid var(--border); color:#64748b; padding:0.35rem 1rem; border-radius:999px; font-size:0.82rem; cursor:pointer; transition:all 0.2s; font-family:'DM Sans',sans-serif; font-weight:600; }
+    .channel-btn:hover, .channel-btn.active { background:rgba(16,185,129,0.12); border-color:rgba(16,185,129,0.4); color:var(--primary); }
+    .community-post-box { background:linear-gradient(135deg,rgba(16,185,129,0.05),rgba(5,150,105,0.02)); border:1px solid rgba(16,185,129,0.18); border-radius:20px; padding:1.4rem 1.6rem; margin-bottom:1.5rem; }
+    .community-post-box textarea { width:100%; background:rgba(5,10,20,0.7); border:1.5px solid rgba(255,255,255,0.06); border-radius:14px; color:white; font-size:0.95rem; font-family:'DM Sans',sans-serif; padding:1rem 1.2rem; resize:none; height:100px; transition:all 0.2s; box-sizing:border-box; }
+    .community-post-box textarea:focus { outline:none; border-color:rgba(16,185,129,0.5); box-shadow:0 0 0 3px rgba(16,185,129,0.07); }
+    .community-post-box textarea::placeholder { color:#2d3748; }
+    .community-post-box-footer { display:flex; justify-content:space-between; align-items:center; margin-top:1rem; flex-wrap:wrap; gap:0.6rem; }
+    .post-channel-select { background:rgba(10,15,30,0.8); border:1px solid var(--border); color:#94a3b8; padding:0.4rem 0.8rem; border-radius:10px; font-size:0.82rem; font-family:'DM Sans',sans-serif; cursor:pointer; }
     .post-channel-select:focus { outline:none; border-color:var(--primary); }
-    .comm-post-btn { background:var(--primary); color:#0a0f1e; border:none; padding:0.5rem 1.3rem; border-radius:999px; font-weight:700; font-size:0.85rem; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
-    .comm-post-btn:hover { background:var(--primary-dark); }
+    .comm-post-btn { background:var(--primary); color:#0a0f1e; border:none; padding:0.55rem 1.5rem; border-radius:999px; font-weight:800; font-size:0.84rem; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; letter-spacing:0.3px; }
+    .comm-post-btn:hover { background:var(--primary-dark); transform:translateY(-1px); box-shadow:0 4px 15px rgba(16,185,129,0.25); }
     .community-feed { }
-    .comm-post-card { background:var(--card-bg); border:1px solid var(--border); border-radius:18px; padding:1.4rem 1.6rem; margin-bottom:1rem; transition:border-color 0.25s; }
-    .comm-post-card:hover { border-color:rgba(16,185,129,0.2); }
+    .comm-post-card { background:var(--card-bg); border:1px solid var(--border); border-radius:18px; padding:1.4rem 1.6rem; margin-bottom:1rem; transition:all 0.25s; }
+    .comm-post-card:hover { border-color:rgba(16,185,129,0.2); transform:translateY(-2px); box-shadow:0 8px 30px rgba(0,0,0,0.2); }
     .comm-post-header { display:flex; align-items:center; gap:10px; margin-bottom:0.8rem; }
-    .comm-avatar { width:34px; height:34px; background:rgba(16,185,129,0.15); border:1.5px solid rgba(16,185,129,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:800; color:var(--primary); flex-shrink:0; }
+    .comm-avatar { width:36px; height:36px; background:linear-gradient(135deg,rgba(16,185,129,0.2),rgba(5,150,105,0.1)); border:1.5px solid rgba(16,185,129,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.72rem; font-weight:800; color:var(--primary); flex-shrink:0; }
     .comm-handle { font-weight:700; color:white; font-size:0.9rem; }
-    .comm-channel-tag { background:rgba(16,185,129,0.1); color:var(--primary); border:1px solid rgba(16,185,129,0.2); padding:1px 8px; border-radius:999px; font-size:0.72rem; font-weight:700; margin-left:4px; }
-    .comm-time { color:#4b5563; font-size:0.75rem; margin-left:auto; }
+    .comm-channel-tag { background:rgba(16,185,129,0.1); color:var(--primary); border:1px solid rgba(16,185,129,0.2); padding:2px 9px; border-radius:999px; font-size:0.7rem; font-weight:700; margin-left:4px; text-transform:uppercase; letter-spacing:0.5px; }
+    .comm-time { color:#374151; font-size:0.75rem; margin-left:auto; }
     .comm-post-body { color:#cbd5e1; font-size:0.95rem; line-height:1.7; margin-bottom:1rem; white-space:pre-wrap; }
     .comm-post-actions { display:flex; align-items:center; gap:1rem; }
     .vote-btn { background:none; border:none; cursor:pointer; display:flex; align-items:center; gap:5px; color:#64748b; font-size:0.85rem; font-weight:600; transition:color 0.2s; font-family:'DM Sans',sans-serif; padding:0.3rem 0.6rem; border-radius:8px; }
@@ -315,48 +315,50 @@
     .community-rules li::before { content:'→'; color:var(--primary); flex-shrink:0; }
 
     /* REWORKED FUNDS — Community Pot */
-    .fund-pot-hero { background:linear-gradient(135deg,rgba(16,185,129,0.1) 0%,rgba(5,150,105,0.05) 100%); border:1px solid rgba(16,185,129,0.2); border-radius:24px; padding:3rem; margin-bottom:2rem; text-align:center; position:relative; overflow:hidden; }
-    .fund-pot-hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 50% 0%,rgba(16,185,129,0.08),transparent 70%); }
-    .fund-pot-amount { font-family:'Syne',sans-serif; font-size:4.5rem; font-weight:800; color:var(--primary); line-height:1; position:relative; }
+    .fund-pot-hero { background:linear-gradient(145deg,rgba(16,185,129,0.08) 0%,rgba(5,150,105,0.03) 60%,transparent 100%); border:1px solid rgba(16,185,129,0.18); border-radius:28px; padding:3rem 2.5rem; margin-bottom:2rem; text-align:center; position:relative; overflow:hidden; }
+    .fund-pot-hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 50% 0%,rgba(16,185,129,0.1),transparent 65%); pointer-events:none; }
+    .fund-pot-amount { font-family:'Syne',sans-serif; font-size:4.5rem; font-weight:800; color:var(--primary); line-height:1; position:relative; letter-spacing:-2px; }
     .fund-pot-label { color:#64748b; font-size:0.9rem; margin-top:0.4rem; position:relative; }
-    .fund-pot-bar-wrap { background:rgba(10,15,30,0.6); border-radius:999px; height:12px; max-width:500px; margin:1.5rem auto 0.5rem; overflow:hidden; border:1px solid var(--border); position:relative; }
-    .fund-pot-bar-fill { height:100%; background:linear-gradient(to right,#10b981,#34d399); border-radius:999px; transition:width 1s ease; }
-    .fund-pot-goal-text { color:#64748b; font-size:0.82rem; position:relative; }
-    .fund-pot-goal-text strong { color:white; }
-    .fund-contributors { display:flex; justify-content:center; gap:0.5rem; flex-wrap:wrap; margin-top:1.2rem; position:relative; }
-    .contrib-chip { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); color:var(--primary); font-size:0.75rem; font-weight:700; padding:3px 10px; border-radius:999px; }
-    .add-funds-btn { background:var(--primary); color:#0a0f1e; border:none; padding:0.8rem 2.2rem; border-radius:999px; font-weight:800; font-size:1rem; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; margin-top:1.5rem; position:relative; }
-    .add-funds-btn:hover { background:var(--primary-dark); transform:translateY(-2px); }
+    .fund-pot-bar-wrap { background:rgba(10,15,30,0.8); border-radius:999px; height:10px; max-width:500px; margin:1.5rem auto 0.5rem; overflow:hidden; border:1px solid rgba(255,255,255,0.04); position:relative; }
+    .fund-pot-bar-fill { height:100%; background:linear-gradient(to right,#10b981,#34d399); border-radius:999px; transition:width 1.2s cubic-bezier(0.4,0,0.2,1); box-shadow:0 0 12px rgba(16,185,129,0.4); }
+    .fund-pot-goal-text { color:#4b5563; font-size:0.82rem; position:relative; margin-top:6px; }
+    .fund-pot-goal-text strong { color:#94a3b8; }
+    .fund-contributors { display:flex; justify-content:center; gap:0.4rem; flex-wrap:wrap; margin-top:1.2rem; position:relative; }
+    .contrib-chip { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); color:var(--primary); font-size:0.72rem; font-weight:700; padding:3px 10px; border-radius:999px; }
+    .add-funds-btn { background:var(--primary); color:#0a0f1e; border:none; padding:0.9rem 2.5rem; border-radius:999px; font-weight:800; font-size:1rem; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.25s; margin-top:1.5rem; position:relative; letter-spacing:0.2px; }
+    .add-funds-btn:hover { background:var(--primary-dark); transform:translateY(-2px); box-shadow:0 8px 25px rgba(16,185,129,0.3); }
     .fund-contrib-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; margin-bottom:2rem; }
-    .fund-contrib-card { background:var(--card-bg); border:1px solid var(--border); border-radius:16px; padding:1.4rem; }
+    .fund-contrib-card { background:linear-gradient(135deg,var(--card-bg),rgba(16,185,129,0.02)); border:1px solid var(--border); border-radius:18px; padding:1.4rem; transition:all 0.25s; }
+    .fund-contrib-card:hover { border-color:rgba(16,185,129,0.2); transform:translateY(-2px); }
     .fund-contrib-card .contrib-amount { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:800; color:var(--primary); }
     .fund-contrib-card .contrib-handle { color:white; font-weight:700; font-size:0.9rem; margin:4px 0; }
-    .fund-contrib-card .contrib-note { color:#64748b; font-size:0.8rem; font-style:italic; }
-    .fund-contrib-card .contrib-date { color:#4b5563; font-size:0.74rem; margin-top:6px; }
-    .fund-history { background:var(--card-bg); border:1px solid var(--border); border-radius:18px; overflow:hidden; }
-    .fund-history-header { padding:1.2rem 1.6rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
-    .fund-history-header h3 { font-family:'Syne',sans-serif; color:white; font-size:1.1rem; }
-    .fund-history-row { display:flex; align-items:center; gap:12px; padding:1rem 1.6rem; border-bottom:1px solid var(--border); }
+    .fund-contrib-card .contrib-note { color:#4b5563; font-size:0.8rem; font-style:italic; }
+    .fund-contrib-card .contrib-date { color:#374151; font-size:0.74rem; margin-top:6px; }
+    .fund-history { background:var(--card-bg); border:1px solid var(--border); border-radius:20px; overflow:hidden; }
+    .fund-history-header { padding:1.2rem 1.6rem; border-bottom:1px solid rgba(255,255,255,0.04); display:flex; justify-content:space-between; align-items:center; background:rgba(16,185,129,0.02); }
+    .fund-history-header h3 { font-family:'Syne',sans-serif; color:white; font-size:1rem; font-weight:700; }
+    .fund-history-row { display:flex; align-items:center; gap:12px; padding:1rem 1.6rem; border-bottom:1px solid rgba(255,255,255,0.03); transition:background 0.2s; }
+    .fund-history-row:hover { background:rgba(16,185,129,0.03); }
     .fund-history-row:last-child { border-bottom:none; }
-    .fund-hist-icon { width:36px; height:36px; background:rgba(16,185,129,0.12); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .fund-hist-icon { width:36px; height:36px; background:rgba(16,185,129,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
     .fund-hist-icon i { color:var(--primary); font-size:0.85rem; }
     .stripe-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(99,91,255,0.08); border:1px solid rgba(99,91,255,0.2); color:#7c75ff; font-size:0.72rem; font-weight:700; padding:3px 10px; border-radius:999px; letter-spacing:0.3px; }
     .stripe-badge i { font-size:0.65rem; }
     .fund-hist-info { flex:1; }
     .fund-hist-info strong { color:white; font-size:0.9rem; display:block; }
-    .fund-hist-info span { color:#64748b; font-size:0.78rem; }
+    .fund-hist-info span { color:#4b5563; font-size:0.78rem; }
     .fund-hist-amount { font-family:'Syne',sans-serif; font-weight:800; color:var(--primary); font-size:1rem; }
 
     /* FUND TABS */
-    .fund-tabs { display:flex; gap:0.5rem; margin-bottom:2rem; background:var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:5px; }
-    .fund-tab { flex:1; text-align:center; padding:0.7rem 1rem; border-radius:10px; font-weight:700; font-size:0.88rem; cursor:pointer; transition:all 0.2s; border:none; font-family:inherit; color:#64748b; background:none; }
-    .fund-tab.active { background:var(--primary); color:#0a0f1e; }
+    .fund-tabs { display:flex; gap:0.4rem; margin-bottom:2rem; background:rgba(10,15,30,0.8); border:1px solid var(--border); border-radius:16px; padding:5px; }
+    .fund-tab { flex:1; text-align:center; padding:0.65rem 1rem; border-radius:11px; font-weight:700; font-size:0.84rem; cursor:pointer; transition:all 0.2s; border:1px solid transparent; font-family:inherit; color:#4b5563; background:none; }
+    .fund-tab.active { background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(5,150,105,0.08)); color:var(--primary); border-color:rgba(16,185,129,0.25); }
     .fund-tab-panel { display:none; }
     .fund-tab-panel.active { display:block; }
 
     /* MEMBER RAISES */
-    .raise-card { background:var(--card-bg); border:1px solid var(--border); border-radius:18px; padding:1.6rem; margin-bottom:1rem; transition:border-color 0.2s; }
-    .raise-card:hover { border-color:rgba(16,185,129,0.25); }
+    .raise-card { background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:1.6rem; margin-bottom:1rem; transition:all 0.25s; }
+    .raise-card:hover { border-color:rgba(16,185,129,0.25); transform:translateY(-2px); box-shadow:0 8px 30px rgba(0,0,0,0.2); }
     .raise-card-top { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; margin-bottom:1rem; }
     .raise-title { font-family:'Syne',sans-serif; font-size:1.05rem; font-weight:700; color:white; margin-bottom:4px; }
     .raise-desc { color:#64748b; font-size:0.85rem; line-height:1.5; }
@@ -498,8 +500,10 @@
     .ch-prog-labels { font-size:0.7rem; color:#64748b; display:flex; justify-content:space-between; }
 
     /* ══ EVENTS ══ */
-    .ev-card { background:var(--card-bg); border:1px solid var(--border); border-radius:16px; padding:1.3rem; margin-bottom:0.8rem; transition:border-color 0.2s; }
-    .ev-card:hover { border-color:rgba(16,185,129,0.2); }
+    .ev-card { background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:1.6rem; margin-bottom:1rem; transition:all 0.25s; position:relative; overflow:hidden; }
+    .ev-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(to right,var(--primary),#34d399); opacity:0; transition:opacity 0.25s; }
+    .ev-card:hover { border-color:rgba(16,185,129,0.25); transform:translateY(-2px); box-shadow:0 8px 30px rgba(0,0,0,0.25); }
+    .ev-card:hover::before { opacity:1; }
     .ev-top { display:flex; gap:1rem; align-items:flex-start; margin-bottom:0.8rem; }
     .ev-datebox { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); border-radius:10px; padding:0.45rem 0.7rem; text-align:center; flex-shrink:0; min-width:48px; }
     .ev-day { font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:800; color:var(--primary); line-height:1; }
@@ -523,13 +527,13 @@
     .dir-search:focus { outline:none; border-color:var(--primary); }
     .dir-search::placeholder { color:#4b5563; }
     .dir-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:1rem; }
-    .dir-card { background:var(--card-bg); border:1px solid var(--border); border-radius:16px; padding:1.3rem; transition:all 0.2s; }
+    .dir-card { background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:1.4rem; transition:all 0.25s; display:flex; flex-direction:column; }
     body.light .dir-card { background:#fff; border-color:#dde5f0; }
-    .dir-card:hover { border-color:rgba(16,185,129,0.3); transform:translateY(-2px); }
-    .dir-av { width:40px; height:40px; background:rgba(16,185,129,0.15); border:1.5px solid rgba(16,185,129,0.3); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:0.85rem; font-weight:800; color:var(--primary); margin-bottom:0.75rem; }
-    .dir-name { font-family:'Syne',sans-serif; font-size:0.9rem; font-weight:700; color:white; margin-bottom:3px; }
+    .dir-card:hover { border-color:rgba(16,185,129,0.3); transform:translateY(-3px); box-shadow:0 10px 30px rgba(0,0,0,0.2); }
+    .dir-av { width:52px; height:52px; background:linear-gradient(135deg,rgba(16,185,129,0.2),rgba(5,150,105,0.1)); border:2px solid rgba(16,185,129,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1rem; font-weight:800; color:var(--primary); margin:0 auto 0.75rem; }
+    .dir-name { font-family:'Syne',sans-serif; font-size:0.85rem; font-weight:700; color:white; margin-bottom:3px; word-break:break-all; overflow-wrap:anywhere; text-align:center; line-height:1.3; }
     body.light .dir-name { color:#0f172a; }
-    .dir-bio { color:#64748b; font-size:0.77rem; line-height:1.5; margin:0.4rem 0 0.6rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:2.1em; }
+    .dir-bio { color:#64748b; font-size:0.77rem; line-height:1.5; margin:0.4rem 0 0.6rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:2.1em; text-align:center; }
     .dir-tags { display:flex; flex-wrap:wrap; gap:0.3rem; margin-bottom:0.75rem; }
     .dir-tag { background:#0a0f1e; border:1px solid var(--border); color:#94a3b8; padding:1px 6px; border-radius:4px; font-size:0.67rem; }
     body.light .dir-tag { background:#f0f4f8; border-color:#dde5f0; color:#475569; }
@@ -750,7 +754,7 @@
             </div>
           </div>
 
-          <div onclick="switchTab('testimonials')" class="quick-action">
+          <div onclick="switchTab('community');setTimeout(()=>{const el=document.getElementById('add-testimonial-form-community');if(el)el.scrollIntoView({behavior:'smooth'});},400);" class="quick-action">
             <i class="fas fa-comment-dots" style="font-size:1.3rem;color:var(--primary);"></i>
             <div><strong>Leave a Testimonial</strong><small>Tell the community how Pass It Forward helped you</small></div>
           </div>
@@ -843,7 +847,10 @@
       <div class="fund-history" style="margin-bottom:2rem;">
         <div class="fund-history-header">
           <h3>📋 Transaction History</h3>
-          <span style="color:#64748b;font-size:0.82rem;" id="history-count">0 transactions</span>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="color:#64748b;font-size:0.82rem;" id="history-count">0 transactions</span>
+            <span id="reset-fund-btn" style="display:none;"><button onclick="resetFundData()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#ef4444;padding:2px 10px;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">🗑 Reset All</button></span>
+          </div>
         </div>
         <div id="fund-history-list"></div>
       </div>
@@ -1011,7 +1018,7 @@
     <div id="fund-step-2" style="display:none;text-align:center;">
       <div style="font-size:3rem;margin-bottom:1rem;">🔐</div>
       <h2 style="font-size:1.5rem;margin-bottom:0.7rem;">Complete Payment on Stripe</h2>
-      <p style="color:#64748b;font-size:0.9rem;margin-bottom:0.5rem;">A Stripe checkout tab has opened. Complete your payment there, then come back and confirm below.</p>
+      <p style="color:#64748b;font-size:0.9rem;margin-bottom:0.5rem;">A Stripe checkout tab has opened. Complete your payment there, then confirm below.</p>
       <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:1rem;margin:1.2rem 0;text-align:left;">
         <div style="display:flex;justify-content:space-between;font-size:0.85rem;">
           <span style="color:#64748b;">Amount</span>
@@ -1022,13 +1029,19 @@
           <span style="color:white;font-weight:700;" id="fund-confirm-handle">—</span>
         </div>
       </div>
+      <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:1rem;margin-bottom:1.2rem;text-align:left;">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+          <input type="checkbox" id="payment-confirm-check" style="margin-top:3px;accent-color:var(--primary);width:16px;height:16px;flex-shrink:0;"/>
+          <span style="color:#94a3b8;font-size:0.83rem;line-height:1.5;">I confirm I have <strong style="color:white;">completed my payment on Stripe</strong>. I understand that falsely confirming will be flagged and may result in removal from the community.</span>
+        </label>
+      </div>
       <button onclick="confirmPaymentDone()" class="btn" style="width:100%;margin-bottom:0.5rem;background:var(--primary);display:flex;align-items:center;justify-content:center;gap:8px;">
         <i class="fas fa-check-circle"></i> I've Completed My Payment
       </button>
       <button onclick="reopenStripe()" style="width:100%;padding:0.7rem;background:none;border:1px solid var(--border);color:#94a3b8;border-radius:999px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.85rem;margin-bottom:0.3rem;">
         <i class="fab fa-stripe" style="margin-right:5px;"></i> Reopen Stripe Tab
       </button>
-      <button onclick="cancelFundStep2()" class="modal-cancel">Cancel</button>
+      <button onclick="cancelFundStep2()" class="modal-cancel">Cancel — I haven't paid yet</button>
     </div>
 
   </div>
@@ -1298,11 +1311,19 @@
 </div>
 
 <div id="dm-modal" class="modal">
-  <div class="modal-content">
-    <h2 id="dm-modal-title">Contact Poster</h2>
-    <p id="dm-modal-body" style="margin-bottom:1.5rem;"></p>
-    <a id="dm-x-link" href="#" target="_blank" class="btn" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;"><i class="fab fa-x-twitter"></i> DM on X</a>
-    <button onclick="closeModal('dm-modal')" class="modal-cancel">Close</button>
+  <div class="modal-content" style="max-width:440px;text-align:center;">
+    <div style="font-size:2rem;margin-bottom:0.5rem;">🤝</div>
+    <h2 id="dm-modal-title" style="margin-bottom:0.4rem;">Connect with Poster</h2>
+    <p id="dm-modal-body" style="margin-bottom:1.5rem;color:#64748b;font-size:0.88rem;"></p>
+    <div style="display:flex;flex-direction:column;gap:0.8rem;margin-bottom:1rem;">
+      <button id="dm-platform-btn" onclick="sendOppDm()" class="btn" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;">
+        <i class="fas fa-paper-plane"></i> Send DM on Pass It Forward
+      </button>
+      <a id="dm-x-link" href="#" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:0.75rem;background:none;border:1px solid var(--border);color:#94a3b8;border-radius:999px;text-decoration:none;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.9rem;transition:all 0.2s;" onmouseover="this.style.borderColor='rgba(16,185,129,0.4)'" onmouseout="this.style.borderColor='var(--border)'">
+        <i class="fab fa-x-twitter"></i> Share Interest on X
+      </a>
+    </div>
+    <button onclick="closeModal('dm-modal')" class="modal-cancel">Cancel</button>
   </div>
 </div>
 
@@ -1472,8 +1493,6 @@ const SUPABASE_URL     = 'https://liujbjfjdycacmaujawu.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpdWpiamZqZHljYWNtYXVqYXd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzQxMjYsImV4cCI6MjA4ODIxMDEyNn0.g8P98rM5OVFml5_bQY3V5x7nX5CHnVRqITSMu72Wy2Y';
 const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/bJebIUgIS6Yy8VU1B2dEs00';
 const FOUNDER_EMAIL = 'miguelbettencourt74@gmail.com';
-
-
 // Init Supabase safely — never crashes even if CDN is slow or keys are missing
 let sb = null;
 try {
@@ -1911,6 +1930,9 @@ function renderCommunity() {
   if (!filtered.length) { feed.innerHTML=`<div style="padding:2rem;text-align:center;color:#4b5563;">No posts yet — start the conversation!</div>`; return; }
   feed.innerHTML = filtered.map(p => {
     const isMine = currentUser && (p.handle===currentUser.handle || String(p.user_id)===String(currentUser.id));
+    const myVotes = JSON.parse(localStorage.getItem('pf_votes_'+currentUser?.handle)||'{}');
+    const hasUpvoted = myVotes[p.id] === 'up';
+    const hasDownvoted = myVotes[p.id] === 'down';
     return `<div class="comm-post-card">
       <div class="comm-post-top">
         <div class="comm-post-avatar">${sanitize(p.handle).replace('@','').substring(0,2).toUpperCase()}</div>
@@ -1925,7 +1947,8 @@ function renderCommunity() {
       </div>
       <div class="comm-post-body">${sanitize(p.body)}</div>
       <div class="comm-post-actions">
-        <button onclick="likeCommunityPost('${p.id}')" class="comm-like-btn"><i class="fas fa-heart" style="font-size:0.75rem;margin-right:4px;"></i>${p.likes||0}</button>
+        <button onclick="voteCommunityPost('${p.id}','up')" class="vote-btn ${hasUpvoted?'upvoted':''}"><i class="fas fa-arrow-up"></i> ${p.upvotes||p.likes||0}</button>
+        <button onclick="voteCommunityPost('${p.id}','down')" class="vote-btn ${hasDownvoted?'downvoted':''}"><i class="fas fa-arrow-down"></i> ${p.downvotes||0}</button>
       </div>
     </div>`;
   }).join('');
@@ -1960,10 +1983,30 @@ async function submitCommunityPost() {
   addXp(10,'post','Posted in community'); bumpWeekly('comm');
   renderCommunity(); showToast("Posted! 🙌");
 }
-async function likeCommunityPost(id) {
+async function voteCommunityPost(id, dir) {
+  if (!currentUser) return showToast("Login first");
   const p = communityPosts.find(x=>String(x.id)===String(id)); if(!p) return;
-  p.likes = (p.likes||0)+1;
-  if (sb && !currentUser?.id.startsWith('demo-')) await sb.from('community_posts').update({likes:p.likes}).eq('id',id);
+  const voteKey = 'pf_votes_' + currentUser.handle;
+  const myVotes = JSON.parse(localStorage.getItem(voteKey)||'{}');
+  const prev = myVotes[id];
+
+  if (prev === dir) {
+    // Toggle off — remove vote
+    delete myVotes[id];
+    if (dir==='up') p.upvotes = Math.max(0,(p.upvotes||0)-1);
+    else p.downvotes = Math.max(0,(p.downvotes||0)-1);
+  } else {
+    // Switch or new vote
+    if (prev==='up') p.upvotes = Math.max(0,(p.upvotes||0)-1);
+    if (prev==='down') p.downvotes = Math.max(0,(p.downvotes||0)-1);
+    myVotes[id] = dir;
+    if (dir==='up') { p.upvotes = (p.upvotes||0)+1; addXp(1,'vote','Upvoted a post'); }
+    else p.downvotes = (p.downvotes||0)+1;
+  }
+  localStorage.setItem(voteKey, JSON.stringify(myVotes));
+  if (sb && !currentUser.id.startsWith('demo-')) {
+    await sb.from('community_posts').update({upvotes:p.upvotes||0, downvotes:p.downvotes||0}).eq('id',id);
+  }
   renderCommunity();
 }
 async function deleteCommunityPost(id) {
@@ -2057,6 +2100,9 @@ function switchFundTab(tab) {
 function formatMoney(n){ return n>=1000000?'$'+(n/1000000).toFixed(1)+'M':n>=1000?'$'+(n/1000).toFixed(0)+'k':'$'+n; }
 
 async function renderFunds() {
+  // Show reset button only to founder
+  const resetBtn = document.getElementById('reset-fund-btn');
+  if (resetBtn) resetBtn.style.display = isFounder() ? 'inline' : 'none';
   if (sb) {
     const{data}=await sb.from('fund_contributions').select('*').order('created_at',{ascending:false});
     if(data) contributions=data.map(c=>({id:c.id,handle:c.handle,amount:c.amount,note:c.note,date:new Date(c.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}));
@@ -2234,6 +2280,8 @@ function reopenStripe() {
 let _confirmingPayment = false;
 async function confirmPaymentDone() {
   if(_confirmingPayment) return;
+  const check = document.getElementById('payment-confirm-check');
+  if(!check?.checked) return showToast("⚠️ Please tick the checkbox to confirm you've completed payment");
   if(!_pendingContrib) {
     showToast("No pending payment — please start a new contribution");
     document.getElementById('fund-step-1').style.display='block';
@@ -2269,8 +2317,21 @@ async function confirmPaymentDone() {
   await renderFunds();
   showToast(`$${amount} recorded — thank you! 🙏`);
 }
+async function resetFundData() {
+  if (!isFounder()) return;
+  if (!confirm("⚠️ This will permanently delete ALL fund contributions from the database. Are you sure?")) return;
+  if (!confirm("Last chance — this cannot be undone. Delete all contributions?")) return;
+  if (sb) {
+    await sb.from('fund_contributions').delete().neq('id', 0);
+  }
+  contributions = [];
+  await renderFunds();
+  showToast("Fund data reset ✓");
+}
+
 function cancelFundStep2(){
   _pendingContrib=null; _stripeWindow=null;
+  const check=document.getElementById('payment-confirm-check');if(check)check.checked=false;
   document.getElementById('fund-step-1').style.display='block';
   document.getElementById('fund-step-2').style.display='none';
   selectedFundAmount=0;
@@ -2498,12 +2559,44 @@ function addXp(pts,type,label){if(!currentUser)return;const total=getXp()+pts;lo
 function logXpEvent(type,label,pts){if(!currentUser)return;const log=JSON.parse(localStorage.getItem('pf_xplog_'+currentUser.handle)||'[]');const time=new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});log.push({type,label,pts,time});localStorage.setItem('pf_xplog_'+currentUser.handle,JSON.stringify(log));}
 
 // ── DM MODAL (opp page) ───────────────────────────────────────────
-function showDmModal(poster,title){
-  document.getElementById('dm-modal-title').textContent=`Contact ${sanitize(poster)}`;
-  document.getElementById('dm-modal-body').textContent=`Reach out to ${sanitize(poster)} about: "${sanitize(title)}"`;
-  const msg=`Hey ${poster}, saw your opportunity "${title}" on Pass It Forward — interested in connecting!`;
-  document.getElementById('dm-x-link').href=`https://twitter.com/messages/compose?text=${encodeURIComponent(msg)}`;
-  document.getElementById('dm-modal').style.display='flex';
+let _oppDmTarget = null;
+let _oppDmMessage = null;
+function showDmModal(poster, title) {
+  if (!currentUser) return showToast("Login first");
+  _oppDmTarget = poster;
+  // Message is FROM the viewer TO the poster — so "I" is the sender
+  _oppDmMessage = `Hey ${poster}, I have an opportunity "${title}" on Pass It Forward — if you're interested and want to hear more, DM me back!`;
+  // X post message sounds like announcing interest publicly
+  const xMsg = `Just found an opportunity on @PassItForward: "${title}" — reaching out to connect! 🚀 #PassItForward`;
+  document.getElementById('dm-modal-title').textContent = `Connect with ${sanitize(poster)}`;
+  document.getElementById('dm-modal-body').textContent = `You're reaching out about: "${sanitize(title)}"`;
+  document.getElementById('dm-x-link').href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(xMsg)}`;
+  document.getElementById('dm-modal').style.display = 'flex';
+}
+async function sendOppDm() {
+  if (!_oppDmTarget || !_oppDmMessage) return;
+  if (!dmThreads[_oppDmTarget]) dmThreads[_oppDmTarget] = [];
+  if (sb && !currentUser.id.startsWith('demo-')) {
+    const { error } = await sb.from('messages').insert({
+      from_handle: currentUser.handle,
+      to_handle: _oppDmTarget,
+      body: _oppDmMessage,
+      read: false
+    });
+    if (error) return showToast("Error sending: " + error.message);
+  }
+  dmThreads[_oppDmTarget].push({
+    from_handle: currentUser.handle,
+    to_handle: _oppDmTarget,
+    body: _oppDmMessage,
+    created_at: new Date().toISOString(),
+    read: false,
+    id: Date.now()
+  });
+  closeModal('dm-modal');
+  showToast(`Message sent to ${_oppDmTarget}! 📨`);
+  bumpWeekly('dms');
+  _oppDmTarget = null; _oppDmMessage = null;
 }
 
 // ── NOTIFICATIONS ─────────────────────────────────────────────────
