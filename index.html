@@ -527,11 +527,11 @@
     .dir-search:focus { outline:none; border-color:var(--primary); }
     .dir-search::placeholder { color:#4b5563; }
     .dir-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:1rem; }
-    .dir-card { background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:1.4rem; transition:all 0.25s; display:flex; flex-direction:column; }
+    .dir-card { background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:1.4rem; transition:all 0.25s; display:flex; flex-direction:column; overflow:hidden; min-width:0; }
     body.light .dir-card { background:#fff; border-color:#dde5f0; }
     .dir-card:hover { border-color:rgba(16,185,129,0.3); transform:translateY(-3px); box-shadow:0 10px 30px rgba(0,0,0,0.2); }
     .dir-av { width:52px; height:52px; background:linear-gradient(135deg,rgba(16,185,129,0.2),rgba(5,150,105,0.1)); border:2px solid rgba(16,185,129,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1rem; font-weight:800; color:var(--primary); margin:0 auto 0.75rem; }
-    .dir-name { font-family:'Syne',sans-serif; font-size:0.85rem; font-weight:700; color:white; margin-bottom:3px; word-break:break-all; overflow-wrap:anywhere; text-align:center; line-height:1.3; }
+    .dir-name { font-family:'Syne',sans-serif; font-size:0.78rem; font-weight:700; color:white; margin-bottom:3px; text-align:center; line-height:1.3; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding:0 4px; }
     body.light .dir-name { color:#0f172a; }
     .dir-bio { color:#64748b; font-size:0.77rem; line-height:1.5; margin:0.4rem 0 0.6rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:2.1em; text-align:center; }
     .dir-tags { display:flex; flex-wrap:wrap; gap:0.3rem; margin-bottom:0.75rem; }
@@ -1493,6 +1493,7 @@ const SUPABASE_URL     = 'https://liujbjfjdycacmaujawu.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpdWpiamZqZHljYWNtYXVqYXd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzQxMjYsImV4cCI6MjA4ODIxMDEyNn0.g8P98rM5OVFml5_bQY3V5x7nX5CHnVRqITSMu72Wy2Y';
 const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/bJebIUgIS6Yy8VU1B2dEs00';
 const FOUNDER_EMAIL = 'miguelbettencourt74@gmail.com';
+
 // Init Supabase safely — never crashes even if CDN is slow or keys are missing
 let sb = null;
 try {
@@ -1947,8 +1948,8 @@ function renderCommunity() {
       </div>
       <div class="comm-post-body">${sanitize(p.body)}</div>
       <div class="comm-post-actions">
-        <button onclick="voteCommunityPost('${p.id}','up')" class="vote-btn ${hasUpvoted?'upvoted':''}"><i class="fas fa-arrow-up"></i> ${p.upvotes||p.likes||0}</button>
-        <button onclick="voteCommunityPost('${p.id}','down')" class="vote-btn ${hasDownvoted?'downvoted':''}"><i class="fas fa-arrow-down"></i> ${p.downvotes||0}</button>
+        <button onclick="voteCommunityPost('${p.id}','up')" class="vote-btn ${hasUpvoted?'upvoted':''}"><i class="fas fa-arrow-up"></i> ${parseInt(p.upvotes)||0}</button>
+        <button onclick="voteCommunityPost('${p.id}','down')" class="vote-btn ${hasDownvoted?'downvoted':''}"><i class="fas fa-arrow-down"></i> ${parseInt(p.downvotes)||0}</button>
       </div>
     </div>`;
   }).join('');
@@ -1988,24 +1989,28 @@ async function voteCommunityPost(id, dir) {
   const p = communityPosts.find(x=>String(x.id)===String(id)); if(!p) return;
   const voteKey = 'pf_votes_' + currentUser.handle;
   const myVotes = JSON.parse(localStorage.getItem(voteKey)||'{}');
-  const prev = myVotes[id];
+  const prev = myVotes[String(id)];
+
+  // Ensure numbers
+  p.upvotes = parseInt(p.upvotes)||0;
+  p.downvotes = parseInt(p.downvotes)||0;
 
   if (prev === dir) {
-    // Toggle off — remove vote
-    delete myVotes[id];
-    if (dir==='up') p.upvotes = Math.max(0,(p.upvotes||0)-1);
-    else p.downvotes = Math.max(0,(p.downvotes||0)-1);
+    // Same button — remove vote
+    delete myVotes[String(id)];
+    if (dir==='up') p.upvotes = Math.max(0, p.upvotes-1);
+    else p.downvotes = Math.max(0, p.downvotes-1);
   } else {
-    // Switch or new vote
-    if (prev==='up') p.upvotes = Math.max(0,(p.upvotes||0)-1);
-    if (prev==='down') p.downvotes = Math.max(0,(p.downvotes||0)-1);
-    myVotes[id] = dir;
-    if (dir==='up') { p.upvotes = (p.upvotes||0)+1; addXp(1,'vote','Upvoted a post'); }
-    else p.downvotes = (p.downvotes||0)+1;
+    // New or switched vote
+    if (prev==='up') p.upvotes = Math.max(0, p.upvotes-1);
+    if (prev==='down') p.downvotes = Math.max(0, p.downvotes-1);
+    myVotes[String(id)] = dir;
+    if (dir==='up') { p.upvotes += 1; addXp(1,'vote','Upvoted a post'); }
+    else p.downvotes += 1;
   }
   localStorage.setItem(voteKey, JSON.stringify(myVotes));
   if (sb && !currentUser.id.startsWith('demo-')) {
-    await sb.from('community_posts').update({upvotes:p.upvotes||0, downvotes:p.downvotes||0}).eq('id',id);
+    await sb.from('community_posts').update({upvotes: p.upvotes, downvotes: p.downvotes}).eq('id', id);
   }
   renderCommunity();
 }
@@ -2113,7 +2118,7 @@ async function renderFunds() {
   const goal = parseInt(localStorage.getItem('pf_pot_goal')||'10000');
   const pct=Math.min(100,Math.round((total/goal)*100));
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-  // Fix: use correct element IDs that match the HTML
+  set('pot-display', formatMoney(total)); // big hero number
   set('pot-total-stat', formatMoney(total));
   set('pot-contrib-count', contributions.length);
   set('pot-goal-stat', formatMoney(goal));
@@ -2122,7 +2127,7 @@ async function renderFunds() {
   // Progress bar + text
   const goalEl=document.getElementById('pot-goal-display'); if(goalEl) goalEl.textContent=formatMoney(goal);
   const pctEl=document.getElementById('pot-pct'); if(pctEl) pctEl.textContent=pct+'%';
-  const bar=document.getElementById('fund-progress-bar'); if(bar) bar.style.width=pct+'%';
+  const bar=document.getElementById('pot-bar'); if(bar) bar.style.width=pct+'%';
   // Show edit button for founder
   const editGoalBtn = document.getElementById('edit-pot-goal-btn');
   if(editGoalBtn) editGoalBtn.style.display = isFounder() ? 'inline-flex' : 'none';
@@ -2563,13 +2568,13 @@ let _oppDmTarget = null;
 let _oppDmMessage = null;
 function showDmModal(poster, title) {
   if (!currentUser) return showToast("Login first");
+  if (poster === currentUser.handle) return showToast("That's your own opportunity!");
   _oppDmTarget = poster;
-  // Message is FROM the viewer TO the poster — so "I" is the sender
-  _oppDmMessage = `Hey ${poster}, I have an opportunity "${title}" on Pass It Forward — if you're interested and want to hear more, DM me back!`;
-  // X post message sounds like announcing interest publicly
-  const xMsg = `Just found an opportunity on @PassItForward: "${title}" — reaching out to connect! 🚀 #PassItForward`;
-  document.getElementById('dm-modal-title').textContent = `Connect with ${sanitize(poster)}`;
-  document.getElementById('dm-modal-body').textContent = `You're reaching out about: "${sanitize(title)}"`;
+  // The person CLICKING is reaching out TO the poster about THEIR opportunity
+  _oppDmMessage = `Hey ${poster}, I spotted your opportunity "${title}" on Pass It Forward — I'm interested and would love to connect. DM me back if you want to chat!`;
+  const xMsg = `Just discovered a great opportunity on Pass It Forward: "${title}" by ${poster} 🚀 Check it out! #PassItForward`;
+  document.getElementById('dm-modal-title').textContent = `Reach out to ${sanitize(poster)}`;
+  document.getElementById('dm-modal-body').textContent = `Send a message about: "${sanitize(title)}"`;
   document.getElementById('dm-x-link').href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(xMsg)}`;
   document.getElementById('dm-modal').style.display = 'flex';
 }
