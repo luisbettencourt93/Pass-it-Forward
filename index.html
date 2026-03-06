@@ -526,12 +526,12 @@
     body.light .dir-search { background:#fff; color:#0f172a; border-color:#c8d6eb; }
     .dir-search:focus { outline:none; border-color:var(--primary); }
     .dir-search::placeholder { color:#4b5563; }
-    .dir-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:1rem; }
-    .dir-card { background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:1.4rem; transition:all 0.25s; display:flex; flex-direction:column; overflow:hidden; min-width:0; }
+    .dir-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:1rem; }
+    .dir-card { background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:1.4rem; transition:all 0.25s; display:flex; flex-direction:column; overflow:hidden; min-width:0; width:100%; box-sizing:border-box; }
     body.light .dir-card { background:#fff; border-color:#dde5f0; }
     .dir-card:hover { border-color:rgba(16,185,129,0.3); transform:translateY(-3px); box-shadow:0 10px 30px rgba(0,0,0,0.2); }
     .dir-av { width:52px; height:52px; background:linear-gradient(135deg,rgba(16,185,129,0.2),rgba(5,150,105,0.1)); border:2px solid rgba(16,185,129,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1rem; font-weight:800; color:var(--primary); margin:0 auto 0.75rem; }
-    .dir-name { font-family:'Syne',sans-serif; font-size:0.78rem; font-weight:700; color:white; margin-bottom:3px; text-align:center; line-height:1.3; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding:0 4px; }
+    .dir-name { font-family:'Syne',sans-serif; font-size:0.75rem; font-weight:700; color:white; margin-bottom:3px; text-align:center; line-height:1.3; width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block; }
     body.light .dir-name { color:#0f172a; }
     .dir-bio { color:#64748b; font-size:0.77rem; line-height:1.5; margin:0.4rem 0 0.6rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:2.1em; text-align:center; }
     .dir-tags { display:flex; flex-wrap:wrap; gap:0.3rem; margin-bottom:0.75rem; }
@@ -1017,9 +1017,9 @@
     <!-- STEP 2: Confirm after Stripe -->
     <div id="fund-step-2" style="display:none;text-align:center;">
       <div style="font-size:3rem;margin-bottom:1rem;">🔐</div>
-      <h2 style="font-size:1.5rem;margin-bottom:0.7rem;">Complete Payment on Stripe</h2>
-      <p style="color:#64748b;font-size:0.9rem;margin-bottom:0.5rem;">A Stripe checkout tab has opened. Complete your payment there, then confirm below.</p>
-      <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:1rem;margin:1.2rem 0;text-align:left;">
+      <h2 style="font-size:1.5rem;margin-bottom:0.7rem;">Confirm Your Payment</h2>
+      <p style="color:#64748b;font-size:0.88rem;margin-bottom:0.5rem;">Complete your payment on Stripe, then enter your receipt number below to confirm.</p>
+      <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:1rem;margin:1rem 0;text-align:left;">
         <div style="display:flex;justify-content:space-between;font-size:0.85rem;">
           <span style="color:#64748b;">Amount</span>
           <span style="color:white;font-weight:700;" id="fund-confirm-amount">—</span>
@@ -1029,14 +1029,13 @@
           <span style="color:white;font-weight:700;" id="fund-confirm-handle">—</span>
         </div>
       </div>
-      <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:1rem;margin-bottom:1.2rem;text-align:left;">
-        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
-          <input type="checkbox" id="payment-confirm-check" style="margin-top:3px;accent-color:var(--primary);width:16px;height:16px;flex-shrink:0;"/>
-          <span style="color:#94a3b8;font-size:0.83rem;line-height:1.5;">I confirm I have <strong style="color:white;">completed my payment on Stripe</strong>. I understand that falsely confirming will be flagged and may result in removal from the community.</span>
-        </label>
+      <div style="text-align:left;margin-bottom:1rem;">
+        <label style="color:#94a3b8;font-size:0.8rem;font-weight:600;display:block;margin-bottom:6px;">STRIPE RECEIPT NUMBER <span style="color:#ef4444;">*</span></label>
+        <input id="stripe-receipt-input" type="text" placeholder="e.g. pi_3Abc123... or ch_1Xyz..." style="width:100%;background:#0a0f1e;border:1.5px solid var(--border);border-radius:10px;color:white;font-family:'DM Sans',sans-serif;font-size:0.88rem;padding:0.7rem 1rem;box-sizing:border-box;"/>
+        <div style="color:#4b5563;font-size:0.72rem;margin-top:5px;"><i class="fas fa-info-circle" style="margin-right:3px;"></i>Find this in your Stripe email receipt or confirmation page. Starts with <strong style="color:#64748b;">pi_</strong> or <strong style="color:#64748b;">ch_</strong></div>
       </div>
       <button onclick="confirmPaymentDone()" class="btn" style="width:100%;margin-bottom:0.5rem;background:var(--primary);display:flex;align-items:center;justify-content:center;gap:8px;">
-        <i class="fas fa-check-circle"></i> I've Completed My Payment
+        <i class="fas fa-check-circle"></i> Confirm Payment
       </button>
       <button onclick="reopenStripe()" style="width:100%;padding:0.7rem;background:none;border:1px solid var(--border);color:#94a3b8;border-radius:999px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.85rem;margin-bottom:0.3rem;">
         <i class="fab fa-stripe" style="margin-right:5px;"></i> Reopen Stripe Tab
@@ -1493,7 +1492,6 @@ const SUPABASE_URL     = 'https://liujbjfjdycacmaujawu.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpdWpiamZqZHljYWNtYXVqYXd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzQxMjYsImV4cCI6MjA4ODIxMDEyNn0.g8P98rM5OVFml5_bQY3V5x7nX5CHnVRqITSMu72Wy2Y';
 const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/bJebIUgIS6Yy8VU1B2dEs00';
 const FOUNDER_EMAIL = 'miguelbettencourt74@gmail.com';
-
 // Init Supabase safely — never crashes even if CDN is slow or keys are missing
 let sb = null;
 try {
@@ -1932,8 +1930,8 @@ function renderCommunity() {
   feed.innerHTML = filtered.map(p => {
     const isMine = currentUser && (p.handle===currentUser.handle || String(p.user_id)===String(currentUser.id));
     const myVotes = JSON.parse(localStorage.getItem('pf_votes_'+currentUser?.handle)||'{}');
-    const hasUpvoted = myVotes[p.id] === 'up';
-    const hasDownvoted = myVotes[p.id] === 'down';
+    const hasUpvoted = myVotes[String(p.id)] === 'up';
+    const hasDownvoted = myVotes[String(p.id)] === 'down';
     return `<div class="comm-post-card">
       <div class="comm-post-top">
         <div class="comm-post-avatar">${sanitize(p.handle).replace('@','').substring(0,2).toUpperCase()}</div>
@@ -2285,10 +2283,11 @@ function reopenStripe() {
 let _confirmingPayment = false;
 async function confirmPaymentDone() {
   if(_confirmingPayment) return;
-  const check = document.getElementById('payment-confirm-check');
-  if(!check?.checked) return showToast("⚠️ Please tick the checkbox to confirm you've completed payment");
+  const receipt = document.getElementById('stripe-receipt-input')?.value.trim();
+  if(!receipt || receipt.length < 5) return showToast("⚠️ Please enter your Stripe receipt number to confirm");
+  if(!receipt.startsWith('pi_') && !receipt.startsWith('ch_') && !receipt.startsWith('py_')) return showToast("⚠️ Invalid receipt — must start with pi_, ch_, or py_");
   if(!_pendingContrib) {
-    showToast("No pending payment — please start a new contribution");
+    showToast("No pending payment — please start over");
     document.getElementById('fund-step-1').style.display='block';
     document.getElementById('fund-step-2').style.display='none';
     return;
@@ -2303,9 +2302,9 @@ async function confirmPaymentDone() {
         handle:_pendingContrib.handle,
         user_id:session.user.id,
         amount:_pendingContrib.amount,
-        note:_pendingContrib.note||''
+        note:(_pendingContrib.note||'')+' | Receipt: '+receipt
       });
-      if(error) console.warn('Fund insert:',error.message);
+      if(error){ console.warn('Fund insert:',error.message); }
     }
   }
   contributions.push(_pendingContrib);
@@ -2313,7 +2312,8 @@ async function confirmPaymentDone() {
   bumpWeekly('fund');
   const amount = _pendingContrib.amount;
   _pendingContrib=null; _stripeWindow=null; _confirmingPayment=false;
-  if(btn){ btn.textContent='✅ I\'ve Completed My Payment'; btn.disabled=false; }
+  if(btn){ btn.textContent='Confirm Payment'; btn.disabled=false; }
+  const inp=document.getElementById('stripe-receipt-input'); if(inp) inp.value='';
   closeModal('add-funds-modal');
   document.getElementById('fund-step-1').style.display='block';
   document.getElementById('fund-step-2').style.display='none';
@@ -2336,7 +2336,7 @@ async function resetFundData() {
 
 function cancelFundStep2(){
   _pendingContrib=null; _stripeWindow=null;
-  const check=document.getElementById('payment-confirm-check');if(check)check.checked=false;
+  const inp=document.getElementById('stripe-receipt-input'); if(inp) inp.value='';
   document.getElementById('fund-step-1').style.display='block';
   document.getElementById('fund-step-2').style.display='none';
   selectedFundAmount=0;
