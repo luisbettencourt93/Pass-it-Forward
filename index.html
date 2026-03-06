@@ -695,12 +695,7 @@
 <section class="member-section" id="testimonials">
   <div style="max-width:1280px;margin:0 auto;padding:0 5%;">
     <h2 style="font-family:'Syne',sans-serif;font-size:2.8rem;font-weight:800;text-align:center;color:white;margin-bottom:2rem;">What Members Are Saying</h2>
-    <div class="testimonials-grid" id="testimonials-grid"></div>
-    <div id="add-testimonial-form" class="add-testimonial" style="display:none;">
-      <h3>Share Your Experience</h3>
-      <textarea id="new-testimonial" placeholder="What has Pass It Forward done for you? Be real."></textarea>
-      <button onclick="submitTestimonial()" class="btn">Post Testimonial</button>
-    </div>
+    <div class="testimonials-grid" id="testimonials-grid-public"></div>
   </div>
 </section>
 
@@ -971,7 +966,7 @@
       <div class="testimonials-grid" id="testimonials-grid"></div>
       <div id="add-testimonial-form-community" class="add-testimonial">
         <h3>Share Your Experience</h3>
-        <textarea id="new-testimonial" placeholder="What has Pass It Forward done for you? Be real."></textarea>
+        <textarea id="comm-new-testimonial" placeholder="What has Pass It Forward done for you? Be real."></textarea>
         <button onclick="submitTestimonial()" class="btn">Submit Testimonial</button>
       </div>
     </div>
@@ -1475,8 +1470,8 @@ create policy "raises_delete" on member_raises for delete using (auth.uid() = po
 
 const SUPABASE_URL     = 'https://liujbjfjdycacmaujawu.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpdWpiamZqZHljYWNtYXVqYXd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzQxMjYsImV4cCI6MjA4ODIxMDEyNn0.g8P98rM5OVFml5_bQY3V5x7nX5CHnVRqITSMu72Wy2Y';
-const STRIPE_PAYMENT_LINK =  'https://buy.stripe.com/bJebIUgIS6Yy8VU1B2dEs00';
-const FOUNDER_EMAIL =  'miguelbettencourt74@gmail.com';
+const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/bJebIUgIS6Yy8VU1B2dEs00';
+const FOUNDER_EMAIL = 'miguelbettencourt74@gmail.com';
 
 // Init Supabase safely — never crashes even if CDN is slow or keys are missing
 let sb = null;
@@ -1863,14 +1858,17 @@ function renderTestimonials(list) {
   });
 }
 async function submitTestimonial() {
-  const inp = document.getElementById('new-testimonial');
+  // Get from community textarea (the only one now)
+  const inp = document.getElementById('comm-new-testimonial') || document.getElementById('new-testimonial');
   const text = inp?.value.trim();
   if (!text) return showToast("Write your testimonial first");
   if (!currentUser) return showToast("Login required");
   if (sb && !currentUser.id.startsWith('demo-')) {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return showToast("Session expired — please log in again");
     const { error } = await sb.from('testimonials').insert({
       author_handle: currentUser.handle,
-      author_id: currentUser.id,
+      author_id: session.user.id,
       body: text
     });
     if (error) {
@@ -2233,7 +2231,11 @@ function reopenStripe() {
   window.open(STRIPE_PAYMENT_LINK,'_blank');
 }
 async function confirmPaymentDone() {
-  if(!_pendingContrib) return;
+  if(!_pendingContrib) {
+    showToast("No pending payment — please start a new contribution");
+    closeModal('add-funds-modal');
+    return;
+  }
   if(sb&&!currentUser.id.startsWith('demo-')){
     const{error}=await sb.from('fund_contributions').insert({handle:_pendingContrib.handle,user_id:_pendingContrib.user_id,amount:_pendingContrib.amount,note:_pendingContrib.note||''});
     if(error) console.warn('Fund insert:',error.message);
@@ -2241,10 +2243,11 @@ async function confirmPaymentDone() {
   contributions.push(_pendingContrib);
   addXp(25,'goal','Contributed $'+_pendingContrib.amount+' to community fund');
   bumpWeekly('fund');
+  const amount = _pendingContrib.amount;
+  _pendingContrib=null; _stripeWindow=null;
   closeModal('add-funds-modal');
   renderFunds();
-  showToast(`$${_pendingContrib.amount} recorded — thank you! 🙏`);
-  _pendingContrib=null; _stripeWindow=null;
+  showToast(`$${amount} recorded — thank you! 🙏`);
   document.getElementById('fund-step-1').style.display='block';
   document.getElementById('fund-step-2').style.display='none';
   document.querySelectorAll('#add-funds-modal .pledge-amount-btn').forEach(b=>b.classList.remove('selected'));
@@ -2254,6 +2257,7 @@ function cancelFundStep2(){
   _pendingContrib=null; _stripeWindow=null;
   document.getElementById('fund-step-1').style.display='block';
   document.getElementById('fund-step-2').style.display='none';
+  selectedFundAmount=0;
   closeModal('add-funds-modal');
 }
 
@@ -2306,16 +2310,16 @@ function renderRoadmap(){
   ];
 
   c.innerHTML = years.map(y => {
-    // For non-active years: members see "Planned" lock, founder sees real items
-    const showItems = y.active || founder;
-    const itemsHtml = showItems
+    // 2026 is always visible to everyone. Future years: only founder sees milestones.
+    const showMilestones = y.active || founder;
+    const itemsHtml = showMilestones
       ? `<div class="roadmap-year-content"><ul>${y.items.map(i=>`
-          <li style="cursor:${founder?'pointer':'default'};" onclick="${founder?`toggleRoadmapTick('${i.id}',${i.done})`:''}" ${founder?`title="Click to tick/untick"`:''}> 
-            <i class="fas ${i.done?'fa-check-circle':'fa-clock'}" style="color:${i.done?'var(--primary)':'#4b5563'};flex-shrink:0;"></i>
+          <li style="cursor:${founder&&y.active?'pointer':'default'};" ${founder&&y.active?`onclick="toggleRoadmapTick('${i.id}',${i.done})" title="Click to tick/untick"`:''}> 
+            <i class="fas ${i.done?'fa-check-circle':'fa-clock'}" style="color:${i.done?'var(--primary)':'#4b5563'};flex-shrink:0;margin-right:8px;"></i>
             <span style="${i.done?'color:var(--primary);font-weight:600;':'color:#94a3b8;'}">${sanitize(i.text)}</span>
           </li>`).join('')}</ul></div>`
       : `<div class="roadmap-year-content" style="text-align:center;padding:1.8rem 1rem;">
-          <i class="fas fa-lock" style="color:#2d3748;font-size:1.5rem;display:block;margin-bottom:0.7rem;"></i>
+          <i class="fas fa-lock" style="color:#1f2937;font-size:1.5rem;display:block;margin-bottom:0.7rem;"></i>
           <div style="color:#374151;font-size:0.8rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;">Coming Soon</div>
           <div style="color:#1f2937;font-size:0.72rem;margin-top:4px;">Milestones unlocked as we grow</div>
         </div>`;
