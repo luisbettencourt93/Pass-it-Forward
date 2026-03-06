@@ -964,9 +964,9 @@
       <h3 style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;color:white;margin-bottom:0.4rem;">Member Testimonials</h3>
       <p style="color:#64748b;margin-bottom:1.8rem;font-size:0.9rem;">Real words from real members. What has Pass It Forward done for you?</p>
       <div class="testimonials-grid" id="testimonials-grid"></div>
-      <div id="add-testimonial-form-community" class="add-testimonial">
+      <div id="add-testimonial-form-community" class="add-testimonial" style="margin-top:1.5rem;">
         <h3>Share Your Experience</h3>
-        <textarea id="comm-new-testimonial" placeholder="What has Pass It Forward done for you? Be real."></textarea>
+        <textarea id="comm-new-testimonial" placeholder="What has Pass It Forward done for you? Be real." style="width:100%;min-height:120px;padding:1rem;background:#0a0f1e;border:1.5px solid var(--border);border-radius:12px;color:white;font-size:0.95rem;font-family:'DM Sans',sans-serif;resize:vertical;margin-bottom:1rem;box-sizing:border-box;"></textarea>
         <button onclick="submitTestimonial()" class="btn">Submit Testimonial</button>
       </div>
     </div>
@@ -1472,6 +1472,7 @@ const SUPABASE_URL     = 'https://liujbjfjdycacmaujawu.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpdWpiamZqZHljYWNtYXVqYXd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzQxMjYsImV4cCI6MjA4ODIxMDEyNn0.g8P98rM5OVFml5_bQY3V5x7nX5CHnVRqITSMu72Wy2Y';
 const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/bJebIUgIS6Yy8VU1B2dEs00';
 const FOUNDER_EMAIL = 'miguelbettencourt74@gmail.com';
+
 
 // Init Supabase safely — never crashes even if CDN is slow or keys are missing
 let sb = null;
@@ -2230,28 +2231,43 @@ function reopenStripe() {
   if(!STRIPE_PAYMENT_LINK) return showToast("Stripe not configured yet");
   window.open(STRIPE_PAYMENT_LINK,'_blank');
 }
+let _confirmingPayment = false;
 async function confirmPaymentDone() {
+  if(_confirmingPayment) return;
   if(!_pendingContrib) {
     showToast("No pending payment — please start a new contribution");
-    closeModal('add-funds-modal');
+    document.getElementById('fund-step-1').style.display='block';
+    document.getElementById('fund-step-2').style.display='none';
     return;
   }
-  if(sb&&!currentUser.id.startsWith('demo-')){
-    const{error}=await sb.from('fund_contributions').insert({handle:_pendingContrib.handle,user_id:_pendingContrib.user_id,amount:_pendingContrib.amount,note:_pendingContrib.note||''});
-    if(error) console.warn('Fund insert:',error.message);
+  _confirmingPayment = true;
+  const btn = document.querySelector('#fund-step-2 .btn');
+  if(btn){ btn.textContent='Recording…'; btn.disabled=true; }
+  if(sb && !currentUser.id.startsWith('demo-')){
+    const { data:{ session } } = await sb.auth.getSession();
+    if(session){
+      const{error}=await sb.from('fund_contributions').insert({
+        handle:_pendingContrib.handle,
+        user_id:session.user.id,
+        amount:_pendingContrib.amount,
+        note:_pendingContrib.note||''
+      });
+      if(error) console.warn('Fund insert:',error.message);
+    }
   }
   contributions.push(_pendingContrib);
   addXp(25,'goal','Contributed $'+_pendingContrib.amount+' to community fund');
   bumpWeekly('fund');
   const amount = _pendingContrib.amount;
-  _pendingContrib=null; _stripeWindow=null;
+  _pendingContrib=null; _stripeWindow=null; _confirmingPayment=false;
+  if(btn){ btn.textContent='✅ I\'ve Completed My Payment'; btn.disabled=false; }
   closeModal('add-funds-modal');
-  renderFunds();
-  showToast(`$${amount} recorded — thank you! 🙏`);
   document.getElementById('fund-step-1').style.display='block';
   document.getElementById('fund-step-2').style.display='none';
   document.querySelectorAll('#add-funds-modal .pledge-amount-btn').forEach(b=>b.classList.remove('selected'));
   selectedFundAmount=0;
+  await renderFunds();
+  showToast(`$${amount} recorded — thank you! 🙏`);
 }
 function cancelFundStep2(){
   _pendingContrib=null; _stripeWindow=null;
@@ -2803,7 +2819,7 @@ async function updateMemberCount() {
 document.getElementById('apply-form')?.addEventListener('submit',e=>{e.preventDefault();e.target.reset();showToast("✅ Application received! We'll DM you on X within 48 hours.");});
 
 // ── MODAL BACKDROPS ───────────────────────────────────────────────
-document.querySelectorAll('.modal').forEach(modal=>{modal.addEventListener('click',e=>{if(e.target===modal)modal.style.display='none';});});
+document.querySelectorAll('.modal').forEach(modal=>{modal.addEventListener('click',e=>{if(e.target===modal){modal.style.display='none';if(modal.id==='add-funds-modal'){_pendingContrib=null;_stripeWindow=null;document.getElementById('fund-step-1').style.display='block';document.getElementById('fund-step-2').style.display='none';}}});});
 
 // ── LOGIN / LOGOUT ────────────────────────────────────────────────
 try {
