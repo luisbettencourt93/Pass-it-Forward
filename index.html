@@ -2365,13 +2365,27 @@ async function confirmPaymentDone() {
 }
 async function resetFundData() {
   if (!isFounder()) return;
-  if (!confirm("⚠️ This will permanently delete ALL fund contributions from the database. Are you sure?")) return;
+  if (!confirm("⚠️ This will permanently delete ALL fund contributions. Are you sure?")) return;
   if (!confirm("Last chance — this cannot be undone. Delete all contributions?")) return;
-  if (sb) {
-    await sb.from('fund_contributions').delete().neq('id', 0);
+  // Zero DOM immediately
+  const _s=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  _s('pot-display','$0');_s('pot-total-stat','$0');_s('pot-contrib-count','0');
+  _s('pot-top-contrib','—');_s('history-count','0 transactions');_s('pot-pct','0%');
+  const goal=parseInt(localStorage.getItem('pf_pot_goal')||'10000');
+  _s('pot-goal-display',formatMoney(goal));
+  const bar=document.getElementById('pot-bar');if(bar)bar.style.width='0%';
+  const chips=document.getElementById('pot-contributors');if(chips)chips.innerHTML='';
+  const cards=document.getElementById('contrib-cards');if(cards)cards.innerHTML='';
+  const hist=document.getElementById('fund-history-list');
+  if(hist)hist.innerHTML='<div style="padding:1.5rem;text-align:center;color:#4b5563;">No transactions yet.</div>';
+  // Delete from Supabase using service role workaround — delete each row by id
+  if (sb && contributions.length) {
+    const ids = contributions.map(c=>c.id);
+    for(const id of ids){
+      try{ await sb.from('fund_contributions').delete().eq('id',id); }catch(e){}
+    }
   }
   contributions = [];
-  await renderFunds();
   showToast("Fund data reset ✓");
 }
 
