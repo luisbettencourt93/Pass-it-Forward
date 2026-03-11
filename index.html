@@ -2447,15 +2447,18 @@ function renderRoadmap(){
     ]},
   ];
 
+  const customTexts = JSON.parse(localStorage.getItem('pf_roadmap_texts')||'{}');
   c.innerHTML = years.map(y => {
     // 2026 is always visible to everyone. Future years: only founder sees milestones.
     const showMilestones = y.active || founder;
     const itemsHtml = showMilestones
-      ? `<div class="roadmap-year-content"><ul>${y.items.map(i=>`
-          <li style="cursor:${founder&&y.active?'pointer':'default'};" ${founder&&y.active?`onclick="toggleRoadmapTick('${i.id}',${i.done})" title="Click to tick/untick"`:''}> 
+      ? `<div class="roadmap-year-content"><ul>${y.items.map(i=>{
+          const txt = customTexts[i.id] || i.text;
+          return `<li style="cursor:${founder?'pointer':'default'};" ${founder?`onclick="toggleRoadmapTick('${i.id}',${i.done})" title="Click to tick/untick"`:''}> 
             <i class="fas ${i.done?'fa-check-circle':'fa-clock'}" style="color:${i.done?'var(--primary)':'#4b5563'};flex-shrink:0;margin-right:8px;"></i>
-            <span style="${i.done?'color:var(--primary);font-weight:600;':'color:#94a3b8;'}">${sanitize(i.text)}</span>
-          </li>`).join('')}</ul></div>`
+            <span style="${i.done?'color:var(--primary);font-weight:600;':'color:#94a3b8;'}">${sanitize(txt)}</span>
+            ${founder?`<button onclick="event.stopPropagation();editRoadmapText('${i.id}','${txt.replace(/'/g,"\\'")}')" title="Edit text" style="margin-left:auto;background:none;border:none;color:#4b5563;cursor:pointer;font-size:0.75rem;padding:0 4px;flex-shrink:0;">✏️</button>`:''}
+          </li>`;}).join('')}</ul></div>`
       : `<div class="roadmap-year-content" style="text-align:center;padding:1.8rem 1rem;">
           <i class="fas fa-lock" style="color:#1f2937;font-size:1.5rem;display:block;margin-bottom:0.7rem;"></i>
           <div style="color:#374151;font-size:0.8rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;">Coming Soon</div>
@@ -2482,6 +2485,17 @@ async function toggleRoadmapTick(id, currentDone){
   localStorage.setItem('pf_roadmap_ticks',JSON.stringify(ticks));
   renderRoadmap();
   showToast(newDone?'✅ Milestone marked complete! Everyone can see this.':'Milestone unmarked');
+}
+function editRoadmapText(id, currentText){
+  if(!isFounder()) return;
+  const newText = prompt('Edit milestone text:', currentText);
+  if(newText===null) return; // cancelled
+  if(!newText.trim()){ showToast('Text cannot be empty'); return; }
+  const texts=JSON.parse(localStorage.getItem('pf_roadmap_texts')||'{}');
+  texts[id]=newText.trim();
+  localStorage.setItem('pf_roadmap_texts',JSON.stringify(texts));
+  renderRoadmap();
+  showToast('✅ Milestone text updated!');
 }
 
 async function loadRoadmapTicks(){
@@ -2697,21 +2711,26 @@ function renderLeaderboard(){
       <div class="lb-info"><div class="lb-handle">${sanitize(m.handle)}${m.handle===currentUser?.handle?' <span style="color:#64748b;font-size:0.68rem;">(you)</span>':''}</div><div class="lb-sub">${fmt(m,activeLbTab)} ${labels[activeLbTab]}</div></div>
       <div class="lb-score">${fmt(m,activeLbTab)}</div>
     </div>`).join('');
-  const mvp=[...data].sort((a,b)=>b.xp-a.xp)[0];
-  const mvpEl=document.getElementById('lb-mvp');if(mvpEl)mvpEl.textContent=mvp?.handle||'—';
+  const mvp=[...data].sort((a,b)=>b.posts-a.posts)[0];
+  const mvpEl=document.getElementById('lb-mvp');if(mvpEl)mvpEl.textContent=(mvp&&mvp.posts>0)?mvp.handle:'—';
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
   set('lb-stat-members',data.length);set('lb-stat-opps',data.reduce((s,m)=>s+m.opps,0));
   set('lb-stat-posts',data.reduce((s,m)=>s+m.posts,0));set('lb-stat-xp',data.reduce((s,m)=>s+m.xp,0).toLocaleString());
 }
 
 // ── CHALLENGES ────────────────────────────────────────────────────
-const CHALLENGES=[
+const CHALLENGES_DEFAULT=[
   {id:'c1',title:'Post an Opportunity',desc:'Share what you need or what you can offer.',xp:20,target:1,key:'opps'},
   {id:'c2',title:'Write 3 Community Posts',desc:'Share a win, question, or resource.',xp:15,target:3,key:'comm'},
   {id:'c3',title:'Express Interest in 5 Opps',desc:'Fire on 5 opportunities.',xp:10,target:5,key:'interests'},
   {id:'c4',title:'Set Your 30-Day Goal',desc:'Define what you want to achieve this month.',xp:10,target:1,key:'goal'},
   {id:'c5',title:'Send a DM',desc:'Reach out to another member directly.',xp:15,target:1,key:'dms'},
 ];
+function getChallenges(){
+  const custom=JSON.parse(localStorage.getItem('pf_custom_challenges')||'null');
+  return custom || CHALLENGES_DEFAULT;
+}
+const CHALLENGES=getChallenges();
 function getWeekKey(){const d=new Date(),day=d.getDay();const mon=new Date(d);mon.setDate(d.getDate()-(day===0?6:day-1));mon.setHours(0,0,0,0);return mon.toISOString().split('T')[0];}
 function getWeeklyProg(){return JSON.parse(localStorage.getItem('pf_wk_'+(currentUser?.handle||'x')+'_'+getWeekKey())||'{}');}
 function saveWeeklyProg(p){localStorage.setItem('pf_wk_'+(currentUser?.handle||'x')+'_'+getWeekKey(),JSON.stringify(p));}
@@ -2724,16 +2743,32 @@ function bumpWeekly(key,amount){
 }
 function renderChallenges(){
   const list=document.getElementById('challenges-list');if(!list)return;
-  const prog=getWeeklyProg();const done=CHALLENGES.filter(c=>(prog[c.key]||0)>=c.target).length;
-  const ptxt=document.getElementById('ch-prog-text');if(ptxt)ptxt.textContent=done+' / '+CHALLENGES.length+' done';
-  list.innerHTML=CHALLENGES.map(c=>{const cur=Math.min(prog[c.key]||0,c.target),isDone=cur>=c.target,pct=Math.round(cur/c.target*100);
+  const founder=isFounder();
+  const challenges=getChallenges();
+  const prog=getWeeklyProg();const done=challenges.filter(c=>(prog[c.key]||0)>=c.target).length;
+  const ptxt=document.getElementById('ch-prog-text');if(ptxt)ptxt.textContent=done+' / '+challenges.length+' done';\n  list.innerHTML=challenges.map(c=>{const cur=Math.min(prog[c.key]||0,c.target),isDone=cur>=c.target,pct=Math.round(cur/c.target*100);
     return`<div class="ch-card ${isDone?'ch-done':''}">
       <div class="ch-top"><div><div class="ch-title">${sanitize(c.title)}</div><div class="ch-desc">${sanitize(c.desc)}</div></div>
-      ${isDone?`<span class="ch-done-tag">✓ Done</span>`:`<span class="ch-xp-tag">+${c.xp} XP</span>`}</div>
+      ${isDone?`<span class="ch-done-tag">✓ Done</span>`:`<span class="ch-xp-tag">+${c.xp} XP</span>`}
+      ${founder?`<button onclick="editChallenge('${c.id}')" title="Edit challenge" style="margin-left:8px;background:none;border:1px solid #374151;color:#64748b;border-radius:6px;cursor:pointer;font-size:0.7rem;padding:2px 7px;flex-shrink:0;">✏️ Edit</button>`:''}
+      </div>
       <div class="ch-prog-bar"><div class="ch-prog-fill" style="width:${pct}%"></div></div>
       <div class="ch-prog-labels"><span>${cur} / ${c.target}</span><span>${pct}%</span></div>
     </div>`;
   }).join('');
+}
+function editChallenge(id){
+  if(!isFounder()) return;
+  const challenges=getChallenges();
+  const c=challenges.find(x=>x.id===id); if(!c) return;
+  const newTitle=prompt('Challenge title:', c.title); if(newTitle===null) return;
+  const newDesc=prompt('Challenge description:', c.desc); if(newDesc===null) return;
+  const newXp=prompt('XP reward:', c.xp); if(newXp===null) return;
+  if(!newTitle.trim()){ showToast('Title cannot be empty'); return; }
+  c.title=newTitle.trim(); c.desc=newDesc.trim(); c.xp=parseInt(newXp)||c.xp;
+  localStorage.setItem('pf_custom_challenges', JSON.stringify(challenges));
+  renderChallenges();
+  showToast('✅ Challenge updated!');
 }
 (function(){function upd(){const now=new Date(),day=now.getDay();const mon=new Date(now);mon.setDate(now.getDate()+(day===0?1:8-day));mon.setHours(0,0,0,0);const diff=mon-now,h=Math.floor(diff/3600000),m=Math.floor(diff%3600000/60000),s=Math.floor(diff%60000/1000);const el=document.getElementById('ch-countdown');if(el)el.textContent=h+'h '+m+'m '+s+'s';}upd();setInterval(upd,1000);})();
 
